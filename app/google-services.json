@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "884085049072",
+    "project_id": "memestorage-ef38d",
+    "storage_bucket": "memestorage-ef38d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:884085049072:android:d35c201558bfb37a326435",
+        "android_client_info": {
+          "package_name": "com.example.memestorage"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB4-5CDkFMr7U4a9ikyiXuqprLRmlZQIF8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
