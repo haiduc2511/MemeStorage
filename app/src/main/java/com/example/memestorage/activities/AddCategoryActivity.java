@@ -1,4 +1,4 @@
-package com.example.memestorage.Activities;
+package com.example.memestorage.activities;
 
 import android.os.Bundle;
 import android.widget.Toast;
@@ -11,10 +11,10 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.memestorage.ViewModel.CategoryViewModel;
-import com.example.memestorage.Model.CategoryModel;
-import com.example.memestorage.R;
 import com.example.memestorage.databinding.ActivityAddCategoryBinding;
+import com.example.memestorage.viewmodels.CategoryViewModel;
+import com.example.memestorage.models.CategoryModel;
+import com.example.memestorage.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 

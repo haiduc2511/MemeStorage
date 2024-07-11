@@ -1,21 +1,17 @@
-package com.example.memestorage.Repositories;
+package com.example.memestorage.repositories;
 
 import static android.content.ContentValues.TAG;
 
-import android.app.Application;
 import android.net.Uri;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.example.memestorage.Activities.MainActivity;
 import com.example.memestorage.FirebaseHelper;
-import com.example.memestorage.Model.ImageModel;
+import com.example.memestorage.models.ImageModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -27,7 +23,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class ImageRepo {
-    private static final String COLLECTION_NAME = "images";
+    private static final String IMAGE_COLLECTION_NAME = "images";
     private static final String USER_COLLECTION_NAME = "users";
     private String myUserId = Objects.requireNonNull(FirebaseHelper.getInstance().getAuth().getCurrentUser()).getUid();
     private final FirebaseFirestore db = FirebaseHelper.getInstance().getDb();
@@ -40,24 +36,24 @@ public class ImageRepo {
 
 
     public void addImageFirebase(ImageModel imageModel) {
-        String id = db.collection(USER_COLLECTION_NAME).document(myUserId).collection(COLLECTION_NAME).document().getId(); // Generate a new ID
+        String id = db.collection(USER_COLLECTION_NAME).document(myUserId).collection(IMAGE_COLLECTION_NAME).document().getId(); // Generate a new ID
         imageModel.iId = id;
-        myImagesRef.collection(COLLECTION_NAME).document(id).set(imageModel);
+        myImagesRef.collection(IMAGE_COLLECTION_NAME).document(id).set(imageModel);
     }
 
     // Read all my Images
     public void getMyImagesFirebase(OnCompleteListener<QuerySnapshot> onCompleteListener) {
-        myImagesRef.collection(COLLECTION_NAME).get().addOnCompleteListener(onCompleteListener);
+        myImagesRef.collection(IMAGE_COLLECTION_NAME).get().addOnCompleteListener(onCompleteListener);
     }
 
     // Update an Image
     public void updateImageFirebase(String id, ImageModel imageModel, OnCompleteListener<Void> onCompleteListener) {
-        myImagesRef.collection(COLLECTION_NAME).document(id).set(imageModel).addOnCompleteListener(onCompleteListener);
+        myImagesRef.collection(IMAGE_COLLECTION_NAME).document(id).set(imageModel).addOnCompleteListener(onCompleteListener);
     }
 
     // Delete an Image
     public void deleteImageFirebase(String id, OnCompleteListener<Void> onCompleteListener) {
-        myImagesRef.collection(COLLECTION_NAME).document(id).delete().addOnCompleteListener(onCompleteListener);
+        myImagesRef.collection(IMAGE_COLLECTION_NAME).document(id).delete().addOnCompleteListener(onCompleteListener);
     }
 
     public void uploadImagesFirebaseStorage(List<Uri> imageUris) {

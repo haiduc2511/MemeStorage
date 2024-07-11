@@ -1,4 +1,4 @@
-package com.example.memestorage.Authentication;
+package com.example.memestorage.authentication;
 
 import android.os.Bundle;
 import android.view.View;

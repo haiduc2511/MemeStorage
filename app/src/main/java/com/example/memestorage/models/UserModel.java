@@ -1,10 +1,7 @@
-package com.example.memestorage.Model;
+package com.example.memestorage.models;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-
-import androidx.room.Entity;
-import androidx.room.PrimaryKey;
 
 public class UserModel implements Parcelable {
     public String uId;

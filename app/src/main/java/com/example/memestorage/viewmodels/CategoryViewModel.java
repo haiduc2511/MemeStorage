@@ -1,21 +1,16 @@
-package com.example.memestorage.ViewModel;
+package com.example.memestorage.viewmodels;
 
 import android.app.Application;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 
-import com.example.memestorage.FirebaseHelper;
-import com.example.memestorage.Model.CategoryModel;
-import com.example.memestorage.Repositories.CategoryRepo;
+import com.example.memestorage.models.CategoryModel;
+import com.example.memestorage.repositories.CategoryRepo;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class CategoryViewModel extends AndroidViewModel {
     private final CategoryRepo categoryRepo;

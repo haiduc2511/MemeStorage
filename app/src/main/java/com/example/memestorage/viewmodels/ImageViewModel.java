@@ -1,4 +1,4 @@
-package com.example.memestorage.ViewModel;
+package com.example.memestorage.viewmodels;
 
 import static android.content.ContentValues.TAG;
 
@@ -9,13 +9,10 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 
-import com.example.memestorage.FirebaseHelper;
-import com.example.memestorage.Model.ImageModel;
-import com.example.memestorage.Repositories.ImageRepo;
+import com.example.memestorage.models.ImageModel;
+import com.example.memestorage.repositories.ImageRepo;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;

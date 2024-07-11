@@ -1,4 +1,4 @@
-package com.example.memestorage.Activities;
+package com.example.memestorage.activities;
 
 import android.Manifest;
 import android.content.Intent;
@@ -15,15 +15,13 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.GridLayoutManager;
 
-import com.example.memestorage.Authentication.StartActivity;
+import com.example.memestorage.authentication.StartActivity;
 import com.example.memestorage.FirebaseHelper;
-import com.example.memestorage.R;
-import com.example.memestorage.ViewModel.ImageViewModel;
+import com.example.memestorage.ImageAdapter;
+import com.example.memestorage.viewmodels.ImageViewModel;
 import com.example.memestorage.databinding.ActivityMainBinding;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -63,6 +61,11 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this, AddCategoryActivity.class);
             startActivity(intent);
         });
+
+        binding.rvImages.setLayoutManager(new GridLayoutManager(this, 3));
+        imageViewModel.getMyImagesFirebase();
+        ImageAdapter imageAdapter = new ImageAdapter(imageViewModel.getImages(), this);
+        binding.rvImages.setAdapter(imageAdapter);
     }
 
     private void checkPermissions() {

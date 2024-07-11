@@ -1,4 +1,4 @@
-package com.example.memestorage.Model;
+package com.example.memestorage.models;
 
 import android.os.Parcel;
 import android.os.Parcelable;

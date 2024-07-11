@@ -1,4 +1,4 @@
-package com.example.memestorage.Authentication;
+package com.example.memestorage.authentication;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,7 +12,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.memestorage.FirebaseHelper;
-import com.example.memestorage.Activities.MainActivity;
+import com.example.memestorage.activities.MainActivity;
 import com.example.memestorage.R;
 import com.example.memestorage.databinding.ActivityLoginBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
