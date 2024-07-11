@@ -20,9 +20,12 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.memestorage.Authentication.StartActivity;
+import com.example.memestorage.FirebaseHelper;
 import com.example.memestorage.R;
 import com.example.memestorage.ViewModel.ImageViewModel;
 import com.example.memestorage.databinding.ActivityMainBinding;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     static final int PICK_IMAGES_REQUEST = 1;
     private static final int REQUEST_CODE = 1;
     ImageViewModel imageViewModel;
+    FirebaseAuth mAuth = FirebaseHelper.getInstance().getAuth();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,7 +52,16 @@ public class MainActivity extends AppCompatActivity {
         });
 
         binding.fabLogout.setOnClickListener(v -> {
+            mAuth.signOut();
+            Intent intent = new Intent(this, StartActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        });
 
+        binding.btGoToAddCategory.setOnClickListener(v -> {
+            Intent intent = new Intent(this, AddCategoryActivity.class);
+            startActivity(intent);
         });
     }
 

@@ -24,6 +24,9 @@
             android:name=".Authentication.RegisterActivity"
             android:exported="false" />
         <activity
+            android:name=".Activities.AddCategoryActivity"
+            android:exported="false" />
+        <activity
             android:name=".Authentication.LoginActivity"
             android:exported="false" />
         <activity

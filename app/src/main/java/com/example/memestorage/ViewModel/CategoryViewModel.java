@@ -7,47 +7,48 @@ import androidx.lifecycle.AndroidViewModel;
 
 import com.example.memestorage.FirebaseHelper;
 import com.example.memestorage.Model.CategoryModel;
+import com.example.memestorage.Repositories.CategoryRepo;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
-public class CategoryViewModel extends AndroidViewModel {
-    private static final String COLLECTION_NAME = "categories";
-    private final FirebaseFirestore db = FirebaseHelper.getInstance().getDb();
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
+public class CategoryViewModel extends AndroidViewModel {
+    private final CategoryRepo categoryRepo;
+    private List<CategoryModel> categories = new ArrayList<>();
 
     public CategoryViewModel(@NonNull Application application) {
         super(application);
+        categoryRepo = new CategoryRepo();
     }
 
-
-    public void getCategoryByIdFirebase(String cId, OnCompleteListener<QuerySnapshot> onCompleteListener) {
-        db.collection(COLLECTION_NAME)
-                .whereEqualTo("cId", cId)
-                .get()
-                .addOnCompleteListener(onCompleteListener);
+    public List<CategoryModel> getCategories() {
+        return categories;
     }
+
     public void addCategoryFirebase(CategoryModel categoryModel, OnCompleteListener<Void> onCompleteListener) {
-        String id = db.collection(COLLECTION_NAME).document().getId(); // Generate a new ID
-        categoryModel.cId = id;
-        db.collection(COLLECTION_NAME).document(id).set(categoryModel).addOnCompleteListener(onCompleteListener);
+        categoryRepo.addCategoryFirebase(categoryModel, onCompleteListener);
     }
 
-
-    // Read all categories
-    public void getCategoriesFirebase(OnCompleteListener<QuerySnapshot> onCompleteListener) {
-        db.collection(COLLECTION_NAME).get().addOnCompleteListener(onCompleteListener);
+    public void getCategoriesFirebase() {
+        categoryRepo.getCategoriesFirebase(task -> {
+            if (task.isSuccessful()) {
+                categories = task.getResult().toObjects(CategoryModel.class);
+            } else {
+                // Handle error
+            }
+        });
     }
 
-
-    // Update a category
     public void updateCategoryFirebase(String id, CategoryModel categoryModel, OnCompleteListener<Void> onCompleteListener) {
-        db.collection(COLLECTION_NAME).document(id).set(categoryModel).addOnCompleteListener(onCompleteListener);
+        categoryRepo.updateCategoryFirebase(id, categoryModel, onCompleteListener);
     }
 
-    // Delete a category
     public void deleteCategoryFirebase(String id, OnCompleteListener<Void> onCompleteListener) {
-        db.collection(COLLECTION_NAME).document(id).delete().addOnCompleteListener(onCompleteListener);
+        categoryRepo.deleteCategoryFirebase(id, onCompleteListener);
     }
-
 }

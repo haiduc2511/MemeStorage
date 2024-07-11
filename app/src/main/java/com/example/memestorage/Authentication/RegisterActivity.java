@@ -77,16 +77,11 @@ public class RegisterActivity extends AppCompatActivity {
             user.userAge = 20;
             user.userGender = "male";
 
-            ImageModel imageModel = new ImageModel();
-            imageModel.userId = uid;
-            imageModel.iId = "0";
-            imageModel.imageName = "adu";
-            imageModel.imageURL = "URL adu";
 
             db.collection("users").document(uid).set(user)
                     .addOnSuccessListener(aVoid -> {
                         // User data successfully written!
-                        db.collection("users").document(uid).collection("images").add(imageModel);
+                        //db.collection("users").document(uid).collection("images");
                         Log.d("Firestore", "DocumentSnapshot successfully written!");
                     })
                     .addOnFailureListener(e -> {
