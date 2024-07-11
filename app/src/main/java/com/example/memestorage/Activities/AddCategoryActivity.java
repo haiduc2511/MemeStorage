@@ -11,7 +11,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.memestorage.CategoryViewModel;
+import com.example.memestorage.ViewModel.CategoryViewModel;
 import com.example.memestorage.Model.CategoryModel;
 import com.example.memestorage.R;
 import com.example.memestorage.databinding.ActivityAddCategoryBinding;

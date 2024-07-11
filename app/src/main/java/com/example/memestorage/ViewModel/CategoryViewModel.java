@@ -1,10 +1,11 @@
-package com.example.memestorage;
+package com.example.memestorage.ViewModel;
 
 import android.app.Application;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 
+import com.example.memestorage.FirebaseHelper;
 import com.example.memestorage.Model.CategoryModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -20,15 +21,15 @@ public class CategoryViewModel extends AndroidViewModel {
     }
 
 
-    public void getCategoryByIdFirebase(String cFirebaseId, OnCompleteListener<QuerySnapshot> onCompleteListener) {
+    public void getCategoryByIdFirebase(String cId, OnCompleteListener<QuerySnapshot> onCompleteListener) {
         db.collection(COLLECTION_NAME)
-                .whereEqualTo("cFirebaseId", cFirebaseId)
+                .whereEqualTo("cId", cId)
                 .get()
                 .addOnCompleteListener(onCompleteListener);
     }
     public void addCategoryFirebase(CategoryModel categoryModel, OnCompleteListener<Void> onCompleteListener) {
         String id = db.collection(COLLECTION_NAME).document().getId(); // Generate a new ID
-        categoryModel.cFirebaseId = id;
+        categoryModel.cId = id;
         db.collection(COLLECTION_NAME).document(id).set(categoryModel).addOnCompleteListener(onCompleteListener);
     }
 

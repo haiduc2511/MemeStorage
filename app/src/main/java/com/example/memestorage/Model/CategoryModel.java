@@ -8,19 +8,19 @@ import androidx.annotation.NonNull;
 public class CategoryModel implements Parcelable {
 
     @NonNull
-    public String cFirebaseId;
+    public String cId;
     public String categoryName;
     public CategoryModel() {
     }
 
     protected CategoryModel(Parcel in) {
-        cFirebaseId = in.readString();
+        cId = in.readString();
         categoryName = in.readString();
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(cFirebaseId);
+        dest.writeString(cId);
         dest.writeString(categoryName);
     }
 
@@ -44,7 +44,7 @@ public class CategoryModel implements Parcelable {
     @Override
     public String toString() {
         return "CategoryModel{" +
-                "cFirebaseId='" + cFirebaseId + '\'' +
+                "cId='" + cId + '\'' +
                 ", categoryName='" + categoryName + '\'' +
                 '}';
     }
