@@ -12,7 +12,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.memestorage.FirebaseHelper;
-import com.example.memestorage.MainActivity;
+import com.example.memestorage.Activities.MainActivity;
 import com.example.memestorage.R;
 import com.example.memestorage.databinding.ActivityLoginBinding;
 import com.google.android.gms.tasks.OnCompleteListener;

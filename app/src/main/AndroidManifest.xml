@@ -22,7 +22,7 @@
             android:name=".Authentication.LoginActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".Activities.MainActivity"
             android:exported="false" />
         <activity
             android:name=".Authentication.StartActivity"

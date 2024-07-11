@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.example.memestorage" />
+                  <option name="mobileSdkAppId" value="1:884085049072:android:d35c201558bfb37a326435" />
+                  <option name="projectId" value="memestorage-ef38d" />
+                  <option name="projectNumber" value="884085049072" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
