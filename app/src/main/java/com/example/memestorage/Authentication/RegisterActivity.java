@@ -12,6 +12,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.memestorage.FirebaseHelper;
+import com.example.memestorage.Model.ImageModel;
 import com.example.memestorage.Model.UserModel;
 import com.example.memestorage.R;
 import com.example.memestorage.databinding.ActivityRegisterBinding;
@@ -76,9 +77,16 @@ public class RegisterActivity extends AppCompatActivity {
             user.userAge = 20;
             user.userGender = "male";
 
+            ImageModel imageModel = new ImageModel();
+            imageModel.userId = uid;
+            imageModel.iId = "0";
+            imageModel.imageName = "adu";
+            imageModel.imageURL = "URL adu";
+
             db.collection("users").document(uid).set(user)
                     .addOnSuccessListener(aVoid -> {
                         // User data successfully written!
+                        db.collection("users").document(uid).collection("images").add(imageModel);
                         Log.d("Firestore", "DocumentSnapshot successfully written!");
                     })
                     .addOnFailureListener(e -> {
