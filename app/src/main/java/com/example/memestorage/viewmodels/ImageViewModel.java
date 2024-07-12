@@ -26,6 +26,10 @@ public class ImageViewModel extends AndroidViewModel {
         super(application);
     }
 
+    public void setImages(List<ImageModel> images) {
+        this.images = images;
+    }
+
     public List<ImageModel> getImages() {
         return images;
     }
@@ -34,20 +38,8 @@ public class ImageViewModel extends AndroidViewModel {
         imageRepo.addImageFirebase(imageModel);
     }
 
-    public void getMyImagesFirebase() {
-        imageRepo.getMyImagesFirebase(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    images = task.getResult().toObjects(ImageModel.class);
-                    for (ImageModel imageModel : images) {
-                        Log.d(TAG, imageModel.toString());
-                    }
-                } else {
-                    Log.w(TAG, "Error getting my imageModel", task.getException());
-                }
-            }
-        });
+    public void getMyImagesFirebase(OnCompleteListener<QuerySnapshot> onCompleteListener) {
+        imageRepo.getMyImagesFirebase(onCompleteListener);
     }
 
     public void updateImageFirebase(String id, ImageModel imageModel, OnCompleteListener<Void> onCompleteListener) {

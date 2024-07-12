@@ -1,5 +1,7 @@
 package com.example.memestorage.activities;
 
+import static android.content.ContentValues.TAG;
+
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -21,9 +23,13 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import com.example.memestorage.authentication.StartActivity;
 import com.example.memestorage.FirebaseHelper;
 import com.example.memestorage.ImageAdapter;
+import com.example.memestorage.models.ImageModel;
 import com.example.memestorage.viewmodels.ImageViewModel;
 import com.example.memestorage.databinding.ActivityMainBinding;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,11 +67,32 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this, AddCategoryActivity.class);
             startActivity(intent);
         });
+        binding.btGoToAddCategory.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                ImageAdapter imageAdapter = new ImageAdapter(imageViewModel.getImages(), MainActivity.this);
+                binding.rvImages.setAdapter(imageAdapter);
+                return false;
+            }
+        });
 
         binding.rvImages.setLayoutManager(new GridLayoutManager(this, 3));
-        imageViewModel.getMyImagesFirebase();
-        ImageAdapter imageAdapter = new ImageAdapter(imageViewModel.getImages(), this);
-        binding.rvImages.setAdapter(imageAdapter);
+        imageViewModel.getMyImagesFirebase(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    imageViewModel.setImages(task.getResult().toObjects(ImageModel.class));
+                    for (ImageModel imageModel : imageViewModel.getImages()) {
+                        Log.d(TAG, imageModel.toString());
+                    }
+                    ImageAdapter imageAdapter = new ImageAdapter(imageViewModel.getImages(), MainActivity.this);
+                    binding.rvImages.setAdapter(imageAdapter);
+                } else {
+                    Log.w(TAG, "Error getting my imageModel", task.getException());
+                }
+            }
+        });
+
     }
 
     private void checkPermissions() {
