@@ -42,7 +42,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
 
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
         int screenHeight = displayMetrics.heightPixels;
-        int imageHeight = screenHeight / 5; // 1/5 of the screen height
+        int imageHeight = screenHeight / 6; // 1/6 of the screen height
 
         ViewGroup.LayoutParams layoutParams = holder.binding.imageView.getLayoutParams();
         layoutParams.height = imageHeight;
