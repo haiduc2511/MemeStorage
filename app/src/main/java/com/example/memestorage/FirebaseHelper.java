@@ -2,16 +2,19 @@ package com.example.memestorage;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
 
 public class FirebaseHelper {
     private final FirebaseFirestore db;
     private final FirebaseAuth mAuth;
+    private final FirebaseStorage storage;
 
     // Singleton instance
     private static FirebaseHelper instance;
 
     // Private constructor to prevent direct instantiation
     private FirebaseHelper() {
+        this.storage = FirebaseStorage.getInstance();
         this.db = FirebaseFirestore.getInstance();
         this.mAuth = FirebaseAuth.getInstance();
     }
@@ -32,5 +35,9 @@ public class FirebaseHelper {
     // Method to get the FirebaseAuth instance
     public FirebaseAuth getAuth() {
         return mAuth;
+    }
+
+    public FirebaseStorage getStorage() {
+        return storage;
     }
 }

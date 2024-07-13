@@ -28,6 +28,8 @@ public class ImageRepo {
     private static final String USER_COLLECTION_NAME = "users";
     private String myUserId = Objects.requireNonNull(FirebaseHelper.getInstance().getAuth().getCurrentUser()).getUid();
     private final FirebaseFirestore db = FirebaseHelper.getInstance().getDb();
+    private final FirebaseStorage storage = FirebaseHelper.getInstance().getStorage();
+
     private DocumentReference myImagesRef = db.collection(USER_COLLECTION_NAME).document(myUserId);
 
 
@@ -92,5 +94,23 @@ public class ImageRepo {
         } else {
             Log.d(TAG, "No files selected");
         }
+    }
+
+    public void deleteImageFirebaseStorage(String imageUrl) {
+        StorageReference storageRef = storage.getReferenceFromUrl(imageUrl);
+
+        storageRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                // File deleted successfully
+                Log.d("Delete Image Storage", "Image in Storage deleted successfully");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                // An error occurred
+                Log.d("Delete Image Storage", "Failed to delete Storage image: " + exception.getMessage());
+            }
+        });
     }
 }

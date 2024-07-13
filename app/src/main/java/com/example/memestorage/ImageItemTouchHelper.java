@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -15,6 +16,8 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.memestorage.viewmodels.ImageViewModel;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 
 
 public class ImageItemTouchHelper extends ItemTouchHelper.SimpleCallback {
@@ -45,6 +48,13 @@ public class ImageItemTouchHelper extends ItemTouchHelper.SimpleCallback {
                     new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
+                            imageViewModel.deleteImageFirebase(imageViewModel.getImages().get(position).iId, new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    Log.d("Delete Image Firestore", "Image " + imageViewModel.getImages().get(position).imageName + " in Firestore deleted successfully");
+                                }
+                            });
+                            imageViewModel.deleteImageFirebaseStorage(imageViewModel.getImages().get(position).imageURL);
                             Toast.makeText(adapter.getContext(),
                                     "deleted player "
                                     , Toast.LENGTH_SHORT).show();
