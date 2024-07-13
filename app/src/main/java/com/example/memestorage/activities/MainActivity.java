@@ -19,7 +19,9 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.ItemTouchHelper;
 
+import com.example.memestorage.ImageItemTouchHelper;
 import com.example.memestorage.authentication.StartActivity;
 import com.example.memestorage.FirebaseHelper;
 import com.example.memestorage.ImageAdapter;
@@ -89,6 +91,9 @@ public class MainActivity extends AppCompatActivity {
                     }
                     ImageAdapter imageAdapter = new ImageAdapter(imageViewModel.getImages(), MainActivity.this, getSupportFragmentManager());
                     binding.rvImages.setAdapter(imageAdapter);
+                    ImageItemTouchHelper imageItemTouchHelper = new ImageItemTouchHelper(imageAdapter, imageViewModel);
+                    ItemTouchHelper itemTouchHelper = new ItemTouchHelper(imageItemTouchHelper);
+                    itemTouchHelper.attachToRecyclerView(binding.rvImages);
                 } else {
                     Log.w(TAG, "Error getting my imageModel", task.getException());
                 }

@@ -31,6 +31,10 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
         this.fragmentManager = fragmentManager;
     }
 
+    public Context getContext() {
+        return context;
+    }
+
     @NonNull
     @Override
     public ImageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
