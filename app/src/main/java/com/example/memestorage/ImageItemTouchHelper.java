@@ -55,6 +55,8 @@ public class ImageItemTouchHelper extends ItemTouchHelper.SimpleCallback {
                                 }
                             });
                             imageViewModel.deleteImageFirebaseStorage(imageViewModel.getImages().get(position).imageURL);
+                            imageViewModel.getImages().remove(position);
+                            adapter.notifyItemRemoved(position);
                             Toast.makeText(adapter.getContext(),
                                     "deleted player "
                                     , Toast.LENGTH_SHORT).show();
