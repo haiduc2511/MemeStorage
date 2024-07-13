@@ -24,11 +24,11 @@ public class ImageCategoryViewModel extends AndroidViewModel {
         super(application);
     }
 
-    public void setImages(List<ImageCategoryModel> imageCategories) {
+    public void setImageCategories(List<ImageCategoryModel> imageCategories) {
         this.imageCategories = imageCategories;
     }
 
-    public List<ImageCategoryModel> getImages() {
+    public List<ImageCategoryModel> getImageCategories() {
         return imageCategories;
     }
 

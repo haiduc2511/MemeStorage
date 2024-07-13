@@ -89,7 +89,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
                     int position = getAdapterPosition();
                     if (position != RecyclerView.NO_POSITION) {
                         ImageModel image = imageModels.get(position);
-                        ImageFragment fragment = ImageFragment.newInstance(image.imageURL);
+                        ImageFragment fragment = ImageFragment.newInstance(image);
                         fragmentManager.beginTransaction()
                                 .replace(R.id.fragment_container, fragment)
                                 .addToBackStack(null)

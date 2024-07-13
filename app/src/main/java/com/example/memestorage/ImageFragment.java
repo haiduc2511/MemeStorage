@@ -11,6 +11,7 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.example.memestorage.databinding.FragmentImageBinding;
+import com.example.memestorage.models.ImageModel;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -19,14 +20,14 @@ import com.example.memestorage.databinding.FragmentImageBinding;
  */
 public class ImageFragment extends Fragment {
 
-    private static final String ARG_IMAGE_URL = "image_url";
+    private static final String ARG_IMAGE = "image";
     FragmentImageBinding binding;
-    private String imageUrl;
+    private ImageModel imageModel;
 
-    public static ImageFragment newInstance(String imageUrl) {
+    public static ImageFragment newInstance(ImageModel imageModel) {
         ImageFragment fragment = new ImageFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_IMAGE_URL, imageUrl);
+        args.putParcelable(ARG_IMAGE, imageModel);
         fragment.setArguments(args);
         return fragment;
     }
@@ -35,7 +36,7 @@ public class ImageFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            imageUrl = getArguments().getString(ARG_IMAGE_URL);
+            imageModel = getArguments().getParcelable(ARG_IMAGE);
         }
     }
 
@@ -48,7 +49,9 @@ public class ImageFragment extends Fragment {
             getActivity().getSupportFragmentManager().popBackStack();
         });
 
-        Glide.with(this).load(imageUrl).into(binding.imageViewDetail);
+        binding.setImageModel(imageModel);
+
+        Glide.with(this).load(imageModel.imageURL).into(binding.imageViewDetail);
 
         return binding.getRoot();
     }
