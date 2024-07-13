@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.view.View;
 import android.widget.Toast;
 
@@ -68,17 +69,21 @@ public class ImageItemTouchHelper extends ItemTouchHelper.SimpleCallback {
         super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
 
         Drawable icon;
-        ColorDrawable background;
+        //ColorDrawable background;
+        GradientDrawable background;
 
         View itemView = viewHolder.itemView;
         int backgroundCornerOffset = 20;
 
+//        float density = itemView.getContext().getResources().getDisplayMetrics().density;
+//        float cornerRadius = 20 * density;
+
         if (dX > 0) {
             icon = ContextCompat.getDrawable(adapter.getContext(), R.drawable.ic_baseline_edit);
-            background = new ColorDrawable(ContextCompat.getColor(adapter.getContext(), R.color.green));
+//            background = new ColorDrawable(ContextCompat.getColor(adapter.getContext(), R.color.green));
         } else {
             icon = ContextCompat.getDrawable(adapter.getContext(), R.drawable.ic_baseline_delete);
-            background = new ColorDrawable(Color.RED);
+//            background = new ColorDrawable(Color.RED);
         }
 
         assert icon != null;
@@ -89,6 +94,21 @@ public class ImageItemTouchHelper extends ItemTouchHelper.SimpleCallback {
         float maxSwipeDistance = itemView.getWidth();
         if (dX > maxSwipeDistance) dX = maxSwipeDistance;
         if (dX < -maxSwipeDistance) dX = -maxSwipeDistance;
+
+        if (dX > 0) { // Swiping to the right
+            icon = ContextCompat.getDrawable(adapter.getContext(), R.drawable.ic_baseline_edit);
+            background = new GradientDrawable();
+            background.setCornerRadius(40); // Set corner radius in dp
+            background.setColor(ContextCompat.getColor(adapter.getContext(), R.color.green));
+        } else if (dX < 0) { // Swiping to the left
+            icon = ContextCompat.getDrawable(adapter.getContext(), R.drawable.ic_baseline_delete);
+            background = new GradientDrawable();
+            background.setCornerRadius(40); // Set corner radius in dp
+            background.setColor(Color.RED);
+        } else { // view is unSwiped
+            background = new GradientDrawable();
+            background.setColor(Color.TRANSPARENT);
+        }
 
         if (dX > 0) { // Swiping to the right
             int iconLeft = itemView.getLeft() + iconMargin;
