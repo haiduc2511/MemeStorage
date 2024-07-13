@@ -48,6 +48,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         imageViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()).create(ImageViewModel.class);
         checkPermissions();
+
+        initUI();
+    }
+
+    private void initUI() {
         binding.btChooseImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -67,16 +72,13 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this, AddCategoryActivity.class);
             startActivity(intent);
         });
-        binding.btGoToAddCategory.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                ImageAdapter imageAdapter = new ImageAdapter(imageViewModel.getImages(), MainActivity.this);
-                binding.rvImages.setAdapter(imageAdapter);
-                return false;
-            }
-        });
+
 
         binding.rvImages.setLayoutManager(new GridLayoutManager(this, 3));
+        retrieveImages();
+    }
+
+    private void retrieveImages() {
         imageViewModel.getMyImagesFirebase(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -85,14 +87,13 @@ public class MainActivity extends AppCompatActivity {
                     for (ImageModel imageModel : imageViewModel.getImages()) {
                         Log.d(TAG, imageModel.toString());
                     }
-                    ImageAdapter imageAdapter = new ImageAdapter(imageViewModel.getImages(), MainActivity.this);
+                    ImageAdapter imageAdapter = new ImageAdapter(imageViewModel.getImages(), MainActivity.this, getSupportFragmentManager());
                     binding.rvImages.setAdapter(imageAdapter);
                 } else {
                     Log.w(TAG, "Error getting my imageModel", task.getException());
                 }
             }
         });
-
     }
 
     private void checkPermissions() {
@@ -137,8 +138,17 @@ public class MainActivity extends AppCompatActivity {
                     Uri imageUri = data.getData();
                     uriList.add(imageUri);
                 }
-                imageViewModel.uploadImagesFirebaseStorage(uriList);
+                imageViewModel.uploadImagesFirebaseStorage(uriList, new OnSuccessUploadingImages() {
+                    @Override
+                    public void OnSuccessUploadingImages() {
+                        retrieveImages();
+                    }
+                });
             }
         }
+    }
+
+    public interface OnSuccessUploadingImages {
+        public void OnSuccessUploadingImages();
     }
 }

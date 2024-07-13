@@ -9,6 +9,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 
+import com.example.memestorage.activities.MainActivity;
 import com.example.memestorage.models.ImageModel;
 import com.example.memestorage.repositories.ImageRepo;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -49,7 +50,7 @@ public class ImageViewModel extends AndroidViewModel {
     public void deleteImageFirebase(String id, OnCompleteListener<Void> onCompleteListener) {
         imageRepo.deleteImageFirebase(id, onCompleteListener);
     }
-    public void uploadImagesFirebaseStorage(List<Uri> imageUris) {
-        imageRepo.uploadImagesFirebaseStorage(imageUris);
+    public void uploadImagesFirebaseStorage(List<Uri> imageUris, MainActivity.OnSuccessUploadingImages onSuccessUploadingImages) {
+        imageRepo.uploadImagesFirebaseStorage(imageUris, onSuccessUploadingImages);
     }
 }

@@ -8,6 +8,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.example.memestorage.FirebaseHelper;
+import com.example.memestorage.activities.MainActivity;
 import com.example.memestorage.models.ImageModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -56,7 +57,7 @@ public class ImageRepo {
         myImagesRef.collection(IMAGE_COLLECTION_NAME).document(id).delete().addOnCompleteListener(onCompleteListener);
     }
 
-    public void uploadImagesFirebaseStorage(List<Uri> imageUris) {
+    public void uploadImagesFirebaseStorage(List<Uri> imageUris, MainActivity.OnSuccessUploadingImages onSuccessUploadingImages) {
         if (!imageUris.isEmpty()) {
             StorageReference storageReference = FirebaseStorage.getInstance().getReference("uploads");
 
@@ -76,6 +77,7 @@ public class ImageRepo {
                                         image.imageURL = downloadUri.toString();
                                         addImageFirebase(image);
                                         Log.d(TAG, "Upload images successful. Download URL: " + downloadUri.toString());
+                                        onSuccessUploadingImages.OnSuccessUploadingImages();
                                     }
                                 });
                             }

@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -20,12 +21,14 @@ import com.example.memestorage.models.ImageModel;
 import java.util.List;
 
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHolder> {
-    private List<ImageModel> mDataList;
+    private List<ImageModel> imageModels;
     private Context context;
+    private FragmentManager fragmentManager;
 
-    public ImageAdapter(List<ImageModel> dataList, Context context) {
-        this.mDataList = dataList;
+    public ImageAdapter(List<ImageModel> dataList, Context context, FragmentManager fragmentManager) {
+        this.imageModels = dataList;
         this.context = context;
+        this.fragmentManager = fragmentManager;
     }
 
     @NonNull
@@ -38,7 +41,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
 
     @Override
     public void onBindViewHolder(@NonNull ImageViewHolder holder, int position) {
-        ImageModel data = mDataList.get(position);
+        ImageModel data = imageModels.get(position);
 
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
         int screenHeight = displayMetrics.heightPixels;
@@ -53,7 +56,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
 
     @Override
     public int getItemCount() {
-        return mDataList.size();
+        return imageModels.size();
     }
 
     public class ImageViewHolder extends RecyclerView.ViewHolder {
@@ -68,11 +71,26 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
                 public boolean onLongClick(View v) {
                     int position = getAdapterPosition();
                     if (position != RecyclerView.NO_POSITION) {
-                        ImageModel image = mDataList.get(position);
+                        ImageModel image = imageModels.get(position);
                         downloadImageLikeTinCoder(image.imageURL, image.imageName);
 
                     }
                     return true;
+                }
+            });
+
+            binding.imageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int position = getAdapterPosition();
+                    if (position != RecyclerView.NO_POSITION) {
+                        ImageModel image = imageModels.get(position);
+                        ImageFragment fragment = ImageFragment.newInstance(image.imageURL);
+                        fragmentManager.beginTransaction()
+                                .replace(R.id.fragment_container, fragment)
+                                .addToBackStack(null)
+                                .commit();
+                    }
                 }
             });
         }
