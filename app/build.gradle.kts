@@ -37,6 +37,7 @@ android {
 }
 
 dependencies {
+    implementation ("com.google.android.flexbox:flexbox:3.0.0")
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.storage)
