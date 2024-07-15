@@ -13,12 +13,17 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.example.memestorage.adapters.CategoryAdapter;
 import com.example.memestorage.databinding.FragmentImageBinding;
+import com.example.memestorage.models.CategoryModel;
 import com.example.memestorage.models.ImageModel;
 import com.example.memestorage.viewmodels.CategoryViewModel;
 import com.example.memestorage.viewmodels.ImageViewModel;
+import com.google.android.flexbox.FlexDirection;
+import com.google.android.flexbox.FlexboxLayoutManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.QuerySnapshot;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -32,6 +37,7 @@ public class ImageFragment extends Fragment {
     private ImageModel imageModel;
     ImageViewModel imageViewModel;
     CategoryViewModel categoryViewModel;
+    CategoryAdapter categoryAdapter;
 
     public static ImageFragment newInstance(ImageModel imageModel) {
         ImageFragment fragment = new ImageFragment();
@@ -62,7 +68,20 @@ public class ImageFragment extends Fragment {
         });
 
         categoryViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()).create(CategoryViewModel.class);
-        categoryViewModel.getCategories();
+        categoryViewModel.getCategoriesFirebase(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                categoryViewModel.setCategories(task.getResult().toObjects(CategoryModel.class));
+                categoryAdapter = new CategoryAdapter(categoryViewModel.getCategories());
+
+                FlexboxLayoutManager layoutManager = new FlexboxLayoutManager(requireContext().getApplicationContext());
+                layoutManager.setFlexDirection(FlexDirection.ROW);
+                binding.rvCategories.setLayoutManager(layoutManager);
+                binding.rvCategories.setAdapter(categoryAdapter);
+            }
+        });
+
+
         imageViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()).create(ImageViewModel.class);
         binding.btSaveImage.setOnClickListener(v -> {
             imageModel.imageName = binding.etImageName.getText().toString();

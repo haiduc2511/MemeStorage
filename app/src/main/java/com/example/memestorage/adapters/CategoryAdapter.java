@@ -16,16 +16,11 @@ import com.example.memestorage.models.ImageModel;
 import java.util.List;
 public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder> {
     private List<CategoryModel> categoryModels;
-    private Context context;
 
-    public CategoryAdapter(List<CategoryModel> categoryModels, Context context) {
+    public CategoryAdapter(List<CategoryModel> categoryModels) {
         this.categoryModels = categoryModels;
-        this.context = context;
     }
 
-    public Context getContext() {
-        return context;
-    }
 
     @NonNull
     @Override

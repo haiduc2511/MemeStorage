@@ -8,6 +8,7 @@ import androidx.lifecycle.AndroidViewModel;
 import com.example.memestorage.models.CategoryModel;
 import com.example.memestorage.repositories.CategoryRepo;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,18 +26,16 @@ public class CategoryViewModel extends AndroidViewModel {
         return categories;
     }
 
+    public void setCategories(List<CategoryModel> categories) {
+        this.categories = categories;
+    }
+
     public void addCategoryFirebase(CategoryModel categoryModel, OnCompleteListener<Void> onCompleteListener) {
         categoryRepo.addCategoryFirebase(categoryModel, onCompleteListener);
     }
 
-    public void getCategoriesFirebase() {
-        categoryRepo.getCategoriesFirebase(task -> {
-            if (task.isSuccessful()) {
-                categories = task.getResult().toObjects(CategoryModel.class);
-            } else {
-                // Handle error
-            }
-        });
+    public void getCategoriesFirebase(OnCompleteListener<QuerySnapshot> onCompleteListener) {
+        categoryRepo.getCategoriesFirebase(onCompleteListener);
     }
 
     public void updateCategoryFirebase(String id, CategoryModel categoryModel, OnCompleteListener<Void> onCompleteListener) {
