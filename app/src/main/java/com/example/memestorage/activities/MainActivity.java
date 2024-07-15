@@ -54,6 +54,12 @@ public class MainActivity extends AppCompatActivity {
         initUI();
     }
 
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        initUI();
+    }
+
     private void initUI() {
         binding.btChooseImage.setOnClickListener(new View.OnClickListener() {
             @Override
