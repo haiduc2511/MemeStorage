@@ -15,6 +15,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.example.memestorage.databinding.FragmentImageBinding;
 import com.example.memestorage.models.ImageModel;
+import com.example.memestorage.viewmodels.CategoryViewModel;
 import com.example.memestorage.viewmodels.ImageViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -30,6 +31,7 @@ public class ImageFragment extends Fragment {
     FragmentImageBinding binding;
     private ImageModel imageModel;
     ImageViewModel imageViewModel;
+    CategoryViewModel categoryViewModel;
 
     public static ImageFragment newInstance(ImageModel imageModel) {
         ImageFragment fragment = new ImageFragment();
@@ -58,6 +60,9 @@ public class ImageFragment extends Fragment {
         binding.cvInside.setOnClickListener(v -> {
 
         });
+
+        categoryViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()).create(CategoryViewModel.class);
+        categoryViewModel.getCategories();
         imageViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()).create(ImageViewModel.class);
         binding.btSaveImage.setOnClickListener(v -> {
             imageModel.imageName = binding.etImageName.getText().toString();

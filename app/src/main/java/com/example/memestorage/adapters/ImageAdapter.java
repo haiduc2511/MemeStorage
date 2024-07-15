@@ -1,4 +1,4 @@
-package com.example.memestorage;
+package com.example.memestorage.adapters;
 
 import android.app.DownloadManager;
 import android.content.Context;
@@ -15,6 +15,8 @@ import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.memestorage.ImageFragment;
+import com.example.memestorage.R;
 import com.example.memestorage.databinding.ItemImageBinding;
 import com.example.memestorage.models.ImageModel;
 
