@@ -2,7 +2,10 @@ package com.example.memestorage.repositories;
 
 import static android.content.ContentValues.TAG;
 
+import android.content.ContentResolver;
+import android.graphics.Bitmap;
 import android.net.Uri;
+import android.provider.MediaStore;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -20,6 +23,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
@@ -59,37 +64,52 @@ public class ImageRepo {
         myImagesRef.collection(IMAGE_COLLECTION_NAME).document(id).delete().addOnCompleteListener(onCompleteListener);
     }
 
-    public void uploadImagesFirebaseStorage(List<Uri> imageUris, MainActivity.OnSuccessUploadingImages onSuccessUploadingImages) {
+    public void uploadImagesFirebaseStorage(List<Uri> imageUris, ContentResolver contentResolver, MainActivity.OnSuccessUploadingImages onSuccessUploadingImages) {
         if (!imageUris.isEmpty()) {
             StorageReference storageReference = FirebaseStorage.getInstance().getReference("uploads");
 
             for (Uri imageUri : imageUris) {
-                StorageReference fileReference = storageReference.child("" + System.currentTimeMillis());
+                try {
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(contentResolver, imageUri);
 
-                fileReference.putFile(imageUri)
-                        .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                            @Override
-                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                fileReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                    @Override
-                                    public void onSuccess(Uri downloadUri) {
-                                        ImageModel image = new ImageModel();
-                                        image.imageName = fileReference.getName();
-                                        image.userId = myUserId;
-                                        image.imageURL = downloadUri.toString();
-                                        addImageFirebase(image);
-                                        Log.d(TAG, "Upload images successful. Download URL: " + downloadUri.toString());
-                                        onSuccessUploadingImages.OnSuccessUploadingImages();
-                                    }
-                                });
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.d(TAG, "Upload images failed: " + e.getMessage());
-                            }
-                        });
+                    // Tạo ByteArrayOutputStream
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+                    // Nén Bitmap thành JPEG với chất lượng 50% (chất lượng có thể thay đổi từ 0 đến 100)
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
+
+                    // Chuyển ByteArrayOutputStream thành byte array
+                    byte[] data = baos.toByteArray();
+
+                    StorageReference fileReference = storageReference.child("" + System.currentTimeMillis());
+
+                    fileReference.putBytes(data)
+                            .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                @Override
+                                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                    fileReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                        @Override
+                                        public void onSuccess(Uri downloadUri) {
+                                            ImageModel image = new ImageModel();
+                                            image.imageName = fileReference.getName();
+                                            image.userId = myUserId;
+                                            image.imageURL = downloadUri.toString();
+                                            addImageFirebase(image);
+                                            Log.d(TAG, "Upload images successful. Download URL: " + downloadUri.toString());
+                                            onSuccessUploadingImages.OnSuccessUploadingImages();
+                                        }
+                                    });
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.d(TAG, "Upload images failed: " + e.getMessage());
+                                }
+                            });
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         } else {
             Log.d(TAG, "No files selected");

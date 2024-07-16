@@ -100,6 +100,10 @@ public class ImageFragment extends Fragment {
         FlexboxLayoutManager layoutManager = new FlexboxLayoutManager(requireContext().getApplicationContext());
         layoutManager.setFlexDirection(FlexDirection.ROW);
         binding.rvCategories.setLayoutManager(layoutManager);
+        categoryViewModel = CategoryViewModel.newInstance(requireActivity().getApplication());
+        categoryAdapter = new CategoryAdapter(categoryViewModel.getCategories()
+                , new ArrayList<>());
+        binding.rvCategories.setAdapter(categoryAdapter);
 
         imageViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()).create(ImageViewModel.class);
         binding.btSaveImage.setOnClickListener(v -> {
