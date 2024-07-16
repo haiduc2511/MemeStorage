@@ -40,6 +40,10 @@ public class ImageCategoryViewModel extends AndroidViewModel {
         imageCategoryRepo.getImageCategoriesFirebase(onCompleteListener);
     }
 
+    public void getImageCategoriesByImageIdFirebase(ImageModel imageModel, OnCompleteListener<QuerySnapshot> onCompleteListener) {
+        imageCategoryRepo.getImageCategoriesByImageIdFirebase(imageModel, onCompleteListener);
+    }
+
     public void updateImageCategoryFirebase(String id, ImageCategoryModel imageCategoryModel, OnCompleteListener<Void> onCompleteListener) {
         imageCategoryRepo.updateImageCategoryFirebase(id, imageCategoryModel, onCompleteListener);
     }

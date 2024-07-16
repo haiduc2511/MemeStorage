@@ -1,5 +1,6 @@
 package com.example.memestorage.repositories;
 
+import com.example.memestorage.models.ImageModel;
 import com.example.memestorage.utils.FirebaseHelper;
 import com.example.memestorage.models.ImageCategoryModel;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -38,6 +39,11 @@ public class ImageCategoryRepo {
     // Read all categories
     public void getImageCategoriesFirebase(OnCompleteListener<QuerySnapshot> onCompleteListener) {
         myImageCategoriesRef.collection(IMAGE_CATEGORY_COLLECTION_NAME).get().addOnCompleteListener(onCompleteListener);
+    }
+
+    public void getImageCategoriesByImageIdFirebase(ImageModel imageModel, OnCompleteListener<QuerySnapshot> onCompleteListener) {
+        myImageCategoriesRef.collection(IMAGE_CATEGORY_COLLECTION_NAME)
+                .whereEqualTo("imageId", imageModel.iId).get().addOnCompleteListener(onCompleteListener);
     }
 
 

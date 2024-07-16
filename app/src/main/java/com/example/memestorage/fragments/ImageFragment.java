@@ -15,8 +15,10 @@ import com.bumptech.glide.Glide;
 import com.example.memestorage.adapters.CategoryAdapter;
 import com.example.memestorage.databinding.FragmentImageBinding;
 import com.example.memestorage.models.CategoryModel;
+import com.example.memestorage.models.ImageCategoryModel;
 import com.example.memestorage.models.ImageModel;
 import com.example.memestorage.viewmodels.CategoryViewModel;
+import com.example.memestorage.viewmodels.ImageCategoryViewModel;
 import com.example.memestorage.viewmodels.ImageViewModel;
 import com.google.android.flexbox.FlexDirection;
 import com.google.android.flexbox.FlexboxLayoutManager;
@@ -37,6 +39,7 @@ public class ImageFragment extends Fragment {
     ImageViewModel imageViewModel;
     CategoryViewModel categoryViewModel;
     CategoryAdapter categoryAdapter;
+    ImageCategoryViewModel imageCategoryViewModel;
 
     public static ImageFragment newInstance(ImageModel imageModel) {
         ImageFragment fragment = new ImageFragment();
@@ -67,16 +70,25 @@ public class ImageFragment extends Fragment {
         });
 
         categoryViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()).create(CategoryViewModel.class);
+        imageCategoryViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()).create(ImageCategoryViewModel.class);
         categoryViewModel.getCategoriesFirebase(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 categoryViewModel.setCategories(task.getResult().toObjects(CategoryModel.class));
-                categoryAdapter = new CategoryAdapter(categoryViewModel.getCategories());
+                imageCategoryViewModel.getImageCategoriesByImageIdFirebase(imageModel, new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        imageCategoryViewModel.setImageCategories(task.getResult().toObjects(ImageCategoryModel.class));
+                        categoryAdapter = new CategoryAdapter(categoryViewModel.getCategories()
+                                                                , imageCategoryViewModel.getImageCategories());
 
-                FlexboxLayoutManager layoutManager = new FlexboxLayoutManager(requireContext().getApplicationContext());
-                layoutManager.setFlexDirection(FlexDirection.ROW);
-                binding.rvCategories.setLayoutManager(layoutManager);
-                binding.rvCategories.setAdapter(categoryAdapter);
+                        FlexboxLayoutManager layoutManager = new FlexboxLayoutManager(requireContext().getApplicationContext());
+                        layoutManager.setFlexDirection(FlexDirection.ROW);
+                        binding.rvCategories.setLayoutManager(layoutManager);
+                        binding.rvCategories.setAdapter(categoryAdapter);
+                    }
+                });
+
             }
         });
 
