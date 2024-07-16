@@ -49,10 +49,10 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
     public void onBindViewHolder(@NonNull CategoryViewHolder holder, int position) {
         CategoryModel categoryModel = categoryModels.get(position);
         if (selectedCategories.contains(categoryModel.cId)) {
-            holder.itemView.setBackgroundColor(Color.GREEN);
+            holder.binding.clLayout.setBackgroundColor(Color.GREEN);
         };
         holder.bind(categoryModel);
-        holder.itemView.setOnClickListener(v -> {
+        holder.binding.clLayout.setOnClickListener(v -> {
             holder.toggleSelection(holder, categoryModel.cId);
         });
     }
@@ -77,10 +77,10 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
 
         public void toggleSelection(@NonNull CategoryViewHolder holder, String categoryId) {
             if (selectedCategories.contains(categoryId)) {
-                holder.itemView.setBackgroundColor(Color.WHITE);
+                holder.binding.clLayout.setBackgroundColor(Color.WHITE);
                 selectedCategories.remove(categoryId);
             } else {
-                holder.itemView.setBackgroundColor(Color.GREEN);
+                holder.binding.clLayout.setBackgroundColor(Color.GREEN);
                 selectedCategories.add(categoryId);
             }
         }

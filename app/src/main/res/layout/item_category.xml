@@ -8,12 +8,14 @@
             type="com.example.memestorage.models.CategoryModel" />
     </data>
     <androidx.cardview.widget.CardView
+        android:id="@+id/cv_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:cardElevation="5dp"
         app:cardCornerRadius="10dp"
         android:layout_margin="5dp">
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
 

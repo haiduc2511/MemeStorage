@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +26,10 @@ import com.google.android.flexbox.FlexboxLayoutManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -61,14 +66,14 @@ public class ImageFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = FragmentImageBinding.inflate(inflater, container, false);
+        initUI();
 
-        binding.flOutside.setOnClickListener(v -> {
-            getActivity().getSupportFragmentManager().popBackStack();
-        });
-        binding.cvInside.setOnClickListener(v -> {
+        retrieveData();
 
-        });
 
+        return binding.getRoot();
+    }
+    private void retrieveData() {
         categoryViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()).create(CategoryViewModel.class);
         imageCategoryViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()).create(ImageCategoryViewModel.class);
         categoryViewModel.getCategoriesFirebase(new OnCompleteListener<QuerySnapshot>() {
@@ -80,11 +85,7 @@ public class ImageFragment extends Fragment {
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         imageCategoryViewModel.setImageCategories(task.getResult().toObjects(ImageCategoryModel.class));
                         categoryAdapter = new CategoryAdapter(categoryViewModel.getCategories()
-                                                                , imageCategoryViewModel.getImageCategories());
-
-                        FlexboxLayoutManager layoutManager = new FlexboxLayoutManager(requireContext().getApplicationContext());
-                        layoutManager.setFlexDirection(FlexDirection.ROW);
-                        binding.rvCategories.setLayoutManager(layoutManager);
+                                , imageCategoryViewModel.getImageCategories());
                         binding.rvCategories.setAdapter(categoryAdapter);
                     }
                 });
@@ -92,6 +93,20 @@ public class ImageFragment extends Fragment {
             }
         });
 
+    }
+
+    private void initUI() {
+
+        binding.flOutside.setOnClickListener(v -> {
+            getActivity().getSupportFragmentManager().popBackStack();
+        });
+        binding.cvInside.setOnClickListener(v -> {
+
+        });
+
+        FlexboxLayoutManager layoutManager = new FlexboxLayoutManager(requireContext().getApplicationContext());
+        layoutManager.setFlexDirection(FlexDirection.ROW);
+        binding.rvCategories.setLayoutManager(layoutManager);
 
         imageViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()).create(ImageViewModel.class);
         binding.btSaveImage.setOnClickListener(v -> {
@@ -102,11 +117,48 @@ public class ImageFragment extends Fragment {
                     Toast.makeText(requireContext().getApplicationContext(), "Image updated", Toast.LENGTH_SHORT).show();
                 }
             });
+            updateImageCategories(categoryAdapter.getSelectedCategories(), imageCategoryViewModel.getImageCategories());
+
         });
         binding.setImageModel(imageModel);
 
         Glide.with(this).load(imageModel.imageURL).into(binding.imageViewDetail);
 
-        return binding.getRoot();
+    }
+
+    private void updateImageCategories(Set<String> selectedCategories, List<ImageCategoryModel> imageCategoryModels) {
+        List<String> unTouchedImageCategories = new ArrayList<>();
+        for (ImageCategoryModel imageCategoryModel : imageCategoryModels) {
+            if (!selectedCategories.contains(imageCategoryModel.categoryId)) {
+                imageCategoryViewModel.deleteImageCategoryFirebase(imageCategoryModel.icId, new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        Log.d("Delete ImageCategory", imageCategoryModel.icId);
+                    }
+                });
+            } else {
+                selectedCategories.remove(imageCategoryModel.categoryId);
+                unTouchedImageCategories.add(imageCategoryModel.categoryId);
+            }
+        }
+
+        for (String selectedCategory : selectedCategories) {
+            ImageCategoryModel imageCategoryModel = new ImageCategoryModel();
+            imageCategoryModel.imageId = imageModel.iId;;
+            imageCategoryModel.categoryId = selectedCategory;
+            imageCategoryViewModel.addImageCategoryFirebase(imageCategoryModel, new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    Log.d("Add ImageCategory", imageCategoryModel.imageId + " " + imageCategoryModel.categoryId);
+                }
+            });
+            Log.d("Add Failed ImageCategory", imageCategoryModel.imageId + " " + imageCategoryModel.categoryId);
+
+        };
+
+        for (String unTouchedImageCategory : unTouchedImageCategories) {
+            selectedCategories.add(unTouchedImageCategory);
+        }
+
     }
 }
