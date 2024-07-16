@@ -21,9 +21,9 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 
-import com.example.memestorage.ImageItemTouchHelper;
+import com.example.memestorage.utils.ImageItemTouchHelper;
 import com.example.memestorage.authentication.StartActivity;
-import com.example.memestorage.FirebaseHelper;
+import com.example.memestorage.utils.FirebaseHelper;
 import com.example.memestorage.adapters.ImageAdapter;
 import com.example.memestorage.models.ImageModel;
 import com.example.memestorage.viewmodels.ImageViewModel;

@@ -1,6 +1,6 @@
 package com.example.memestorage.repositories;
 
-import com.example.memestorage.FirebaseHelper;
+import com.example.memestorage.utils.FirebaseHelper;
 import com.example.memestorage.models.CategoryModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.firestore.DocumentReference;

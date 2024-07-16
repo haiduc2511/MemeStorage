@@ -1,4 +1,4 @@
-package com.example.memestorage;
+package com.example.memestorage.utils;
 
 import android.content.DialogInterface;
 import android.graphics.Canvas;
@@ -15,6 +15,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.memestorage.R;
 import com.example.memestorage.adapters.ImageAdapter;
 import com.example.memestorage.viewmodels.ImageViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;

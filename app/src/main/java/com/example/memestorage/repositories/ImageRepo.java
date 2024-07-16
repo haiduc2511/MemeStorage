@@ -7,7 +7,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.example.memestorage.FirebaseHelper;
+import com.example.memestorage.utils.FirebaseHelper;
 import com.example.memestorage.activities.MainActivity;
 import com.example.memestorage.models.ImageModel;
 import com.google.android.gms.tasks.OnCompleteListener;

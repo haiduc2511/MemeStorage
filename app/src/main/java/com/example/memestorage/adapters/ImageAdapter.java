@@ -15,7 +15,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.memestorage.ImageFragment;
+import com.example.memestorage.fragments.ImageFragment;
 import com.example.memestorage.R;
 import com.example.memestorage.databinding.ItemImageBinding;
 import com.example.memestorage.models.ImageModel;

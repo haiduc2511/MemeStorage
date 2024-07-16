@@ -11,7 +11,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.example.memestorage.FirebaseHelper;
+import com.example.memestorage.utils.FirebaseHelper;
 import com.example.memestorage.databinding.ActivityRegisterBinding;
 import com.example.memestorage.models.UserModel;
 import com.example.memestorage.R;

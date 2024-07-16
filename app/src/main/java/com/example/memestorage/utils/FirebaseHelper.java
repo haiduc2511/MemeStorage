@@ -1,4 +1,4 @@
-package com.example.memestorage;
+package com.example.memestorage.utils;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
