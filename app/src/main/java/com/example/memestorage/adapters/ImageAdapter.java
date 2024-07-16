@@ -53,9 +53,9 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
         int screenHeight = displayMetrics.heightPixels;
         int imageHeight = screenHeight / 6; // 1/6 of the screen height
 
-        ViewGroup.LayoutParams layoutParams = holder.binding.imageView.getLayoutParams();
+        ViewGroup.LayoutParams layoutParams = holder.binding.ivImage.getLayoutParams();
         layoutParams.height = imageHeight;
-        holder.binding.imageView.setLayoutParams(layoutParams);
+        holder.binding.ivImage.setLayoutParams(layoutParams);
 
         holder.bind(data);
     }
@@ -72,20 +72,16 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
             super(binding.getRoot());
             this.binding = binding;
 
-            binding.imageView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    int position = getAdapterPosition();
-                    if (position != RecyclerView.NO_POSITION) {
-                        ImageModel image = imageModels.get(position);
-                        downloadImageLikeTinCoder(image.imageURL, image.imageName);
-
-                    }
-                    return true;
+            binding.ivDownload.setOnClickListener(v -> {
+                int position = getAdapterPosition();
+                if (position != RecyclerView.NO_POSITION) {
+                    ImageModel image = imageModels.get(position);
+                    downloadImageLikeTinCoder(image.imageURL, image.imageName);
+                    binding.ivDownload.setImageResource(R.drawable.ic_download_done);
                 }
             });
 
-            binding.imageView.setOnClickListener(new View.OnClickListener() {
+            binding.ivImage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     int position = getAdapterPosition();
@@ -103,7 +99,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
 
         public void bind(ImageModel imageModel) {
             // Load image using Glide or Picasso
-            Glide.with(itemView.getContext()).load(imageModel.imageURL).into(binding.imageView);
+            Glide.with(itemView.getContext()).load(imageModel.imageURL).into(binding.ivImage);
             binding.setImageModel(imageModel);
         }
     }
