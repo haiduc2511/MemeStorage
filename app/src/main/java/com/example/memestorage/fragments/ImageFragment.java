@@ -74,22 +74,15 @@ public class ImageFragment extends Fragment {
         return binding.getRoot();
     }
     private void retrieveData() {
-        categoryViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()).create(CategoryViewModel.class);
+        categoryViewModel = CategoryViewModel.newInstance(requireActivity().getApplication());
         imageCategoryViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()).create(ImageCategoryViewModel.class);
-        categoryViewModel.getCategoriesFirebase(new OnCompleteListener<QuerySnapshot>() {
+        imageCategoryViewModel.getImageCategoriesByImageIdFirebase(imageModel, new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                categoryViewModel.setCategories(task.getResult().toObjects(CategoryModel.class));
-                imageCategoryViewModel.getImageCategoriesByImageIdFirebase(imageModel, new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        imageCategoryViewModel.setImageCategories(task.getResult().toObjects(ImageCategoryModel.class));
-                        categoryAdapter = new CategoryAdapter(categoryViewModel.getCategories()
-                                , imageCategoryViewModel.getImageCategories());
-                        binding.rvCategories.setAdapter(categoryAdapter);
-                    }
-                });
-
+                imageCategoryViewModel.setImageCategories(task.getResult().toObjects(ImageCategoryModel.class));
+                categoryAdapter = new CategoryAdapter(categoryViewModel.getCategories()
+                        , imageCategoryViewModel.getImageCategories());
+                binding.rvCategories.setAdapter(categoryAdapter);
             }
         });
 

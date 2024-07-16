@@ -4,10 +4,12 @@ import android.app.Application;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.memestorage.models.CategoryModel;
 import com.example.memestorage.repositories.CategoryRepo;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
@@ -15,12 +17,27 @@ import java.util.List;
 
 public class CategoryViewModel extends AndroidViewModel {
     private final CategoryRepo categoryRepo;
-    private List<CategoryModel> categories = new ArrayList<>();
+    private static List<CategoryModel> categories = new ArrayList<>();
+    private static CategoryViewModel categoryViewModel;
 
-    public CategoryViewModel(@NonNull Application application) {
+    private CategoryViewModel(@NonNull Application application) {
         super(application);
         categoryRepo = new CategoryRepo();
     }
+
+    public static CategoryViewModel newInstance(@NonNull Application application) {
+        if (categoryViewModel == null) {
+            categoryViewModel = new CategoryViewModel(application);
+            categoryViewModel.getCategoriesFirebase(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    categories = task.getResult().toObjects(CategoryModel.class);
+                }
+            });
+        }
+        return categoryViewModel;
+    }
+
 
     public List<CategoryModel> getCategories() {
         return categories;
