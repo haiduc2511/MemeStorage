@@ -21,15 +21,20 @@ import java.util.Set;
 
 public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder> {
     private List<CategoryModel> categoryModels;
-    private List<ImageCategoryModel> imageCategoryModels;
-    private Set<String> selectedCategories;
+    private Set<String> selectedCategories = new HashSet<>();
 
-    public CategoryAdapter(List<CategoryModel> categoryModels, List<ImageCategoryModel> imageCategoryModels) {
+    public CategoryAdapter(List<CategoryModel> categoryModels) {
         this.categoryModels = categoryModels;
-        this.imageCategoryModels = imageCategoryModels;
-        selectedCategories = new HashSet<>();
+    }
+
+    public void setImageCategoryModels(List<ImageCategoryModel> imageCategoryModels) {
         for (ImageCategoryModel imageCategoryModel : imageCategoryModels) {
             selectedCategories.add(imageCategoryModel.categoryId);
+        }
+        for (int i = 0; i < categoryModels.size(); i++) {
+            if (selectedCategories.contains(categoryModels.get(i).cId)) {
+                notifyItemChanged(i);
+            }
         }
     }
 

@@ -37,6 +37,9 @@ import java.util.Set;
  * create an instance of this fragment.
  */
 public class ImageFragment extends Fragment {
+    public interface OnImageCategoryRetrieved {
+        public void OnImageCategoryRetrieved();
+    }
 
     private static final String ARG_IMAGE = "image";
     FragmentImageBinding binding;
@@ -80,9 +83,7 @@ public class ImageFragment extends Fragment {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 imageCategoryViewModel.setImageCategories(task.getResult().toObjects(ImageCategoryModel.class));
-                categoryAdapter = new CategoryAdapter(categoryViewModel.getCategories()
-                        , imageCategoryViewModel.getImageCategories());
-                binding.rvCategories.setAdapter(categoryAdapter);
+                categoryAdapter.setImageCategoryModels(imageCategoryViewModel.getImageCategories());
             }
         });
 
@@ -101,8 +102,7 @@ public class ImageFragment extends Fragment {
         layoutManager.setFlexDirection(FlexDirection.ROW);
         binding.rvCategories.setLayoutManager(layoutManager);
         categoryViewModel = CategoryViewModel.newInstance(requireActivity().getApplication());
-        categoryAdapter = new CategoryAdapter(categoryViewModel.getCategories()
-                , new ArrayList<>());
+        categoryAdapter = new CategoryAdapter(categoryViewModel.getCategories());
         binding.rvCategories.setAdapter(categoryAdapter);
 
         imageViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()).create(ImageViewModel.class);
