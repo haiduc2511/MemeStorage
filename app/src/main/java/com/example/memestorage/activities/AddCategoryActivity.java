@@ -34,7 +34,7 @@ public class AddCategoryActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        categoryViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()).create(CategoryViewModel.class);
+        categoryViewModel = CategoryViewModel.newInstance(getApplication());
 
         initUI();
     }
