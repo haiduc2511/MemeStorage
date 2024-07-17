@@ -26,6 +26,7 @@ import com.example.memestorage.authentication.StartActivity;
 import com.example.memestorage.utils.FirebaseHelper;
 import com.example.memestorage.adapters.ImageAdapter;
 import com.example.memestorage.models.ImageModel;
+import com.example.memestorage.viewmodels.CategoryViewModel;
 import com.example.memestorage.viewmodels.ImageViewModel;
 import com.example.memestorage.databinding.ActivityMainBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -49,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         imageViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()).create(ImageViewModel.class);
+        CategoryViewModel categoryViewModel = CategoryViewModel.newInstance(getApplication());
         checkPermissions();
 
         initUI();
@@ -68,13 +70,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        binding.fabLogout.setOnClickListener(v -> {
-            mAuth.signOut();
-            Intent intent = new Intent(this, StartActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            finish();
-        });
+//        binding.fabLogout.setOnClickListener(v -> {
+//            mAuth.signOut();
+//            Intent intent = new Intent(this, StartActivity.class);
+//            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//            startActivity(intent);
+//            finish();
+//        });
 
         binding.btGoToAddCategory.setOnClickListener(v -> {
             Intent intent = new Intent(this, AddCategoryActivity.class);
