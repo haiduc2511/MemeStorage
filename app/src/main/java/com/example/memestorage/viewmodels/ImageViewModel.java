@@ -14,6 +14,7 @@ import com.example.memestorage.models.ImageModel;
 import com.example.memestorage.repositories.ImageRepo;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
@@ -41,6 +42,10 @@ public class ImageViewModel extends AndroidViewModel {
 
     public void getMyImagesFirebase(OnCompleteListener<QuerySnapshot> onCompleteListener) {
         imageRepo.getMyImagesFirebase(onCompleteListener);
+    }
+
+    public void getMyImagesByIdFirebase(String iId, OnCompleteListener<DocumentSnapshot> onCompleteListener) {
+        imageRepo.getMyImagesByIdFirebase(iId,onCompleteListener);
     }
 
     public void updateImageFirebase(String id, ImageModel imageModel, OnCompleteListener<Void> onCompleteListener) {

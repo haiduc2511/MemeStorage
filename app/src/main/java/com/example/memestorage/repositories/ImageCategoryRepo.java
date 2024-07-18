@@ -45,7 +45,10 @@ public class ImageCategoryRepo {
         myImageCategoriesRef.collection(IMAGE_CATEGORY_COLLECTION_NAME)
                 .whereEqualTo("imageId", imageModel.iId).get().addOnCompleteListener(onCompleteListener);
     }
-
+    public void getImageCategoriesByCategoryIdFirebase(String categoryId, OnCompleteListener<QuerySnapshot> onCompleteListener) {
+        myImageCategoriesRef.collection(IMAGE_CATEGORY_COLLECTION_NAME)
+                .whereEqualTo("categoryId", categoryId).get().addOnCompleteListener(onCompleteListener);
+    }
 
     // Update a category
     public void updateImageCategoryFirebase(String id, ImageCategoryModel imageCategoryModel, OnCompleteListener<Void> onCompleteListener) {

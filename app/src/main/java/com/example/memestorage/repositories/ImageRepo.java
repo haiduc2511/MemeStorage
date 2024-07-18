@@ -17,6 +17,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
@@ -52,6 +53,10 @@ public class ImageRepo {
     // Read all my Images
     public void getMyImagesFirebase(OnCompleteListener<QuerySnapshot> onCompleteListener) {
         myImagesRef.collection(IMAGE_COLLECTION_NAME).get().addOnCompleteListener(onCompleteListener);
+    }
+
+    public void getMyImagesByIdFirebase(String iId, OnCompleteListener<DocumentSnapshot> onCompleteListener) {
+        myImagesRef.collection(IMAGE_COLLECTION_NAME).document(iId).get().addOnCompleteListener(onCompleteListener);
     }
 
     // Update an Image

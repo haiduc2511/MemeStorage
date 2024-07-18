@@ -21,14 +21,19 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 
+import com.example.memestorage.adapters.CategoryAdapter;
+import com.example.memestorage.adapters.MainCategoryAdapter;
+import com.example.memestorage.models.ImageCategoryModel;
 import com.example.memestorage.utils.ImageItemTouchHelper;
-import com.example.memestorage.authentication.StartActivity;
 import com.example.memestorage.utils.FirebaseHelper;
 import com.example.memestorage.adapters.ImageAdapter;
 import com.example.memestorage.models.ImageModel;
 import com.example.memestorage.viewmodels.CategoryViewModel;
+import com.example.memestorage.viewmodels.ImageCategoryViewModel;
 import com.example.memestorage.viewmodels.ImageViewModel;
 import com.example.memestorage.databinding.ActivityMainBinding;
+import com.google.android.flexbox.FlexDirection;
+import com.google.android.flexbox.FlexboxLayoutManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -36,12 +41,16 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
     ActivityMainBinding binding;
     static final int PICK_IMAGES_REQUEST = 1;
     private static final int REQUEST_CODE = 1;
     ImageViewModel imageViewModel;
+    CategoryViewModel categoryViewModel;
+    ImageCategoryViewModel imageCategoryViewModel;
+    MainCategoryAdapter categoryAdapter;
     FirebaseAuth mAuth = FirebaseHelper.getInstance().getAuth();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +59,8 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         imageViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()).create(ImageViewModel.class);
-        CategoryViewModel categoryViewModel = CategoryViewModel.newInstance(getApplication());
+        categoryViewModel = CategoryViewModel.newInstance(getApplication());
+        imageCategoryViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()).create(ImageCategoryViewModel.class);
         checkPermissions();
 
         initUI();
@@ -78,6 +88,9 @@ public class MainActivity extends AppCompatActivity {
 //            finish();
 //        });
 
+        initCategories();
+
+
         binding.btGoToAddCategory.setOnClickListener(v -> {
             Intent intent = new Intent(this, AddCategoryActivity.class);
             startActivity(intent);
@@ -86,6 +99,44 @@ public class MainActivity extends AppCompatActivity {
 
         binding.rvImages.setLayoutManager(new GridLayoutManager(this, 3));
         retrieveImages();
+    }
+
+    private void initCategories() {
+        FlexboxLayoutManager layoutManager = new FlexboxLayoutManager(getApplicationContext());
+        layoutManager.setFlexDirection(FlexDirection.ROW);
+        binding.rvCategories.setLayoutManager(layoutManager);
+        categoryViewModel.getCategoriesFirebase(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                categoryAdapter = new MainCategoryAdapter(categoryViewModel.getCategories(), new OnCategorySearchChosen() {
+                    @Override
+                    public void OnCategorySearchChosen(Set<String> categoryIds) {
+//                        imageViewModel.getMyImagesFirebase(new OnCompleteListener<QuerySnapshot>() {
+//                            @Override
+//                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+//
+//                            }
+//                        });
+                        List<List<ImageCategoryModel>> allLists = new ArrayList<>();
+                        for (String categoryId : categoryIds) {
+                            imageCategoryViewModel.getImageCategoriesByCategoryIdFirebase(categoryId, new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    allLists.add(task.getResult().toObjects(ImageCategoryModel.class));
+                                    Log.d("Get ImageCategoryModel", allLists.toString());
+                                }
+                            });
+                        }
+                    }
+                });
+                binding.rvCategories.setAdapter(categoryAdapter);
+            }
+        });
+
+    }
+
+    private List<ImageModel> getIntersectImages(List<List<ImageCategoryModel>> allLists) {
+        return new ArrayList<>();
     }
 
     private void retrieveImages() {
@@ -163,5 +214,9 @@ public class MainActivity extends AppCompatActivity {
 
     public interface OnSuccessUploadingImages {
         public void OnSuccessUploadingImages();
+    }
+
+    public interface OnCategorySearchChosen {
+        public void OnCategorySearchChosen(Set<String> categories);
     }
 }

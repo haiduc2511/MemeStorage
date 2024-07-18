@@ -8,6 +8,7 @@ import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.memestorage.R;
+import com.example.memestorage.activities.MainActivity;
 import com.example.memestorage.databinding.ItemCategoryBinding;
 import com.example.memestorage.models.CategoryModel;
 import com.example.memestorage.models.ImageCategoryModel;
@@ -16,23 +17,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder> {
+public class MainCategoryAdapter extends RecyclerView.Adapter<MainCategoryAdapter.CategoryViewHolder> {
     private List<CategoryModel> categoryModels;
     private Set<String> selectedCategories = new HashSet<>();
+    private MainActivity.OnCategorySearchChosen onCategorySearchChosen;
 
-    public CategoryAdapter(List<CategoryModel> categoryModels) {
+    public MainCategoryAdapter(List<CategoryModel> categoryModels, MainActivity.OnCategorySearchChosen onCategorySearchChosen) {
         this.categoryModels = categoryModels;
-    }
-
-    public void setImageCategoryModels(List<ImageCategoryModel> imageCategoryModels) {
-        for (ImageCategoryModel imageCategoryModel : imageCategoryModels) {
-            selectedCategories.add(imageCategoryModel.categoryId);
-        }
-        for (int i = 0; i < categoryModels.size(); i++) {
-            if (selectedCategories.contains(categoryModels.get(i).cId)) {
-                notifyItemChanged(i);
-            }
-        }
+        this.onCategorySearchChosen = onCategorySearchChosen;
     }
 
     public Set<String> getSelectedCategories() {
@@ -50,9 +42,6 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
     @Override
     public void onBindViewHolder(@NonNull CategoryViewHolder holder, int position) {
         CategoryModel categoryModel = categoryModels.get(position);
-        if (selectedCategories.contains(categoryModel.cId)) {
-            holder.binding.clLayout.setBackgroundColor(Color.GREEN);
-        };
         holder.bind(categoryModel);
         holder.binding.clLayout.setOnClickListener(v -> {
             holder.toggleSelection(holder, categoryModel.cId);
@@ -85,6 +74,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
                 holder.binding.clLayout.setBackgroundColor(Color.GREEN);
                 selectedCategories.add(categoryId);
             }
+            onCategorySearchChosen.OnCategorySearchChosen(selectedCategories);
         }
     }
 }

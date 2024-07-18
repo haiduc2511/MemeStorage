@@ -14,8 +14,8 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.memestorage.adapters.CategoryAdapter;
+import com.example.memestorage.adapters.MainCategoryAdapter;
 import com.example.memestorage.databinding.FragmentImageBinding;
-import com.example.memestorage.models.CategoryModel;
 import com.example.memestorage.models.ImageCategoryModel;
 import com.example.memestorage.models.ImageModel;
 import com.example.memestorage.viewmodels.CategoryViewModel;
