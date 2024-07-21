@@ -43,6 +43,8 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
     ActivityMainBinding binding;
@@ -67,11 +69,6 @@ public class MainActivity extends AppCompatActivity {
         initUI();
     }
 
-    @Override
-    protected void onPostResume() {
-        super.onPostResume();
-        initUI();
-    }
 
     private void initUI() {
         binding.btChooseImage.setOnClickListener(new View.OnClickListener() {
@@ -119,9 +116,9 @@ public class MainActivity extends AppCompatActivity {
                                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                     categoryIdList.remove(0);
                                     Log.d("Get ImageCategoryModel", task.getResult().toObjects(ImageCategoryModel.class).toString());
-                                    List<String> endResultList =
-                                            filterFirstListWithOtherCategories(task.getResult().toObjects(ImageCategoryModel.class),
-                                                    categoryIdList);
+//                                    List<String> endResultList =
+//                                            filterFirstListWithOtherCategories(task.getResult().toObjects(ImageCategoryModel.class),
+//                                                    categoryIdList);
                                 }
                             });
                         }
@@ -133,33 +130,33 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private List<String> filterFirstListWithOtherCategories(List<ImageCategoryModel> firstList
-                                                                , List<String> otherCategories) {
-        List<String> endResultImageIdList = new ArrayList<>();
-        for (int i = 0; i < firstList.size(); i++) {
-            endResultImageIdList.add(firstList.get(i).imageId);
-        }
-        for (int i = 0; i < otherCategories.size(); i++) {
-            List<String> filteredOnceImageIdList = new ArrayList<>();
-            Log.d("Check category", otherCategories.get(i));
-            for (int j = 0; j < firstList.size(); j++) {
-                Log.d("Check image", firstList.get(j).imageId);
-                imageCategoryViewModel.getImageCategoriesByImageIdAndCategoryIdFirebase(firstList.get(j).imageId
-                        , otherCategories.get(i), new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.getResult().toObjects(ImageModel.class).size() != 0) {
-                            filteredOnceImageIdList.add(task.getResult().toObjects(ImageCategoryModel.class).get(0).imageId);
-                            Log.d("Add image ", task.getResult().toObjects(ImageCategoryModel.class).get(0).imageId);
-                        }
-                    }
-                });
-                endResultImageIdList = filteredOnceImageIdList;
-            }
-        }
-        Log.d("I found it, the end ImageIdList", endResultImageIdList.toString());
-        return endResultImageIdList;
-    }
+//    private List<String> filterFirstListWithOtherCategories(List<ImageCategoryModel> firstList
+//                                                                , List<String> otherCategories) {
+//        List<String> endResultImageIdList = new ArrayList<>();
+//        for (int i = 0; i < firstList.size(); i++) {
+//            endResultImageIdList.add(firstList.get(i).imageId);
+//        }
+//        for (int i = 0; i < otherCategories.size(); i++) {
+//            List<String> filteredOnceImageIdList = new ArrayList<>();
+//            Log.d("Check category", otherCategories.get(i));
+//            for (int j = 0; j < firstList.size(); j++) {
+//                Log.d("Check image", firstList.get(j).imageId);
+//                imageCategoryViewModel.getImageCategoriesByImageIdAndCategoryIdFirebase(firstList.get(j).imageId
+//                        , otherCategories.get(i), new OnCompleteListener<QuerySnapshot>() {
+//                            @Override
+//                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+//                                if (task.getResult().toObjects(ImageModel.class).size() != 0) {
+//                                    filteredOnceImageIdList.add(task.getResult().toObjects(ImageCategoryModel.class).get(0).imageId);
+//                                    Log.d("Add image ", task.getResult().toObjects(ImageCategoryModel.class).get(0).imageId);
+//                                }
+//                            }
+//                        });
+//                endResultImageIdList = filteredOnceImageIdList;
+//            }
+//        }
+//        Log.d("I found it, the end ImageIdList", endResultImageIdList.toString());
+//        return endResultImageIdList;
+//    }
 
     private void retrieveImages() {
         imageViewModel.getMyImagesFirebase(new OnCompleteListener<QuerySnapshot>() {
