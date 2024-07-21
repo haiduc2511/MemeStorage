@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 
 import com.example.memestorage.adapters.CategoryAdapter;
 import com.example.memestorage.adapters.MainCategoryAdapter;
+import com.example.memestorage.models.CategoryModel;
 import com.example.memestorage.models.ImageCategoryModel;
 import com.example.memestorage.utils.ImageItemTouchHelper;
 import com.example.memestorage.utils.FirebaseHelper;
@@ -111,19 +112,16 @@ public class MainActivity extends AppCompatActivity {
                 categoryAdapter = new MainCategoryAdapter(categoryViewModel.getCategories(), new OnCategorySearchChosen() {
                     @Override
                     public void OnCategorySearchChosen(Set<String> categoryIds) {
-//                        imageViewModel.getMyImagesFirebase(new OnCompleteListener<QuerySnapshot>() {
-//                            @Override
-//                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-//
-//                            }
-//                        });
-                        List<List<ImageCategoryModel>> allLists = new ArrayList<>();
-                        for (String categoryId : categoryIds) {
-                            imageCategoryViewModel.getImageCategoriesByCategoryIdFirebase(categoryId, new OnCompleteListener<QuerySnapshot>() {
+                        List<String> categoryIdList = new ArrayList<>(categoryIds);
+                        if (categoryIds.size() != 0) {
+                            imageCategoryViewModel.getImageCategoriesByCategoryIdFirebase(categoryIdList.get(0), new OnCompleteListener<QuerySnapshot>() {
                                 @Override
                                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                    allLists.add(task.getResult().toObjects(ImageCategoryModel.class));
-                                    Log.d("Get ImageCategoryModel", allLists.toString());
+                                    categoryIdList.remove(0);
+                                    Log.d("Get ImageCategoryModel", task.getResult().toObjects(ImageCategoryModel.class).toString());
+                                    List<String> endResultList =
+                                            filterFirstListWithOtherCategories(task.getResult().toObjects(ImageCategoryModel.class),
+                                                    categoryIdList);
                                 }
                             });
                         }
@@ -135,8 +133,32 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private List<ImageModel> getIntersectImages(List<List<ImageCategoryModel>> allLists) {
-        return new ArrayList<>();
+    private List<String> filterFirstListWithOtherCategories(List<ImageCategoryModel> firstList
+                                                                , List<String> otherCategories) {
+        List<String> endResultImageIdList = new ArrayList<>();
+        for (int i = 0; i < firstList.size(); i++) {
+            endResultImageIdList.add(firstList.get(i).imageId);
+        }
+        for (int i = 0; i < otherCategories.size(); i++) {
+            List<String> filteredOnceImageIdList = new ArrayList<>();
+            Log.d("Check category", otherCategories.get(i));
+            for (int j = 0; j < firstList.size(); j++) {
+                Log.d("Check image", firstList.get(j).imageId);
+                imageCategoryViewModel.getImageCategoriesByImageIdAndCategoryIdFirebase(firstList.get(j).imageId
+                        , otherCategories.get(i), new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.getResult().toObjects(ImageModel.class).size() != 0) {
+                            filteredOnceImageIdList.add(task.getResult().toObjects(ImageCategoryModel.class).get(0).imageId);
+                            Log.d("Add image ", task.getResult().toObjects(ImageCategoryModel.class).get(0).imageId);
+                        }
+                    }
+                });
+                endResultImageIdList = filteredOnceImageIdList;
+            }
+        }
+        Log.d("I found it, the end ImageIdList", endResultImageIdList.toString());
+        return endResultImageIdList;
     }
 
     private void retrieveImages() {
