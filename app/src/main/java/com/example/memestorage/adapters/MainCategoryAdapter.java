@@ -43,6 +43,11 @@ public class MainCategoryAdapter extends RecyclerView.Adapter<MainCategoryAdapte
     public void onBindViewHolder(@NonNull CategoryViewHolder holder, int position) {
         CategoryModel categoryModel = categoryModels.get(position);
         holder.bind(categoryModel);
+        if (selectedCategories.contains(categoryModel.cId)) {
+            holder.binding.clLayout.setBackgroundColor(Color.GREEN);
+        } else {
+            holder.binding.clLayout.setBackgroundColor(Color.WHITE);
+        }
         holder.binding.clLayout.setOnClickListener(v -> {
             holder.toggleSelection(holder, categoryModel.cId);
         });
