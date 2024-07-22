@@ -8,7 +8,9 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -50,6 +52,7 @@ import java.util.concurrent.TimeUnit;
 public class MainActivity extends AppCompatActivity {
     ActivityMainBinding binding;
     static final int PICK_IMAGES_REQUEST = 1;
+    static boolean isHeightWrapContent = false;
     private static final int REQUEST_CODE = 1;
     ImageViewModel imageViewModel;
     CategoryViewModel categoryViewModel;
@@ -154,6 +157,19 @@ public class MainActivity extends AppCompatActivity {
         binding.rvImages.setLayoutManager(new GridLayoutManager(this, 3));
         retrieveImages();
         hideSystemUI();
+
+        binding.tvSeeMore.setOnClickListener(v -> {
+            ViewGroup.LayoutParams params = binding.rvCategories.getLayoutParams();
+
+            if (isHeightWrapContent) {
+                params.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 80, getResources().getDisplayMetrics());
+            } else {
+                params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            }
+
+            binding.rvCategories.setLayoutParams(params);
+            isHeightWrapContent = !isHeightWrapContent;
+        });
     }
 
     private void initCategories() {
@@ -163,45 +179,7 @@ public class MainActivity extends AppCompatActivity {
         categoryViewModel.getCategoriesFirebase(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                categoryAdapter = new MainCategoryAdapter(categoryViewModel.getCategories(), new OnCategorySearchChosen() {
-                    @Override
-                    public void OnCategorySearchChosen(Set<String> categoryIdSet) {
-                        List<String> categoryIdList = new ArrayList<>(categoryIdSet);
-                        if (categoryIdSet.size() != 0) {
-                            imageAdapter.setImageModels(new ArrayList<>());
-                            imageCategoryViewModel.getImageCategoriesByCategoryIdFirebase(categoryIdList.get(0), new OnCompleteListener<QuerySnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                    categoryIdList.remove(0);
-                                    Log.d("Get ImageCategoryModel", task.getResult().toObjects(ImageCategoryModel.class).toString());
-                                    imageViewModel.getMyImagesByListImageCategoryFirebase(task.getResult().toObjects(ImageCategoryModel.class), new OnCompleteListener<DocumentSnapshot>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                            if (task.isSuccessful()) {
-                                                DocumentSnapshot document = task.getResult();
-                                                ImageModel imageModel = document.toObject(ImageModel.class);
-                                                if (document.exists()) {
-                                                    filterImageWithOtherCategories(imageModel, new ArrayList<>(categoryIdList));
-                                                    // Handle your document here
-                                                    Log.d("Firestore", "Document retrieved: " + document.getData());
-                                                } else {
-                                                    Log.d("Firestore", "No such document");
-                                                }
-                                            } else {
-                                                Log.d("Firestore", "get failed with ", task.getException());
-                                            }
-                                        }
-                                    });
-//                                    List<String> endResultList =
-//                                            filterFirstListWithOtherCategories(task.getResult().toObjects(ImageCategoryModel.class),
-//                                                    categoryIdList);
-                                }
-                            });
-                        } else {
-                            retrieveImages();
-                        }
-                    }
-                });
+                categoryAdapter = new MainCategoryAdapter(categoryViewModel.getCategories(), onCategorySearchChosen);
                 binding.rvCategories.setAdapter(categoryAdapter);
             }
         });
