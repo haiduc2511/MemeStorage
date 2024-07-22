@@ -53,7 +53,7 @@ public class ImageRepo {
 
     // Read all my Images
     public void getMyImagesFirebase(OnCompleteListener<QuerySnapshot> onCompleteListener) {
-        myImagesRef.collection(IMAGE_COLLECTION_NAME).get().addOnCompleteListener(onCompleteListener);
+        myImagesRef.collection(IMAGE_COLLECTION_NAME).limit(40).get().addOnCompleteListener(onCompleteListener);
     }
 
     public void getMyImagesByIdFirebase(String iId, OnCompleteListener<DocumentSnapshot> onCompleteListener) {

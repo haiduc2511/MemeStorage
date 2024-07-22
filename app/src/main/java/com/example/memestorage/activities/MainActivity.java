@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 
 import com.example.memestorage.adapters.CategoryAdapter;
 import com.example.memestorage.adapters.MainCategoryAdapter;
+import com.example.memestorage.authentication.StartActivity;
 import com.example.memestorage.models.CategoryModel;
 import com.example.memestorage.models.ImageCategoryModel;
 import com.example.memestorage.utils.ImageItemTouchHelper;
@@ -137,14 +138,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-//        binding.fabLogout.setOnClickListener(v -> {
-//            mAuth.signOut();
-//            Intent intent = new Intent(this, StartActivity.class);
-//            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-//            startActivity(intent);
-//            finish();
-//        });
-
         initCategories();
 
 
@@ -169,6 +162,14 @@ public class MainActivity extends AppCompatActivity {
 
             binding.rvCategories.setLayoutParams(params);
             isHeightWrapContent = !isHeightWrapContent;
+        });
+
+        binding.fabLogout.setOnClickListener(v -> {
+            mAuth.signOut();
+            Intent intent = new Intent(this, StartActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
         });
     }
 
