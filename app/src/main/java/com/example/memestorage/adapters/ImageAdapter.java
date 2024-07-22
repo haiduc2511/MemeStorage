@@ -2,6 +2,7 @@ package com.example.memestorage.adapters;
 
 import android.app.DownloadManager;
 import android.content.Context;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Environment;
 import android.util.DisplayMetrics;
@@ -35,6 +36,16 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
 
     public Context getContext() {
         return context;
+    }
+
+    public void addImage(ImageModel imageModel) {
+        imageModels.add(imageModel);
+        notifyItemInserted(imageModels.size() - 1);
+    }
+
+    public void setImageModels(List<ImageModel> imageModels) {
+        this.imageModels = imageModels;
+        notifyDataSetChanged();
     }
 
     @NonNull

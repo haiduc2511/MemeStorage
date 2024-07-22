@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 
 import com.example.memestorage.activities.MainActivity;
+import com.example.memestorage.models.ImageCategoryModel;
 import com.example.memestorage.models.ImageModel;
 import com.example.memestorage.repositories.ImageRepo;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -46,6 +47,14 @@ public class ImageViewModel extends AndroidViewModel {
 
     public void getMyImagesByIdFirebase(String iId, OnCompleteListener<DocumentSnapshot> onCompleteListener) {
         imageRepo.getMyImagesByIdFirebase(iId,onCompleteListener);
+    }
+
+    public void getMyImagesByListImageCategoryFirebase(List<ImageCategoryModel> imageCategories, OnCompleteListener<DocumentSnapshot> onCompleteListener) {
+        List<String> imageIds = new ArrayList<>();
+        for (ImageCategoryModel imageCategory : imageCategories) {
+            imageIds.add(imageCategory.imageId);
+        }
+        imageRepo.getMyImagesByListIdFirebase(imageIds,onCompleteListener);
     }
 
     public void updateImageFirebase(String id, ImageModel imageModel, OnCompleteListener<Void> onCompleteListener) {

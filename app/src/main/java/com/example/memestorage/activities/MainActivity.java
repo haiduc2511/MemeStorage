@@ -38,6 +38,7 @@ import com.google.android.flexbox.FlexboxLayoutManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
@@ -54,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
     CategoryViewModel categoryViewModel;
     ImageCategoryViewModel imageCategoryViewModel;
     MainCategoryAdapter categoryAdapter;
+    ImageAdapter imageAdapter;
     FirebaseAuth mAuth = FirebaseHelper.getInstance().getAuth();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,19 +110,40 @@ public class MainActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 categoryAdapter = new MainCategoryAdapter(categoryViewModel.getCategories(), new OnCategorySearchChosen() {
                     @Override
-                    public void OnCategorySearchChosen(Set<String> categoryIds) {
-                        List<String> categoryIdList = new ArrayList<>(categoryIds);
-                        if (categoryIds.size() != 0) {
+                    public void OnCategorySearchChosen(Set<String> categoryIdSet) {
+                        List<String> categoryIdList = new ArrayList<>(categoryIdSet);
+                        if (categoryIdSet.size() != 0) {
+                            imageAdapter.setImageModels(new ArrayList<>());
                             imageCategoryViewModel.getImageCategoriesByCategoryIdFirebase(categoryIdList.get(0), new OnCompleteListener<QuerySnapshot>() {
                                 @Override
                                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                     categoryIdList.remove(0);
                                     Log.d("Get ImageCategoryModel", task.getResult().toObjects(ImageCategoryModel.class).toString());
+                                    imageViewModel.getMyImagesByListImageCategoryFirebase(task.getResult().toObjects(ImageCategoryModel.class), new OnCompleteListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                            if (task.isSuccessful()) {
+                                                DocumentSnapshot document = task.getResult();
+                                                ImageModel imageModel = document.toObject(ImageModel.class);
+                                                if (document.exists()) {
+                                                    filterImageWithOtherCategories(imageModel, new ArrayList<>(categoryIdList));
+                                                    // Handle your document here
+                                                    Log.d("Firestore", "Document retrieved: " + document.getData());
+                                                } else {
+                                                    Log.d("Firestore", "No such document");
+                                                }
+                                            } else {
+                                                Log.d("Firestore", "get failed with ", task.getException());
+                                            }
+                                        }
+                                    });
 //                                    List<String> endResultList =
 //                                            filterFirstListWithOtherCategories(task.getResult().toObjects(ImageCategoryModel.class),
 //                                                    categoryIdList);
                                 }
                             });
+                        } else {
+                            retrieveImages();
                         }
                     }
                 });
@@ -130,33 +153,31 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-//    private List<String> filterFirstListWithOtherCategories(List<ImageCategoryModel> firstList
-//                                                                , List<String> otherCategories) {
-//        List<String> endResultImageIdList = new ArrayList<>();
-//        for (int i = 0; i < firstList.size(); i++) {
-//            endResultImageIdList.add(firstList.get(i).imageId);
-//        }
-//        for (int i = 0; i < otherCategories.size(); i++) {
-//            List<String> filteredOnceImageIdList = new ArrayList<>();
-//            Log.d("Check category", otherCategories.get(i));
-//            for (int j = 0; j < firstList.size(); j++) {
-//                Log.d("Check image", firstList.get(j).imageId);
-//                imageCategoryViewModel.getImageCategoriesByImageIdAndCategoryIdFirebase(firstList.get(j).imageId
-//                        , otherCategories.get(i), new OnCompleteListener<QuerySnapshot>() {
-//                            @Override
-//                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-//                                if (task.getResult().toObjects(ImageModel.class).size() != 0) {
-//                                    filteredOnceImageIdList.add(task.getResult().toObjects(ImageCategoryModel.class).get(0).imageId);
-//                                    Log.d("Add image ", task.getResult().toObjects(ImageCategoryModel.class).get(0).imageId);
-//                                }
-//                            }
-//                        });
-//                endResultImageIdList = filteredOnceImageIdList;
-//            }
-//        }
-//        Log.d("I found it, the end ImageIdList", endResultImageIdList.toString());
-//        return endResultImageIdList;
-//    }
+    private void filterImageListWithOtherCategories(List<ImageModel> imageModels, List<String> categories) {
+        for (ImageModel imageModel : imageModels) {
+            filterImageWithOtherCategories(imageModel, new ArrayList<>(categories));
+        }
+    }
+
+    private void filterImageWithOtherCategories(ImageModel imageModel, List<String> categories) {
+        if (categories.isEmpty()) {
+            imageAdapter.addImage(imageModel);
+        } else {
+            Log.d("Filtering", imageModel.iId + "\n" + categories.get(0));
+            imageCategoryViewModel.getImageCategoriesByImageIdAndCategoryIdFirebase(imageModel.iId, categories.get(0), new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()) {
+                        if (!task.getResult().toObjects(ImageCategoryModel.class).isEmpty()) {
+                            categories.remove(0);
+                            filterImageWithOtherCategories(imageModel, categories);
+                        }
+                    }
+
+                }
+            });
+        }
+    }
 
     private void retrieveImages() {
         imageViewModel.getMyImagesFirebase(new OnCompleteListener<QuerySnapshot>() {
@@ -167,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
                     for (ImageModel imageModel : imageViewModel.getImages()) {
                         Log.d(TAG, imageModel.toString());
                     }
-                    ImageAdapter imageAdapter = new ImageAdapter(imageViewModel.getImages(), MainActivity.this, getSupportFragmentManager());
+                    imageAdapter = new ImageAdapter(imageViewModel.getImages(), MainActivity.this, getSupportFragmentManager());
                     binding.rvImages.setAdapter(imageAdapter);
                     ImageItemTouchHelper imageItemTouchHelper = new ImageItemTouchHelper(imageAdapter, imageViewModel);
                     ItemTouchHelper itemTouchHelper = new ItemTouchHelper(imageItemTouchHelper);

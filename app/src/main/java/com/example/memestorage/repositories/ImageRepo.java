@@ -26,6 +26,7 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -58,6 +59,12 @@ public class ImageRepo {
     public void getMyImagesByIdFirebase(String iId, OnCompleteListener<DocumentSnapshot> onCompleteListener) {
         myImagesRef.collection(IMAGE_COLLECTION_NAME).document(iId).get().addOnCompleteListener(onCompleteListener);
     }
+    public void getMyImagesByListIdFirebase(List<String> imageIds, OnCompleteListener<DocumentSnapshot> onCompleteListener) {
+        for (String imageId : imageIds) {
+            myImagesRef.collection(IMAGE_COLLECTION_NAME).document(imageId).get().addOnCompleteListener(onCompleteListener);
+        }
+    }
+
 
     // Update an Image
     public void updateImageFirebase(String id, ImageModel imageModel, OnCompleteListener<Void> onCompleteListener) {
