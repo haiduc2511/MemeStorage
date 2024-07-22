@@ -57,6 +57,45 @@ public class MainActivity extends AppCompatActivity {
     MainCategoryAdapter categoryAdapter;
     ImageAdapter imageAdapter;
     FirebaseAuth mAuth = FirebaseHelper.getInstance().getAuth();
+    OnCategorySearchChosen onCategorySearchChosen = new OnCategorySearchChosen() {
+        @Override
+        public void OnCategorySearchChosen(Set<String> categoryIdSet) {
+            List<String> categoryIdList = new ArrayList<>(categoryIdSet);
+            if (categoryIdSet.size() != 0) {
+                imageAdapter.setImageModels(new ArrayList<>());
+                imageCategoryViewModel.getImageCategoriesByCategoryIdFirebase(categoryIdList.get(0), new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        categoryIdList.remove(0);
+                        Log.d("Get ImageCategoryModel", task.getResult().toObjects(ImageCategoryModel.class).toString());
+                        imageViewModel.getMyImagesByListImageCategoryFirebase(task.getResult().toObjects(ImageCategoryModel.class), new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    DocumentSnapshot document = task.getResult();
+                                    ImageModel imageModel = document.toObject(ImageModel.class);
+                                    if (document.exists()) {
+                                        filterImageWithOtherCategories(imageModel, new ArrayList<>(categoryIdList));
+                                        // Handle your document here
+                                        Log.d("Firestore", "Document retrieved: " + document.getData());
+                                    } else {
+                                        Log.d("Firestore", "No such document");
+                                    }
+                                } else {
+                                    Log.d("Firestore", "get failed with ", task.getException());
+                                }
+                            }
+                        });
+//                                    List<String> endResultList =
+//                                            filterFirstListWithOtherCategories(task.getResult().toObjects(ImageCategoryModel.class),
+//                                                    categoryIdList);
+                    }
+                });
+            } else {
+                retrieveImages();
+            }
+        }
+    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,6 +110,21 @@ public class MainActivity extends AppCompatActivity {
         initUI();
     }
 
+    private void hideSystemUI() {
+        View decorView = getWindow().getDecorView();
+        int uiOptions = View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_FULLSCREEN;
+        decorView.setSystemUiVisibility(uiOptions);
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            hideSystemUI();
+        }
+    }
 
     private void initUI() {
         binding.btChooseImage.setOnClickListener(new View.OnClickListener() {
@@ -99,6 +153,7 @@ public class MainActivity extends AppCompatActivity {
 
         binding.rvImages.setLayoutManager(new GridLayoutManager(this, 3));
         retrieveImages();
+        hideSystemUI();
     }
 
     private void initCategories() {
