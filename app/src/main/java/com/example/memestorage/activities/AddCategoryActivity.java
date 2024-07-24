@@ -30,35 +30,32 @@ public class AddCategoryActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         binding = ActivityAddCategoryBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
         categoryViewModel = CategoryViewModel.newInstance(getApplication());
-
         initUI();
     }
 
     private void initUI() {
         binding.btAddCategory.setOnClickListener(v -> {
-            String categoryName = binding.etCategoryName.getText().toString();
-            CategoryModel categoryModel = new CategoryModel();
-            categoryModel.categoryName = categoryName;
-            categoryViewModel.addCategoryFirebase(categoryModel, new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
-                    categoryViewModel.getCategoriesFirebase(new OnCompleteListener<QuerySnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                            categoryViewModel.setCategories(task.getResult().toObjects(CategoryModel.class));
-                        }
-                    });
-                    Toast.makeText(AddCategoryActivity.this, "Add Category  " + categoryModel.categoryName + " successfully", Toast.LENGTH_SHORT).show();
-                }
-            });
-
-
+            addNewCategory();
         });
+    }
+
+    private void addNewCategory() {
+        String categoryName = binding.etCategoryName.getText().toString();
+        CategoryModel categoryModel = new CategoryModel();
+        categoryModel.categoryName = categoryName;
+        categoryViewModel.addCategoryFirebase(categoryModel, new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                categoryViewModel.getCategoriesFirebase(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        categoryViewModel.setCategories(task.getResult().toObjects(CategoryModel.class));
+                    }
+                });
+                Toast.makeText(AddCategoryActivity.this, "Add Category  " + categoryModel.categoryName + " successfully", Toast.LENGTH_SHORT).show();
+            }
+        });
+
     }
 }
