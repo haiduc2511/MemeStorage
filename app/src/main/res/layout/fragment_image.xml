@@ -27,7 +27,8 @@
                 android:layout_height="match_parent"
                 android:background="@android:color/white"
                 android:gravity="center"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:backgroundTint="@color/gray">
 
                 <EditText
                     android:id="@+id/et_image_name"
