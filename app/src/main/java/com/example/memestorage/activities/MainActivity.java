@@ -177,11 +177,11 @@ public class MainActivity extends AppCompatActivity {
         FlexboxLayoutManager layoutManager = new FlexboxLayoutManager(getApplicationContext());
         layoutManager.setFlexDirection(FlexDirection.ROW);
         binding.rvCategories.setLayoutManager(layoutManager);
+        categoryAdapter = new MainCategoryAdapter(new ArrayList<>(), onCategorySearchChosen);
+        binding.rvCategories.setAdapter(categoryAdapter);
         categoryViewModel.getCategoriesFirebase(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                categoryAdapter = new MainCategoryAdapter(new ArrayList<>(), onCategorySearchChosen);
-                binding.rvCategories.setAdapter(categoryAdapter);
                 categoryViewModel.getCategories().observe(MainActivity.this, categories -> {
                     categoryAdapter.setCategoryModels(categories);
                 });

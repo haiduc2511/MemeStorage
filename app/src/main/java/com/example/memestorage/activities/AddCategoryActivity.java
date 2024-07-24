@@ -45,18 +45,25 @@ public class AddCategoryActivity extends AppCompatActivity {
     private void initUI() {
         binding.btAddCategory.setOnClickListener(v -> {
             addNewCategory();
+            binding.etCategoryName.setText("");
         });
 
         GridLayoutManager layoutManager = new GridLayoutManager(this, 3);
         binding.rvCategories.setLayoutManager(layoutManager);
+        categoryAdapter = new AddCategoryCategoryAdapter(new ArrayList<>());
+        binding.rvCategories.setAdapter(categoryAdapter);
+
+        getCategoriesFromFirebase();
+
+    }
+
+    private void getCategoriesFromFirebase() {
         categoryViewModel.getCategoriesFirebase(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                categoryAdapter = new AddCategoryCategoryAdapter(new ArrayList<>());
                 categoryViewModel.getCategories().observe(AddCategoryActivity.this, categories -> {
                     categoryAdapter.setCategoryModels(categories);
                 });
-                binding.rvCategories.setAdapter(categoryAdapter);
             }
         });
 

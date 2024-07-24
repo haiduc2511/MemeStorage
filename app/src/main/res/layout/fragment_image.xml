@@ -20,59 +20,67 @@
             android:layout_marginVertical="50dp"
             android:layout_marginHorizontal="30dp"
             app:cardElevation="10dp"
-            app:cardCornerRadius="20dp">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
+            app:cardCornerRadius="20dp"
+            android:backgroundTint="@color/gray">
+            <ScrollView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@android:color/white"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:backgroundTint="@color/gray">
-
-                <EditText
-                    android:id="@+id/et_image_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:text='@{imageModel.imageName}'
-                    android:hint="Enter image name bro"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-                <ImageView
-                    android:id="@+id/imageViewDetail"
+                android:layout_height="wrap_content"
+                android:background="@color/gray">
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="20dp"
-                    android:adjustViewBounds="true"
-                    android:scaleType="fitXY"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/et_image_name" />
+                    android:layout_height="match_parent"
+                    android:background="@color/gray">
 
-                <Button
-                    android:id="@+id/bt_save_image"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="24dp"
-                    android:text="Save Image"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent" />
+                    <EditText
+                        android:id="@+id/et_image_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text='@{imageModel.imageName}'
+                        android:textColor="@color/white"
+                        android:hint="Enter image name bro"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+                    <ImageView
+                        android:id="@+id/iv_image"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="15dp"
+                        android:adjustViewBounds="true"
+                        android:scaleType="fitXY"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/et_image_name" />
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rv_categories"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="8dp"
-                    app:layout_constraintBottom_toTopOf="@+id/bt_save_image"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/imageViewDetail" />
+                    <Button
+                        android:id="@+id/bt_save_image"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="24dp"
+                        android:text="Save Image"
+                        android:backgroundTint="@color/black"
+                        android:textColor="@color/white"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/rv_categories"/>
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rv_categories"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="8dp"
+                        app:layout_constraintBottom_toTopOf="@+id/bt_save_image"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/iv_image" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </ScrollView>
+
+
         </androidx.cardview.widget.CardView>
     </FrameLayout>
 </layout>

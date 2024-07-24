@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -106,7 +107,6 @@ public class ImageFragment extends Fragment {
         categoryViewModel.getCategories().observe(getViewLifecycleOwner(), categories -> {
             categoryAdapter.setCategoryModels(categories);
         });
-
         binding.rvCategories.setAdapter(categoryAdapter);
 
         imageViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()).create(ImageViewModel.class);
@@ -121,10 +121,24 @@ public class ImageFragment extends Fragment {
             updateImageCategories(categoryAdapter.getSelectedCategories(), imageCategoryViewModel.getImageCategories());
 
         });
+
+        setImage();
+    }
+
+    private void setImage() {
         binding.setImageModel(imageModel);
 
-        Glide.with(this).load(imageModel.imageURL).into(binding.imageViewDetail);
+        Glide.with(this).load(imageModel.imageURL).into(binding.ivImage);
 
+        DisplayMetrics displayMetrics = requireActivity().getApplicationContext().getResources().getDisplayMetrics();
+        int screenHeight = displayMetrics.heightPixels;
+        int imageHeight = screenHeight / 8; // 1/6 of the screen height
+
+        ViewGroup.LayoutParams layoutParams = binding.ivImage.getLayoutParams();
+        if (layoutParams.height > screenHeight / 4) {
+            layoutParams.height = imageHeight;
+            binding.ivImage.setLayoutParams(layoutParams);
+        }
     }
 
     private void updateImageCategories(Set<String> selectedCategories, List<ImageCategoryModel> imageCategoryModels) {
