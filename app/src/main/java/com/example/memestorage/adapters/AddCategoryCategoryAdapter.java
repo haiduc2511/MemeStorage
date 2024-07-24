@@ -22,7 +22,10 @@ public class AddCategoryCategoryAdapter extends RecyclerView.Adapter<AddCategory
     public AddCategoryCategoryAdapter(List<CategoryModel> categoryModels) {
         this.categoryModels = categoryModels;
     }
-
+    public void setCategoryModels(List<CategoryModel> categoryModels) {
+        this.categoryModels = categoryModels;
+        notifyDataSetChanged();
+    }
     @NonNull
     @Override
     public AddCategoryCategoryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

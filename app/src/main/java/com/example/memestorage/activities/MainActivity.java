@@ -180,8 +180,11 @@ public class MainActivity extends AppCompatActivity {
         categoryViewModel.getCategoriesFirebase(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                categoryAdapter = new MainCategoryAdapter(categoryViewModel.getCategories(), onCategorySearchChosen);
+                categoryAdapter = new MainCategoryAdapter(new ArrayList<>(), onCategorySearchChosen);
                 binding.rvCategories.setAdapter(categoryAdapter);
+                categoryViewModel.getCategories().observe(MainActivity.this, categories -> {
+                    categoryAdapter.setCategoryModels(categories);
+                });
             }
         });
 

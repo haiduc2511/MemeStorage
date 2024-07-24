@@ -10,19 +10,27 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.GridLayoutManager;
 
+import com.example.memestorage.adapters.AddCategoryCategoryAdapter;
+import com.example.memestorage.adapters.MainCategoryAdapter;
 import com.example.memestorage.databinding.ActivityAddCategoryBinding;
 import com.example.memestorage.viewmodels.CategoryViewModel;
 import com.example.memestorage.models.CategoryModel;
 import com.example.memestorage.R;
+import com.google.android.flexbox.FlexDirection;
+import com.google.android.flexbox.FlexboxLayoutManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.ArrayList;
 
 public class AddCategoryActivity extends AppCompatActivity {
 
     ActivityAddCategoryBinding binding;
     CategoryViewModel categoryViewModel;
+    AddCategoryCategoryAdapter categoryAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +46,20 @@ public class AddCategoryActivity extends AppCompatActivity {
         binding.btAddCategory.setOnClickListener(v -> {
             addNewCategory();
         });
+
+        GridLayoutManager layoutManager = new GridLayoutManager(this, 3);
+        binding.rvCategories.setLayoutManager(layoutManager);
+        categoryViewModel.getCategoriesFirebase(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                categoryAdapter = new AddCategoryCategoryAdapter(new ArrayList<>());
+                categoryViewModel.getCategories().observe(AddCategoryActivity.this, categories -> {
+                    categoryAdapter.setCategoryModels(categories);
+                });
+                binding.rvCategories.setAdapter(categoryAdapter);
+            }
+        });
+
     }
 
     private void addNewCategory() {

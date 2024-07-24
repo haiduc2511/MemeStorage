@@ -26,7 +26,10 @@ public class MainCategoryAdapter extends RecyclerView.Adapter<MainCategoryAdapte
         this.categoryModels = categoryModels;
         this.onCategorySearchChosen = onCategorySearchChosen;
     }
-
+    public void setCategoryModels(List<CategoryModel> categoryModels) {
+        this.categoryModels = categoryModels;
+        notifyDataSetChanged();
+    }
     public Set<String> getSelectedCategories() {
         return selectedCategories;
     }

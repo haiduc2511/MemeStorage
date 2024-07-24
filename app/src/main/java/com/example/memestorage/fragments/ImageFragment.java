@@ -102,7 +102,11 @@ public class ImageFragment extends Fragment {
         layoutManager.setFlexDirection(FlexDirection.ROW);
         binding.rvCategories.setLayoutManager(layoutManager);
         categoryViewModel = CategoryViewModel.newInstance(requireActivity().getApplication());
-        categoryAdapter = new CategoryAdapter(categoryViewModel.getCategories());
+        categoryAdapter = new CategoryAdapter(new ArrayList<>());
+        categoryViewModel.getCategories().observe(getViewLifecycleOwner(), categories -> {
+            categoryAdapter.setCategoryModels(categories);
+        });
+
         binding.rvCategories.setAdapter(categoryAdapter);
 
         imageViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()).create(ImageViewModel.class);

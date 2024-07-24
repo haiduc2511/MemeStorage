@@ -23,7 +23,10 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
     public CategoryAdapter(List<CategoryModel> categoryModels) {
         this.categoryModels = categoryModels;
     }
-
+    public void setCategoryModels(List<CategoryModel> categoryModels) {
+        this.categoryModels = categoryModels;
+        notifyDataSetChanged();
+    }
     public void setImageCategoryModels(List<ImageCategoryModel> imageCategoryModels) {
         for (ImageCategoryModel imageCategoryModel : imageCategoryModels) {
             selectedCategories.add(imageCategoryModel.categoryId);
