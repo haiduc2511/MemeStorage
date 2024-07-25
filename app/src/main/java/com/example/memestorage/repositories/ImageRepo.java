@@ -19,6 +19,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -47,13 +48,14 @@ public class ImageRepo {
 
     public void addImageFirebase(ImageModel imageModel) {
         String id = db.collection(USER_COLLECTION_NAME).document(myUserId).collection(IMAGE_COLLECTION_NAME).document().getId(); // Generate a new ID
-        imageModel.iId = id;
-        myImagesRef.collection(IMAGE_COLLECTION_NAME).document(id).set(imageModel);
+        imageModel.iId = imageModel.imageName + id;
+        myImagesRef.collection(IMAGE_COLLECTION_NAME).document(imageModel.iId).set(imageModel);
     }
 
     // Read all my Images
     public void getMyImagesFirebase(OnCompleteListener<QuerySnapshot> onCompleteListener) {
-        myImagesRef.collection(IMAGE_COLLECTION_NAME).limit(40).get().addOnCompleteListener(onCompleteListener);
+        myImagesRef.collection(IMAGE_COLLECTION_NAME)
+                .orderBy("iId", Query.Direction.DESCENDING).limit(40).get().addOnCompleteListener(onCompleteListener);
     }
 
     public void getMyImagesByIdFirebase(String iId, OnCompleteListener<DocumentSnapshot> onCompleteListener) {

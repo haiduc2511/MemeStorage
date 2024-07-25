@@ -114,21 +114,21 @@ public class MainActivity extends AppCompatActivity {
         initUI();
     }
 
-    private void hideSystemUI() {
-        View decorView = getWindow().getDecorView();
-        int uiOptions = View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_FULLSCREEN;
-        decorView.setSystemUiVisibility(uiOptions);
-    }
-
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        if (hasFocus) {
-            hideSystemUI();
-        }
-    }
+//    private void hideSystemUI() {
+//        View decorView = getWindow().getDecorView();
+//        int uiOptions = View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+//                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+//                | View.SYSTEM_UI_FLAG_FULLSCREEN;
+//        decorView.setSystemUiVisibility(uiOptions);
+//    }
+//
+//    @Override
+//    public void onWindowFocusChanged(boolean hasFocus) {
+//        super.onWindowFocusChanged(hasFocus);
+//        if (hasFocus) {
+//            hideSystemUI();
+//        }
+//    }
 
     private void initUI() {
         binding.btChooseImage.setOnClickListener(new View.OnClickListener() {
@@ -148,8 +148,13 @@ public class MainActivity extends AppCompatActivity {
 
 
         binding.rvImages.setLayoutManager(new GridLayoutManager(this, 3));
+        imageAdapter = new ImageAdapter(new ArrayList<>(), MainActivity.this, getSupportFragmentManager());
+        binding.rvImages.setAdapter(imageAdapter);
+        ImageItemTouchHelper imageItemTouchHelper = new ImageItemTouchHelper(imageAdapter, imageViewModel);
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(imageItemTouchHelper);
+        itemTouchHelper.attachToRecyclerView(binding.rvImages);
         retrieveImages();
-        hideSystemUI();
+//        hideSystemUI();
 
         binding.tvSeeMore.setOnClickListener(v -> {
             ViewGroup.LayoutParams params = binding.rvCategories.getLayoutParams();
@@ -225,11 +230,7 @@ public class MainActivity extends AppCompatActivity {
                     for (ImageModel imageModel : imageViewModel.getImages()) {
                         Log.d(TAG, imageModel.toString());
                     }
-                    imageAdapter = new ImageAdapter(imageViewModel.getImages(), MainActivity.this, getSupportFragmentManager());
-                    binding.rvImages.setAdapter(imageAdapter);
-                    ImageItemTouchHelper imageItemTouchHelper = new ImageItemTouchHelper(imageAdapter, imageViewModel);
-                    ItemTouchHelper itemTouchHelper = new ItemTouchHelper(imageItemTouchHelper);
-                    itemTouchHelper.attachToRecyclerView(binding.rvImages);
+                    imageAdapter.setImageModels(imageViewModel.getImages());
                 } else {
                     Log.w(TAG, "Error getting my imageModel", task.getException());
                 }
