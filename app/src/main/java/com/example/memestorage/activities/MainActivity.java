@@ -32,6 +32,7 @@ import com.example.memestorage.utils.ImageItemTouchHelper;
 import com.example.memestorage.utils.FirebaseHelper;
 import com.example.memestorage.adapters.ImageAdapter;
 import com.example.memestorage.models.ImageModel;
+import com.example.memestorage.utils.SharedPrefManager;
 import com.example.memestorage.viewmodels.CategoryViewModel;
 import com.example.memestorage.viewmodels.ImageCategoryViewModel;
 import com.example.memestorage.viewmodels.ImageViewModel;
@@ -60,7 +61,6 @@ public class MainActivity extends AppCompatActivity {
     ImageCategoryViewModel imageCategoryViewModel;
     MainCategoryAdapter categoryAdapter;
     ImageAdapter imageAdapter;
-    FirebaseAuth mAuth = FirebaseHelper.getInstance().getAuth();
     OnCategorySearchChosen onCategorySearchChosen = new OnCategorySearchChosen() {
         @Override
         public void OnCategorySearchChosen(Set<String> categoryIdSet) {
@@ -100,6 +100,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     };
+
+    SharedPrefManager sharedPrefManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -110,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
         categoryViewModel = CategoryViewModel.newInstance(getApplication());
         imageCategoryViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()).create(ImageCategoryViewModel.class);
         checkPermissions();
-
+        sharedPrefManager = new SharedPrefManager(this);
         initUI();
     }
 
@@ -169,12 +171,9 @@ public class MainActivity extends AppCompatActivity {
             isHeightWrapContent = !isHeightWrapContent;
         });
 
-        binding.fabLogout.setOnClickListener(v -> {
-            mAuth.signOut();
-            Intent intent = new Intent(this, StartActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        binding.btSetting.setOnClickListener(v -> {
+            Intent intent = new Intent(this, SettingActivity.class);
             startActivity(intent);
-            finish();
         });
     }
 
@@ -222,7 +221,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void retrieveImages() {
-        imageViewModel.getMyImagesFirebase(new OnCompleteListener<QuerySnapshot>() {
+        String numberOfImages = "100";
+        if (sharedPrefManager.contains("Number of images")) {
+            numberOfImages = sharedPrefManager.getData("Number of images");
+        }
+        imageViewModel.getMyImagesFirebase(Integer.parseInt(numberOfImages), new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {

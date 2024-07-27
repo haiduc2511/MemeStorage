@@ -41,8 +41,8 @@ public class ImageViewModel extends AndroidViewModel {
         imageRepo.addImageFirebase(imageModel);
     }
 
-    public void getMyImagesFirebase(OnCompleteListener<QuerySnapshot> onCompleteListener) {
-        imageRepo.getMyImagesFirebase(onCompleteListener);
+    public void getMyImagesFirebase(int limit, OnCompleteListener<QuerySnapshot> onCompleteListener) {
+        imageRepo.getMyImagesFirebase(limit, onCompleteListener);
     }
 
     public void getMyImagesByIdFirebase(String iId, OnCompleteListener<DocumentSnapshot> onCompleteListener) {
