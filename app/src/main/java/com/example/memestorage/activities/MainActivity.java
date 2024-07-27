@@ -61,6 +61,10 @@ public class MainActivity extends AppCompatActivity {
     ImageCategoryViewModel imageCategoryViewModel;
     MainCategoryAdapter categoryAdapter;
     ImageAdapter imageAdapter;
+    // cnay có thể sửa bug filter bằng cách
+    // ta có thể set 1 imageAdapter mới vô, truyền cái imageAdapter qua parameter của từng hàm filter 1
+    // , add thì chỉ add vào adapter đấy thôi và các ảnh đang filter cũ sẽ add vào imageAdapter cũ
+    // (sẽ bị garbage collect)
     OnCategorySearchChosen onCategorySearchChosen = new OnCategorySearchChosen() {
         @Override
         public void OnCategorySearchChosen(Set<String> categoryIdSet) {

@@ -17,8 +17,9 @@
         android:clickable="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:backgroundTint="@color/white"
-        app:srcCompat="@drawable/ic_add" />
+        app:tint="@color/white"
+        app:srcCompat="@drawable/ic_add"
+        app:backgroundTint="@color/black"/>
 
 <!--    <Button-->
 <!--        android:id="@+id/bt_choose_image"-->

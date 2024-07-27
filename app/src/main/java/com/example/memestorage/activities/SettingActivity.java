@@ -15,7 +15,10 @@ import com.example.memestorage.authentication.StartActivity;
 import com.example.memestorage.databinding.ActivitySettingBinding;
 import com.example.memestorage.utils.FirebaseHelper;
 import com.example.memestorage.utils.SharedPrefManager;
+import com.example.memestorage.viewmodels.CategoryViewModel;
 import com.google.firebase.auth.FirebaseAuth;
+
+import java.util.ArrayList;
 
 public class SettingActivity extends AppCompatActivity {
     ActivitySettingBinding binding;
@@ -34,6 +37,7 @@ public class SettingActivity extends AppCompatActivity {
 
     private void initUI() {
         binding.btLogOut.setOnClickListener(v -> {
+            CategoryViewModel.newInstance(getApplication()).setCategories(new ArrayList<>());
             mAuth.signOut();
             Intent intent = new Intent(this, StartActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
