@@ -11,10 +11,12 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.ItemTouchHelper;
 
 import com.example.memestorage.adapters.AddCategoryCategoryAdapter;
 import com.example.memestorage.adapters.MainCategoryAdapter;
 import com.example.memestorage.databinding.ActivityAddCategoryBinding;
+import com.example.memestorage.utils.CategoryItemTouchHelper;
 import com.example.memestorage.viewmodels.CategoryViewModel;
 import com.example.memestorage.models.CategoryModel;
 import com.example.memestorage.R;
@@ -47,12 +49,15 @@ public class AddCategoryActivity extends AppCompatActivity {
             addNewCategory();
             binding.etCategoryName.setText("");
         });
-
-        GridLayoutManager layoutManager = new GridLayoutManager(this, 3);
+        FlexboxLayoutManager layoutManager = new FlexboxLayoutManager(getApplicationContext());
+        layoutManager.setFlexDirection(FlexDirection.ROW);
+//        GridLayoutManager layoutManager = new GridLayoutManager(this, 3);
         binding.rvCategories.setLayoutManager(layoutManager);
-        categoryAdapter = new AddCategoryCategoryAdapter(new ArrayList<>());
+        categoryAdapter = new AddCategoryCategoryAdapter(new ArrayList<>(), this);
         binding.rvCategories.setAdapter(categoryAdapter);
-
+        CategoryItemTouchHelper categoryItemTouchHelper = new CategoryItemTouchHelper(categoryAdapter, categoryViewModel);
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(categoryItemTouchHelper);
+        itemTouchHelper.attachToRecyclerView(binding.rvCategories);
         getCategoriesFromFirebase();
 
     }

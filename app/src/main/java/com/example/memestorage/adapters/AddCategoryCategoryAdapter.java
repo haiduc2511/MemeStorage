@@ -1,5 +1,6 @@
 package com.example.memestorage.adapters;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -19,9 +20,20 @@ import java.util.Set;
 
 public class AddCategoryCategoryAdapter extends RecyclerView.Adapter<AddCategoryCategoryAdapter.AddCategoryCategoryViewHolder> {
     private List<CategoryModel> categoryModels;
-    public AddCategoryCategoryAdapter(List<CategoryModel> categoryModels) {
+    private Context context;
+    public AddCategoryCategoryAdapter(List<CategoryModel> categoryModels, Context context) {
         this.categoryModels = categoryModels;
+        this.context = context;
     }
+
+    public List<CategoryModel> getCategoryModels() {
+        return categoryModels;
+    }
+
+    public Context getContext() {
+        return context;
+    }
+
     public void setCategoryModels(List<CategoryModel> categoryModels) {
         this.categoryModels = categoryModels;
         notifyDataSetChanged();
