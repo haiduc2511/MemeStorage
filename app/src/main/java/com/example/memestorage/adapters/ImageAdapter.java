@@ -21,17 +21,21 @@ import com.example.memestorage.R;
 import com.example.memestorage.databinding.ItemImageBinding;
 import com.example.memestorage.models.ImageModel;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHolder> {
     private List<ImageModel> imageModels;
     private Context context;
     private FragmentManager fragmentManager;
+    private Set<ImageModel> imageModelsDownloaded;
 
     public ImageAdapter(List<ImageModel> dataList, Context context, FragmentManager fragmentManager) {
         this.imageModels = dataList;
         this.context = context;
         this.fragmentManager = fragmentManager;
+        this.imageModelsDownloaded = new HashSet<>();
     }
 
     public Context getContext() {
@@ -89,6 +93,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
                     ImageModel image = imageModels.get(position);
                     downloadImageLikeTinCoder(image.imageURL, image.imageName);
                     binding.ivDownload.setImageResource(R.drawable.ic_download_done);
+                    imageModelsDownloaded.add(image);
                 }
             });
 
@@ -112,6 +117,11 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
             // Load image using Glide or Picasso
             Glide.with(itemView.getContext()).load(imageModel.imageURL).into(binding.ivImage);
             binding.setImageModel(imageModel);
+            if (imageModelsDownloaded.contains(imageModel)) {
+                binding.ivDownload.setImageResource(R.drawable.ic_download_done);
+            } else {
+                binding.ivDownload.setImageResource(R.drawable.ic_download);
+            }
         }
     }
     private void downloadImageLikeTinCoder(String imageUrl, String imageName) {
