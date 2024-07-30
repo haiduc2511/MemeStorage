@@ -61,13 +61,18 @@ public class MainActivity extends AppCompatActivity {
     ImageCategoryViewModel imageCategoryViewModel;
     MainCategoryAdapter categoryAdapter;
     ImageAdapter imageAdapter;
+    int numberOfTimesSearched = 0;
     // cnay có thể sửa bug filter bằng cách
     // ta có thể set 1 imageAdapter mới vô, truyền cái imageAdapter qua parameter của từng hàm filter 1
     // , add thì chỉ add vào adapter đấy thôi và các ảnh đang filter cũ sẽ add vào imageAdapter cũ
     // (sẽ bị garbage collect)
+
+    //update: k được, lỗi với itemTouchHelper với lại có nhiều adapter quá helper attach k hiệu quả, dùng code vậy
     OnCategorySearchChosen onCategorySearchChosen = new OnCategorySearchChosen() {
         @Override
         public void OnCategorySearchChosen(Set<String> categoryIdSet) {
+            numberOfTimesSearched++;
+            int thisSearchNumber = numberOfTimesSearched;
             List<String> categoryIdList = new ArrayList<>(categoryIdSet);
             if (categoryIdSet.size() != 0) {
                 imageAdapter.setImageModels(new ArrayList<>());
@@ -83,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
                                     DocumentSnapshot document = task.getResult();
                                     ImageModel imageModel = document.toObject(ImageModel.class);
                                     if (document.exists()) {
-                                        filterImageWithOtherCategories(imageModel, new ArrayList<>(categoryIdList));
+                                        filterImageWithOtherCategories(imageModel, new ArrayList<>(categoryIdList), thisSearchNumber);
                                         // Handle your document here
                                         Log.d("Firestore", "Document retrieved: " + document.getData());
                                     } else {
@@ -198,15 +203,12 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void filterImageListWithOtherCategories(List<ImageModel> imageModels, List<String> categories) {
-        for (ImageModel imageModel : imageModels) {
-            filterImageWithOtherCategories(imageModel, new ArrayList<>(categories));
-        }
-    }
 
-    private void filterImageWithOtherCategories(ImageModel imageModel, List<String> categories) {
+    private void filterImageWithOtherCategories(ImageModel imageModel, List<String> categories, int thisSeachNumber) {
         if (categories.isEmpty()) {
-            imageAdapter.addImage(imageModel);
+            if (thisSeachNumber == numberOfTimesSearched) {
+                imageAdapter.addImage(imageModel);
+            }
         } else {
             Log.d("Filtering", imageModel.iId + "\n" + categories.get(0));
             imageCategoryViewModel.getImageCategoriesByImageIdAndCategoryIdFirebase(imageModel.iId, categories.get(0), new OnCompleteListener<QuerySnapshot>() {
@@ -215,7 +217,7 @@ public class MainActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         if (!task.getResult().toObjects(ImageCategoryModel.class).isEmpty()) {
                             categories.remove(0);
-                            filterImageWithOtherCategories(imageModel, categories);
+                            filterImageWithOtherCategories(imageModel, categories, thisSeachNumber);
                         }
                     }
 
