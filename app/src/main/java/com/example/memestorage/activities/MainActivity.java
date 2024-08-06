@@ -5,6 +5,7 @@ import static android.content.ContentValues.TAG;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -41,15 +42,31 @@ import com.google.android.flexbox.FlexDirection;
 import com.google.android.flexbox.FlexboxLayoutManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Observer;
+import io.reactivex.rxjava3.core.Scheduler;
+import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.core.SingleObserver;
+import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.functions.Function;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
     ActivityMainBinding binding;
@@ -61,6 +78,12 @@ public class MainActivity extends AppCompatActivity {
     ImageCategoryViewModel imageCategoryViewModel;
     MainCategoryAdapter categoryAdapter;
     ImageAdapter imageAdapter;
+
+    private static final String IMAGE_COLLECTION_NAME = "images";
+    private static final String USER_COLLECTION_NAME = "users";
+    private String myUserId = Objects.requireNonNull(FirebaseHelper.getInstance().getAuth().getCurrentUser()).getUid();
+    private final FirebaseFirestore db = FirebaseHelper.getInstance().getDb();
+    private DocumentReference myImagesRef = db.collection(USER_COLLECTION_NAME).document(myUserId);
     int numberOfTimesSearched = 0;
     // cnay có thể sửa bug filter bằng cách
     // ta có thể set 1 imageAdapter mới vô, truyền cái imageAdapter qua parameter của từng hàm filter 1
@@ -72,40 +95,12 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void OnCategorySearchChosen(Set<String> categoryIdSet) {
             numberOfTimesSearched++;
-            int thisSearchNumber = numberOfTimesSearched;
             List<String> categoryIdList = new ArrayList<>(categoryIdSet);
+            imageAdapter.setImageModels(new ArrayList<>());
             if (categoryIdSet.size() != 0) {
-                imageAdapter.setImageModels(new ArrayList<>());
-                imageCategoryViewModel.getImageCategoriesByCategoryIdFirebase(categoryIdList.get(0), new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        categoryIdList.remove(0);
-                        Log.d("Get ImageCategoryModel", task.getResult().toObjects(ImageCategoryModel.class).toString());
-                        imageViewModel.getMyImagesByListImageCategoryFirebase(task.getResult().toObjects(ImageCategoryModel.class), new OnCompleteListener<DocumentSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                if (task.isSuccessful()) {
-                                    DocumentSnapshot document = task.getResult();
-                                    ImageModel imageModel = document.toObject(ImageModel.class);
-                                    if (document.exists()) {
-                                        filterImageWithOtherCategories(imageModel, new ArrayList<>(categoryIdList), thisSearchNumber);
-                                        // Handle your document here
-                                        Log.d("Firestore", "Document retrieved: " + document.getData());
-                                    } else {
-                                        Log.d("Firestore", "No such document");
-                                    }
-                                } else {
-                                    Log.d("Firestore", "get failed with ", task.getException());
-                                }
-                            }
-                        });
-//                                    List<String> endResultList =
-//                                            filterFirstListWithOtherCategories(task.getResult().toObjects(ImageCategoryModel.class),
-//                                                    categoryIdList);
-                    }
-                });
+                getImageCategoriesByCategoryIdList(categoryIdList);
             } else {
-                retrieveImages();
+                tryRetrieveImagesByRxJava();
             }
         }
     };
@@ -140,6 +135,35 @@ public class MainActivity extends AppCompatActivity {
 //            hideSystemUI();
 //        }
 //    }
+    private void getImageCategoriesByCategoryIdList(List<String> categoryIdList) {
+        int thisSearchNumber = numberOfTimesSearched;
+        imageCategoryViewModel.getImageCategoriesByCategoryIdFirebase(categoryIdList.get(0), new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                categoryIdList.remove(0);
+                Log.d("Get ImageCategoryModel", task.getResult().toObjects(ImageCategoryModel.class).toString());
+                getImagesByImageCategoryList(task.getResult().toObjects(ImageCategoryModel.class), categoryIdList);
+            }
+        });
+    }
+    private void getImagesByImageCategoryList(List<ImageCategoryModel> imageCategoryList, List<String> categoryIdList) {
+        imageViewModel.getMyImagesByListImageCategoryFirebase(imageCategoryList, new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        int thisSearchNumber = numberOfTimesSearched;
+                        filterImageWithOtherCategories(document.toObject(ImageModel.class), new ArrayList<>(categoryIdList), thisSearchNumber);
+                    } else {
+                        Log.d("Firestore", "No such document");
+                    }
+                } else {
+                    Log.d("Firestore", "get failed with ", task.getException());
+                }
+            }
+        });
+    }
 
     private void initUI() {
         binding.btChooseImage.setOnClickListener(new View.OnClickListener() {
@@ -164,7 +188,8 @@ public class MainActivity extends AppCompatActivity {
         ImageItemTouchHelper imageItemTouchHelper = new ImageItemTouchHelper(imageAdapter, imageViewModel);
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(imageItemTouchHelper);
         itemTouchHelper.attachToRecyclerView(binding.rvImages);
-        retrieveImages();
+        tryRetrieveImagesByRxJava();
+//        retrieveImages();
 //        hideSystemUI();
 
         binding.tvSeeMore.setOnClickListener(v -> {
@@ -243,6 +268,52 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     Log.w(TAG, "Error getting my imageModel", task.getException());
                 }
+            }
+        });
+    }
+
+    private void tryRetrieveImagesByRxJava() {
+        Function<Task<QuerySnapshot>, List<ImageModel>> function = new Function<Task<QuerySnapshot>, List<ImageModel>>() {
+            @Override
+            public List<ImageModel> apply(Task<QuerySnapshot> querySnapshotTask) throws Throwable {
+                Log.d("Mapping in rxjava", "");
+                return querySnapshotTask.getResult().toObjects(ImageModel.class);
+            }
+        };
+
+        Single<List<ImageModel>> observable = Single.fromCallable(() -> {
+            try {
+                Log.d("Using observable 1", "test");
+                Task<QuerySnapshot> task = myImagesRef.collection(IMAGE_COLLECTION_NAME)
+                        .orderBy("iId", Query.Direction.DESCENDING).limit(40).get();
+                Tasks.await(task);
+                return task;
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        })
+                .subscribeOn(Schedulers.io())
+                .map(function)
+                .observeOn(AndroidSchedulers.mainThread());
+
+        observable.subscribe(new SingleObserver<List<ImageModel>>() {
+            @Override
+            public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onSuccess(@io.reactivex.rxjava3.annotations.NonNull List<ImageModel> imageModels) {
+                for (ImageModel imageModel : imageModels) {
+                    Log.d("receiving Images", imageModel.imageURL);
+                    imageAdapter.addImage(imageModel);
+                }
+            }
+
+            @Override
+            public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
+                Log.d("error rxjava", e.getMessage());
+
             }
         });
     }
