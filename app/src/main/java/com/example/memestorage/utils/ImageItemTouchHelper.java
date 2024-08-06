@@ -55,15 +55,16 @@ public class ImageItemTouchHelper extends ItemTouchHelper.SimpleCallback {
                             imageViewModel.deleteImageFirebase(imageViewModel.getImages().get(position).iId, new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
+                                    imageViewModel.deleteImageFirebaseStorage(imageViewModel.getImages().get(position).imageURL);
+                                    imageViewModel.getImages().remove(position);
+                                    adapter.notifyItemRemoved(position);
+                                    Toast.makeText(adapter.getContext(),
+                                            "deleted image "
+                                            , Toast.LENGTH_SHORT).show();
+
                                     Log.d("Delete Image Firestore", "Image " + imageViewModel.getImages().get(position).imageName + " in Firestore deleted successfully");
                                 }
                             });
-                            imageViewModel.deleteImageFirebaseStorage(imageViewModel.getImages().get(position).imageURL);
-                            imageViewModel.getImages().remove(position);
-                            adapter.notifyItemRemoved(position);
-                            Toast.makeText(adapter.getContext(),
-                                    "deleted player "
-                                    , Toast.LENGTH_SHORT).show();
                         }
                     });
             builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
