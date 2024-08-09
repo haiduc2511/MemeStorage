@@ -166,12 +166,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initUI() {
-        binding.btChooseImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openFileChooser();
-            }
-        });
+        binding.btChooseImage.setOnClickListener(v -> openFileChooser());
 
         initCategories();
 
@@ -203,6 +198,12 @@ public class MainActivity extends AppCompatActivity {
 
             binding.rvCategories.setLayoutParams(params);
             isHeightWrapContent = !isHeightWrapContent;
+
+            if (binding.tvSeeMore.getText().equals("See more")) {
+                binding.tvSeeMore.setText("See less");
+            } else {
+                binding.tvSeeMore.setText("See more");
+            }
         });
 
         binding.btSetting.setOnClickListener(v -> {
@@ -273,27 +274,28 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void tryRetrieveImagesByRxJava() {
-        Function<Task<QuerySnapshot>, List<ImageModel>> function = new Function<Task<QuerySnapshot>, List<ImageModel>>() {
-            @Override
-            public List<ImageModel> apply(Task<QuerySnapshot> querySnapshotTask) throws Throwable {
-                Log.d("Mapping in rxjava", "");
-                return querySnapshotTask.getResult().toObjects(ImageModel.class);
-            }
-        };
+        String numberOfImages;
+        if (sharedPrefManager.contains("Number of images")) {
+            numberOfImages = sharedPrefManager.getData("Number of images");
+        } else {
+            numberOfImages = "100";
+        }
 
-        Single<List<ImageModel>> observable = Single.fromCallable(() -> {
-            try {
-                Log.d("Using observable 1", "test");
-                Task<QuerySnapshot> task = myImagesRef.collection(IMAGE_COLLECTION_NAME)
-                        .orderBy("iId", Query.Direction.DESCENDING).limit(40).get();
-                Tasks.await(task);
-                return task;
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        })
+
+        Single<List<ImageModel>> observable = Single.<List<ImageModel>>create(emitter -> {
+                    imageViewModel.getMyImagesFirebase(Integer.parseInt(numberOfImages), new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful()) {
+                                List<ImageModel> images = task.getResult().toObjects(ImageModel.class);
+                                emitter.onSuccess(images);
+                            } else {
+                                emitter.onError(task.getException());
+                            }
+                        }
+                    });
+                })
                 .subscribeOn(Schedulers.io())
-                .map(function)
                 .observeOn(AndroidSchedulers.mainThread());
 
         observable.subscribe(new SingleObserver<List<ImageModel>>() {
@@ -304,16 +306,18 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onSuccess(@io.reactivex.rxjava3.annotations.NonNull List<ImageModel> imageModels) {
+                imageViewModel.setImages(imageModels);
                 for (ImageModel imageModel : imageModels) {
                     Log.d("receiving Images", imageModel.imageURL);
                     imageAdapter.addImage(imageModel);
                 }
+                //imageAdapter.setImageModels(imageViewModel.getImages());
             }
 
             @Override
             public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
                 Log.d("error rxjava", e.getMessage());
-
+                Log.w(TAG, "Error getting my imageModel", e);
             }
         });
     }
