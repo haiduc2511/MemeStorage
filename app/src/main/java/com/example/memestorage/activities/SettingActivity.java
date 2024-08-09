@@ -36,32 +36,48 @@ public class SettingActivity extends AppCompatActivity {
     }
 
     private void initUI() {
+        binding.etLimitNumberOfImage.setHint("Number of images: " + sharedPrefManager.getData("Number of images"));
+        binding.etCompressPercentage.setHint("Compress %: " + sharedPrefManager.getData("Compress percentage"));
         binding.btLogOut.setOnClickListener(v -> {
-            CategoryViewModel.newInstance(getApplication()).setCategories(new ArrayList<>());
-            mAuth.signOut();
-            Intent intent = new Intent(this, StartActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            finish();
+            logOut();
         });
 
-        binding.btSaveSetting.setOnClickListener(v -> {
-            String numberOfImage = binding.etLimitNumberOfImage.getText().toString();
-            if (isNumberLessThan300(numberOfImage)) {
-                sharedPrefManager.saveData("Number of images", numberOfImage);
-            } else {
-                Toast.makeText(this, "Number of images not appropriate", Toast.LENGTH_SHORT).show();
-            }
-            String compressPercentage = binding.etCompressPercentage.getText().toString();
-            if (isNumberLessThan100(compressPercentage)) {
-                sharedPrefManager.saveData("Compress percentage", compressPercentage);
-            } else {
-                Toast.makeText(this, "Percentage not appropriate", Toast.LENGTH_SHORT).show();
-            }
-        });
+//        binding.btSaveSetting.setOnClickListener(v -> {
+//            saveSettings();
+//        });
     }
 
-    public boolean isNumberLessThan100(String str) {
+    @Override
+    protected void onDestroy() {
+        saveSettings();
+        super.onDestroy();
+    }
+
+    private void logOut() {
+        CategoryViewModel.newInstance(getApplication()).setCategories(new ArrayList<>());
+        mAuth.signOut();
+        Intent intent = new Intent(this, StartActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
+    }
+
+    private void saveSettings() {
+        String numberOfImage = binding.etLimitNumberOfImage.getText().toString();
+        if (isNumberLessThan300(numberOfImage)) {
+            sharedPrefManager.saveData("Number of images", numberOfImage);
+        } else {
+            Toast.makeText(this, "Number of images not appropriate", Toast.LENGTH_SHORT).show();
+        }
+        String compressPercentage = binding.etCompressPercentage.getText().toString();
+        if (isNumberLessThan100(compressPercentage)) {
+            sharedPrefManager.saveData("Compress percentage", compressPercentage);
+        } else {
+            Toast.makeText(this, "Percentage not appropriate", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private boolean isNumberLessThan100(String str) {
         try {
             // Parse the string to a double
             double num = Double.parseDouble(str);
@@ -72,7 +88,7 @@ public class SettingActivity extends AppCompatActivity {
             return false;
         }
     }
-    public boolean isNumberLessThan300(String str) {
+    private boolean isNumberLessThan300(String str) {
         try {
             // Parse the string to a double
             double num = Double.parseDouble(str);
