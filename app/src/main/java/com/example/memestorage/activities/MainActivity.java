@@ -193,6 +193,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        isFirstInternetConnectionCheck = true;
         unregisterReceiver(internetBroadcastReceiver);
     }
 
@@ -334,27 +335,6 @@ public class MainActivity extends AppCompatActivity {
             });
         }
     }
-
-//    private void retrieveImages() {
-//        String numberOfImages = "100";
-//        if (sharedPrefManager.contains("Number of images")) {
-//            numberOfImages = sharedPrefManager.getData("Number of images");
-//        }
-//        imageViewModel.getMyImagesFirebase(Integer.parseInt(numberOfImages), new OnCompleteListener<QuerySnapshot>() {
-//            @Override
-//            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-//                if (task.isSuccessful()) {
-//                    imageViewModel.setImages(task.getResult().toObjects(ImageModel.class));
-//                    for (ImageModel imageModel : imageViewModel.getImages()) {
-//                        Log.d(TAG, imageModel.toString());
-//                    }
-//                    imageAdapter.setImageModels(imageViewModel.getImages());
-//                } else {
-//                    Log.w(TAG, "Error getting my imageModel", task.getException());
-//                }
-//            }
-//        });
-//    }
 
     private void retrieveImagesByRxJava() {
         String numberOfImages;
