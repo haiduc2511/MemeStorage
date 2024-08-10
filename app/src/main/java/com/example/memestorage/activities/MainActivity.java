@@ -4,8 +4,10 @@ import static android.content.ContentValues.TAG;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.media.Image;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,9 +26,11 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 
+import com.example.memestorage.R;
 import com.example.memestorage.adapters.CategoryAdapter;
 import com.example.memestorage.adapters.MainCategoryAdapter;
 import com.example.memestorage.authentication.StartActivity;
+import com.example.memestorage.broadcastreceiver.InternetBroadcastReceiver;
 import com.example.memestorage.models.CategoryModel;
 import com.example.memestorage.models.ImageCategoryModel;
 import com.example.memestorage.utils.ImageItemTouchHelper;
@@ -66,6 +70,7 @@ import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.core.SingleObserver;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.functions.Function;
+import io.reactivex.rxjava3.functions.Predicate;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
@@ -79,6 +84,8 @@ public class MainActivity extends AppCompatActivity {
     MainCategoryAdapter categoryAdapter;
     ImageAdapter imageAdapter;
     int numberOfTimesSearched = 0;
+    boolean isFirstInternetConnectionCheck = true;
+    boolean hasInternetConnection = false;
     OnCategorySearchChosen onCategorySearchChosen = new OnCategorySearchChosen() {
         @Override
         public void OnCategorySearchChosen(Set<String> categoryIdSet) {
@@ -88,11 +95,11 @@ public class MainActivity extends AppCompatActivity {
             if (categoryIdSet.size() != 0) {
                 getImageCategoriesByCategoryIdList(categoryIdList);
             } else {
-                tryRetrieveImagesByRxJava();
+                retrieveImagesByRxJava();
             }
         }
     };
-
+    InternetBroadcastReceiver internetBroadcastReceiver;
     SharedPrefManager sharedPrefManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,13 +107,95 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        checkPermissions();
+        sharedPrefManager = new SharedPrefManager(this);
+        initViewModel();
+        initUI();
+        initInternetBroadcastReceiver();
+    }
+    private void initViewModel() {
         imageViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()).create(ImageViewModel.class);
         categoryViewModel = CategoryViewModel.newInstance(getApplication());
         imageCategoryViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()).create(ImageCategoryViewModel.class);
-        checkPermissions();
-        sharedPrefManager = new SharedPrefManager(this);
-        initUI();
+
     }
+    private void initInternetBroadcastReceiver() {
+        internetBroadcastReceiver = new InternetBroadcastReceiver(new InternetBroadcastReceiver.NetworkChangeListener() {
+            @Override
+            public void onNetworkChange(boolean isConnected) {
+                binding.linearLayout.setVisibility(View.VISIBLE);
+                if (isFirstInternetConnectionCheck) {
+                    if (!isConnected) {
+                        showNetworkStatusBar("Không có kết nối mạng", R.color.red);
+                        isFirstInternetConnectionCheck = false;
+                        hasInternetConnection = false;
+                    }
+                } else {
+                    if (isConnected) {
+                        hasInternetConnection = true;
+                        showNetworkStatusBar("Đã kết nối lại mạng", R.color.green);
+                    } else {
+                        hasInternetConnection = false;
+                        showNetworkStatusBar("Không có kết nối mạng", R.color.red);
+                    }
+                }
+
+            }
+        });
+    }
+    private void showNetworkStatusBar(String message, int colorResource) {
+        binding.linearLayout.setBackgroundColor(getResources().getColor(colorResource));
+        binding.tvNetworkStatus.setText(message);
+        Observable.interval(3, TimeUnit.SECONDS)
+                .takeWhile(new Predicate<Long>() {
+                    @Override
+                    public boolean test(Long aLong) throws Throwable {
+                        if (hasInternetConnection == true) {
+                            return false;
+                        }
+                        return true;
+                    }
+                }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Long>() {
+                    @Override
+                    public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(@io.reactivex.rxjava3.annotations.NonNull Long aLong) {
+                        if (!hasInternetConnection) {
+                            Toast.makeText(MainActivity.this, "Vẫn chưa có kết nối mạng", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        binding.tvNetworkStatus.setText("");
+                        binding.linearLayout.setVisibility(View.INVISIBLE);
+                    }
+                });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(internetBroadcastReceiver, filter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(internetBroadcastReceiver);
+    }
+
 
 //    private void hideSystemUI() {
 //        View decorView = getWindow().getDecorView();
@@ -170,7 +259,7 @@ public class MainActivity extends AppCompatActivity {
         ImageItemTouchHelper imageItemTouchHelper = new ImageItemTouchHelper(imageAdapter, imageViewModel);
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(imageItemTouchHelper);
         itemTouchHelper.attachToRecyclerView(binding.rvImages);
-        tryRetrieveImagesByRxJava();
+        retrieveImagesByRxJava();
     }
 
     private void initButtons() {
@@ -267,7 +356,7 @@ public class MainActivity extends AppCompatActivity {
 //        });
 //    }
 
-    private void tryRetrieveImagesByRxJava() {
+    private void retrieveImagesByRxJava() {
         String numberOfImages;
         if (sharedPrefManager.contains("Number of images")) {
             numberOfImages = sharedPrefManager.getData("Number of images");
@@ -361,7 +450,7 @@ public class MainActivity extends AppCompatActivity {
                 imageViewModel.uploadImagesFirebaseStorage(uriList, new OnSuccessUploadingImages() {
                     @Override
                     public void OnSuccessUploadingImages() {
-                        tryRetrieveImagesByRxJava();
+                        retrieveImagesByRxJava();
                     }
                 });
             }
