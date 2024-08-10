@@ -78,19 +78,7 @@ public class MainActivity extends AppCompatActivity {
     ImageCategoryViewModel imageCategoryViewModel;
     MainCategoryAdapter categoryAdapter;
     ImageAdapter imageAdapter;
-
-    private static final String IMAGE_COLLECTION_NAME = "images";
-    private static final String USER_COLLECTION_NAME = "users";
-    private String myUserId = Objects.requireNonNull(FirebaseHelper.getInstance().getAuth().getCurrentUser()).getUid();
-    private final FirebaseFirestore db = FirebaseHelper.getInstance().getDb();
-    private DocumentReference myImagesRef = db.collection(USER_COLLECTION_NAME).document(myUserId);
     int numberOfTimesSearched = 0;
-    // cnay có thể sửa bug filter bằng cách
-    // ta có thể set 1 imageAdapter mới vô, truyền cái imageAdapter qua parameter của từng hàm filter 1
-    // , add thì chỉ add vào adapter đấy thôi và các ảnh đang filter cũ sẽ add vào imageAdapter cũ
-    // (sẽ bị garbage collect)
-
-    //update: k được, lỗi với itemTouchHelper với lại có nhiều adapter quá helper attach k hiệu quả, dùng code vậy
     OnCategorySearchChosen onCategorySearchChosen = new OnCategorySearchChosen() {
         @Override
         public void OnCategorySearchChosen(Set<String> categoryIdSet) {
@@ -136,12 +124,11 @@ public class MainActivity extends AppCompatActivity {
 //        }
 //    }
     private void getImageCategoriesByCategoryIdList(List<String> categoryIdList) {
-        int thisSearchNumber = numberOfTimesSearched;
         imageCategoryViewModel.getImageCategoriesByCategoryIdFirebase(categoryIdList.get(0), new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 categoryIdList.remove(0);
-                Log.d("Get ImageCategoryModel", task.getResult().toObjects(ImageCategoryModel.class).toString());
+//                Log.d("Get ImageCategoryModel", task.getResult().toObjects(ImageCategoryModel.class).toString());
                 getImagesByImageCategoryList(task.getResult().toObjects(ImageCategoryModel.class), categoryIdList);
             }
         });
@@ -166,17 +153,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initUI() {
-        binding.btChooseImage.setOnClickListener(v -> openFileChooser());
+        initButtons();
 
         initCategories();
 
+        initImages();
 
-        binding.btGoToAddCategory.setOnClickListener(v -> {
-            Intent intent = new Intent(this, AddCategoryActivity.class);
-            startActivity(intent);
-        });
+//        retrieveImages();
+//        hideSystemUI();
+    }
 
-
+    private void initImages() {
         binding.rvImages.setLayoutManager(new GridLayoutManager(this, 3));
         imageAdapter = new ImageAdapter(new ArrayList<>(), MainActivity.this, getSupportFragmentManager());
         binding.rvImages.setAdapter(imageAdapter);
@@ -184,8 +171,10 @@ public class MainActivity extends AppCompatActivity {
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(imageItemTouchHelper);
         itemTouchHelper.attachToRecyclerView(binding.rvImages);
         tryRetrieveImagesByRxJava();
-//        retrieveImages();
-//        hideSystemUI();
+    }
+
+    private void initButtons() {
+        binding.btChooseImage.setOnClickListener(v -> openFileChooser());
 
         binding.tvSeeMore.setOnClickListener(v -> {
             ViewGroup.LayoutParams params = binding.rvCategories.getLayoutParams();
@@ -208,6 +197,11 @@ public class MainActivity extends AppCompatActivity {
 
         binding.btSetting.setOnClickListener(v -> {
             Intent intent = new Intent(this, SettingActivity.class);
+            startActivity(intent);
+        });
+
+        binding.btGoToAddCategory.setOnClickListener(v -> {
+            Intent intent = new Intent(this, AddCategoryActivity.class);
             startActivity(intent);
         });
     }
@@ -252,26 +246,26 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void retrieveImages() {
-        String numberOfImages = "100";
-        if (sharedPrefManager.contains("Number of images")) {
-            numberOfImages = sharedPrefManager.getData("Number of images");
-        }
-        imageViewModel.getMyImagesFirebase(Integer.parseInt(numberOfImages), new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    imageViewModel.setImages(task.getResult().toObjects(ImageModel.class));
-                    for (ImageModel imageModel : imageViewModel.getImages()) {
-                        Log.d(TAG, imageModel.toString());
-                    }
-                    imageAdapter.setImageModels(imageViewModel.getImages());
-                } else {
-                    Log.w(TAG, "Error getting my imageModel", task.getException());
-                }
-            }
-        });
-    }
+//    private void retrieveImages() {
+//        String numberOfImages = "100";
+//        if (sharedPrefManager.contains("Number of images")) {
+//            numberOfImages = sharedPrefManager.getData("Number of images");
+//        }
+//        imageViewModel.getMyImagesFirebase(Integer.parseInt(numberOfImages), new OnCompleteListener<QuerySnapshot>() {
+//            @Override
+//            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+//                if (task.isSuccessful()) {
+//                    imageViewModel.setImages(task.getResult().toObjects(ImageModel.class));
+//                    for (ImageModel imageModel : imageViewModel.getImages()) {
+//                        Log.d(TAG, imageModel.toString());
+//                    }
+//                    imageAdapter.setImageModels(imageViewModel.getImages());
+//                } else {
+//                    Log.w(TAG, "Error getting my imageModel", task.getException());
+//                }
+//            }
+//        });
+//    }
 
     private void tryRetrieveImagesByRxJava() {
         String numberOfImages;
@@ -367,7 +361,7 @@ public class MainActivity extends AppCompatActivity {
                 imageViewModel.uploadImagesFirebaseStorage(uriList, new OnSuccessUploadingImages() {
                     @Override
                     public void OnSuccessUploadingImages() {
-                        retrieveImages();
+                        tryRetrieveImagesByRxJava();
                     }
                 });
             }
