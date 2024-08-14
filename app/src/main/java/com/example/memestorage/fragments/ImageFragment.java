@@ -104,9 +104,6 @@ public class ImageFragment extends Fragment {
         binding.rvCategories.setLayoutManager(layoutManager);
         categoryViewModel = CategoryViewModel.newInstance();
         categoryAdapter = new CategoryAdapter(new ArrayList<>());
-        categoryViewModel.getCategories().observe(getViewLifecycleOwner(), categories -> {
-            categoryAdapter.setCategoryModels(categories);
-        });
         binding.rvCategories.setAdapter(categoryAdapter);
 
         imageViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()).create(ImageViewModel.class);

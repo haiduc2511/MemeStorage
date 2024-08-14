@@ -6,6 +6,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.media.Image;
 import android.net.ConnectivityManager;
 import android.net.Uri;
@@ -178,6 +179,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onComplete() {
                         binding.tvNetworkStatus.setText("");
+                        binding.linearLayout.setBackgroundColor(Color.TRANSPARENT);
                         binding.linearLayout.setVisibility(View.INVISIBLE);
                     }
                 });
@@ -302,13 +304,11 @@ public class MainActivity extends AppCompatActivity {
         binding.rvCategories.setLayoutManager(layoutManager);
         categoryAdapter = new MainCategoryAdapter(new ArrayList<>(), onCategorySearchChosen);
         binding.rvCategories.setAdapter(categoryAdapter);
-        categoryViewModel.getCategories().observe(MainActivity.this, categories -> {
-            categoryAdapter.setCategoryModels(categories);
-        });
         categoryViewModel.getCategoriesFirebase(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 categoryViewModel.setCategories(task.getResult().toObjects(CategoryModel.class));
+                categoryAdapter.setCategoryModels(categoryViewModel.getCategories());
             }
         });
 

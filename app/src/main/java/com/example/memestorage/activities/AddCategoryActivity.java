@@ -51,14 +51,14 @@ public class AddCategoryActivity extends AppCompatActivity {
         });
         FlexboxLayoutManager layoutManager = new FlexboxLayoutManager(getApplicationContext());
         layoutManager.setFlexDirection(FlexDirection.ROW);
-//        GridLayoutManager layoutManager = new GridLayoutManager(this, 3);
         binding.rvCategories.setLayoutManager(layoutManager);
         categoryAdapter = new AddCategoryCategoryAdapter(new ArrayList<>(), this);
         binding.rvCategories.setAdapter(categoryAdapter);
         CategoryItemTouchHelper categoryItemTouchHelper = new CategoryItemTouchHelper(categoryAdapter, categoryViewModel);
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(categoryItemTouchHelper);
         itemTouchHelper.attachToRecyclerView(binding.rvCategories);
-        getCategoriesFromFirebase();
+        categoryAdapter.setCategoryModels(categoryViewModel.getCategories());
+//        getCategoriesFromFirebase();
 
     }
 
@@ -66,9 +66,8 @@ public class AddCategoryActivity extends AppCompatActivity {
         categoryViewModel.getCategoriesFirebase(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                categoryViewModel.getCategories().observe(AddCategoryActivity.this, categories -> {
-                    categoryAdapter.setCategoryModels(categories);
-                });
+                categoryViewModel.setCategories(task.getResult().toObjects(CategoryModel.class));
+                categoryAdapter.setCategoryModels(categoryViewModel.getCategories());
             }
         });
 
@@ -85,6 +84,7 @@ public class AddCategoryActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         categoryViewModel.setCategories(task.getResult().toObjects(CategoryModel.class));
+                        categoryAdapter.setCategoryModels(categoryViewModel.getCategories());
                     }
                 });
                 Toast.makeText(AddCategoryActivity.this, "Add Category  " + categoryModel.categoryName + " successfully", Toast.LENGTH_SHORT).show();

@@ -7,6 +7,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.memestorage.models.CategoryModel;
 import com.example.memestorage.repositories.CategoryRepo;
@@ -19,7 +20,7 @@ import java.util.List;
 
 public class CategoryViewModel {
     private final CategoryRepo categoryRepo;
-    private static MutableLiveData<List<CategoryModel>> categories = new MutableLiveData<>(new ArrayList<>());
+    private static List<CategoryModel> categories = new ArrayList<>();
     private static CategoryViewModel categoryViewModel;
 
     private CategoryViewModel() {
@@ -33,10 +34,7 @@ public class CategoryViewModel {
                 @Override
                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
                     if (task.isSuccessful()) {
-                        List<CategoryModel> categoryList = task.getResult().toObjects(CategoryModel.class);
-                        categories.postValue(categoryList);
-                    } else {
-                        categories.postValue(new ArrayList<>());
+                        categories = task.getResult().toObjects(CategoryModel.class);
                     }
                 }
             });
@@ -45,12 +43,12 @@ public class CategoryViewModel {
     }
 
 
-    public LiveData<List<CategoryModel>> getCategories() {
+    public List<CategoryModel> getCategories() {
         return categories;
     }
 
     public void setCategories(List<CategoryModel> categories) {
-        CategoryViewModel.categories.setValue(categories);
+        this.categories = categories;
     }
 
     public void addCategoryFirebase(CategoryModel categoryModel, OnCompleteListener<Void> onCompleteListener) {
