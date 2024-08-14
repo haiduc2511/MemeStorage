@@ -43,6 +43,10 @@ public class CategoryViewModel {
         }
         return categoryViewModel;
     }
+    public static void resetInstance() {
+        categoryViewModel = null;
+    }
+
 
 
     public List<CategoryModel> getCategories() {
