@@ -64,7 +64,7 @@ public class ImageViewModel extends AndroidViewModel {
     public void deleteImageFirebase(String id, OnCompleteListener<Void> onCompleteListener) {
         imageRepo.deleteImageFirebase(id, onCompleteListener);
     }
-    public void uploadImagesFirebaseStorage(List<Uri> imageUris, MainActivity.OnSuccessUploadingImages onSuccessUploadingImages) {
+    public void uploadImagesFirebaseStorage(List<Uri> imageUris, MainActivity.UploadImageListener onSuccessUploadingImages) {
         imageRepo.uploadImagesFirebaseStorage(imageUris,getApplication().getContentResolver() , onSuccessUploadingImages);
     }
 

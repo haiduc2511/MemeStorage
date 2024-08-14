@@ -78,7 +78,7 @@ public class ImageRepo {
         myImagesRef.collection(IMAGE_COLLECTION_NAME).document(id).delete().addOnCompleteListener(onCompleteListener);
     }
 
-    public void uploadImagesFirebaseStorage(List<Uri> imageUris, ContentResolver contentResolver, MainActivity.OnSuccessUploadingImages onSuccessUploadingImages) {
+    public void uploadImagesFirebaseStorage(List<Uri> imageUris, ContentResolver contentResolver, MainActivity.UploadImageListener onSuccessUploadingImages) {
         if (!imageUris.isEmpty()) {
             StorageReference storageReference = FirebaseStorage.getInstance().getReference("uploads");
 
@@ -110,7 +110,7 @@ public class ImageRepo {
                                             image.imageURL = downloadUri.toString();
                                             addImageFirebase(image);
                                             Log.d(TAG, "Upload images successful. Download URL: " + downloadUri.toString());
-                                            onSuccessUploadingImages.OnSuccessUploadingImages();
+                                            onSuccessUploadingImages.onSuccessUploadingImages();
                                         }
                                     });
                                 }

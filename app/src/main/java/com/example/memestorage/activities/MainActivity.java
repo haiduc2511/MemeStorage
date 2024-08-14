@@ -86,9 +86,9 @@ public class MainActivity extends AppCompatActivity {
     int numberOfTimesSearched = 0;
     boolean isFirstInternetConnectionCheck = true;
     boolean hasInternetConnection = false;
-    OnCategorySearchChosen onCategorySearchChosen = new OnCategorySearchChosen() {
+    CategorySearchListener onCategorySearchChosen = new CategorySearchListener() {
         @Override
-        public void OnCategorySearchChosen(Set<String> categoryIdSet) {
+        public void onCategorySearchChosen(Set<String> categoryIdSet) {
             numberOfTimesSearched++;
             List<String> categoryIdList = new ArrayList<>(categoryIdSet);
             imageAdapter.setImageModels(new ArrayList<>());
@@ -302,12 +302,13 @@ public class MainActivity extends AppCompatActivity {
         binding.rvCategories.setLayoutManager(layoutManager);
         categoryAdapter = new MainCategoryAdapter(new ArrayList<>(), onCategorySearchChosen);
         binding.rvCategories.setAdapter(categoryAdapter);
+        categoryViewModel.getCategories().observe(MainActivity.this, categories -> {
+            categoryAdapter.setCategoryModels(categories);
+        });
         categoryViewModel.getCategoriesFirebase(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                categoryViewModel.getCategories().observe(MainActivity.this, categories -> {
-                    categoryAdapter.setCategoryModels(categories);
-                });
+                categoryViewModel.setCategories(task.getResult().toObjects(CategoryModel.class));
             }
         });
 
@@ -337,6 +338,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void retrieveImagesByRxJava() {
+        imageAdapter.setImageModels(new ArrayList<>());
         String numberOfImages;
         if (sharedPrefManager.contains("Number of images")) {
             numberOfImages = sharedPrefManager.getData("Number of images");
@@ -427,9 +429,9 @@ public class MainActivity extends AppCompatActivity {
                     Uri imageUri = data.getData();
                     uriList.add(imageUri);
                 }
-                imageViewModel.uploadImagesFirebaseStorage(uriList, new OnSuccessUploadingImages() {
+                imageViewModel.uploadImagesFirebaseStorage(uriList, new UploadImageListener() {
                     @Override
-                    public void OnSuccessUploadingImages() {
+                    public void onSuccessUploadingImages() {
                         retrieveImagesByRxJava();
                     }
                 });
@@ -437,11 +439,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public interface OnSuccessUploadingImages {
-        public void OnSuccessUploadingImages();
+    public interface UploadImageListener {
+        public void onSuccessUploadingImages();
     }
 
-    public interface OnCategorySearchChosen {
-        public void OnCategorySearchChosen(Set<String> categories);
+    public interface CategorySearchListener {
+        public void onCategorySearchChosen(Set<String> categories);
     }
 }

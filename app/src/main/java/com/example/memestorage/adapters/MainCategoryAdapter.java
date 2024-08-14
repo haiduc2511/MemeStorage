@@ -20,9 +20,9 @@ import java.util.Set;
 public class MainCategoryAdapter extends RecyclerView.Adapter<MainCategoryAdapter.CategoryViewHolder> {
     private List<CategoryModel> categoryModels;
     private Set<String> selectedCategories = new HashSet<>();
-    private MainActivity.OnCategorySearchChosen onCategorySearchChosen;
+    private MainActivity.CategorySearchListener onCategorySearchChosen;
 
-    public MainCategoryAdapter(List<CategoryModel> categoryModels, MainActivity.OnCategorySearchChosen onCategorySearchChosen) {
+    public MainCategoryAdapter(List<CategoryModel> categoryModels, MainActivity.CategorySearchListener onCategorySearchChosen) {
         this.categoryModels = categoryModels;
         this.onCategorySearchChosen = onCategorySearchChosen;
     }
@@ -82,7 +82,7 @@ public class MainCategoryAdapter extends RecyclerView.Adapter<MainCategoryAdapte
                 holder.binding.clLayout.setBackgroundColor(Color.GREEN);
                 selectedCategories.add(categoryId);
             }
-            onCategorySearchChosen.OnCategorySearchChosen(selectedCategories);
+            onCategorySearchChosen.onCategorySearchChosen(selectedCategories);
         }
     }
 }
