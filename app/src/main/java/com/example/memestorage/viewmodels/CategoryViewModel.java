@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.memestorage.models.CategoryModel;
 import com.example.memestorage.repositories.CategoryRepo;
+import com.example.memestorage.utils.CategoryObserver;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -22,6 +23,7 @@ public class CategoryViewModel {
     private final CategoryRepo categoryRepo;
     private static List<CategoryModel> categories = new ArrayList<>();
     private static CategoryViewModel categoryViewModel;
+    private List<CategoryObserver> categoryObservers = new ArrayList<>();
 
     private CategoryViewModel() {
         categoryRepo = new CategoryRepo();
@@ -46,9 +48,15 @@ public class CategoryViewModel {
     public List<CategoryModel> getCategories() {
         return categories;
     }
+    public void addCategoryObserver(CategoryObserver categoryObserver) {
+        categoryObservers.add(categoryObserver);
+    }
 
     public void setCategories(List<CategoryModel> categories) {
         this.categories = categories;
+        for (CategoryObserver categoryObserver : categoryObservers) {
+            categoryObserver.notifyAdapter(categories);
+        }
     }
 
     public void addCategoryFirebase(CategoryModel categoryModel, OnCompleteListener<Void> onCompleteListener) {

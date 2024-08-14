@@ -57,6 +57,7 @@ public class AddCategoryActivity extends AppCompatActivity {
         CategoryItemTouchHelper categoryItemTouchHelper = new CategoryItemTouchHelper(categoryAdapter, categoryViewModel);
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(categoryItemTouchHelper);
         itemTouchHelper.attachToRecyclerView(binding.rvCategories);
+        categoryViewModel.addCategoryObserver(categoryAdapter);
         categoryAdapter.setCategoryModels(categoryViewModel.getCategories());
 //        getCategoriesFromFirebase();
 
@@ -84,7 +85,7 @@ public class AddCategoryActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         categoryViewModel.setCategories(task.getResult().toObjects(CategoryModel.class));
-                        categoryAdapter.setCategoryModels(categoryViewModel.getCategories());
+//                        categoryAdapter.setCategoryModels(categoryViewModel.getCategories());
                     }
                 });
                 Toast.makeText(AddCategoryActivity.this, "Add Category  " + categoryModel.categoryName + " successfully", Toast.LENGTH_SHORT).show();

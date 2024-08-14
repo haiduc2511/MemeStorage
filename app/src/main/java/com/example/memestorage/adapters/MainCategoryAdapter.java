@@ -12,12 +12,13 @@ import com.example.memestorage.activities.MainActivity;
 import com.example.memestorage.databinding.ItemCategoryBinding;
 import com.example.memestorage.models.CategoryModel;
 import com.example.memestorage.models.ImageCategoryModel;
+import com.example.memestorage.utils.CategoryObserver;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class MainCategoryAdapter extends RecyclerView.Adapter<MainCategoryAdapter.CategoryViewHolder> {
+public class MainCategoryAdapter extends RecyclerView.Adapter<MainCategoryAdapter.CategoryViewHolder> implements CategoryObserver {
     private List<CategoryModel> categoryModels;
     private Set<String> selectedCategories = new HashSet<>();
     private MainActivity.CategorySearchListener onCategorySearchChosen;
@@ -54,6 +55,11 @@ public class MainCategoryAdapter extends RecyclerView.Adapter<MainCategoryAdapte
         holder.binding.clLayout.setOnClickListener(v -> {
             holder.toggleSelection(holder, categoryModel.cId);
         });
+    }
+
+    @Override
+    public void notifyAdapter(List<CategoryModel> categoryModels) {
+        this.setCategoryModels(categoryModels);
     }
 
     @Override

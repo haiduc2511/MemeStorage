@@ -304,11 +304,11 @@ public class MainActivity extends AppCompatActivity {
         binding.rvCategories.setLayoutManager(layoutManager);
         categoryAdapter = new MainCategoryAdapter(new ArrayList<>(), onCategorySearchChosen);
         binding.rvCategories.setAdapter(categoryAdapter);
+        categoryViewModel.addCategoryObserver(categoryAdapter);
         categoryViewModel.getCategoriesFirebase(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 categoryViewModel.setCategories(task.getResult().toObjects(CategoryModel.class));
-                categoryAdapter.setCategoryModels(categoryViewModel.getCategories());
             }
         });
 
