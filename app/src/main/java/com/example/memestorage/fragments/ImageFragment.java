@@ -78,7 +78,7 @@ public class ImageFragment extends Fragment {
         return binding.getRoot();
     }
     private void retrieveData() {
-        categoryViewModel = CategoryViewModel.newInstance(requireActivity().getApplication());
+        categoryViewModel = CategoryViewModel.newInstance();
         imageCategoryViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()).create(ImageCategoryViewModel.class);
         imageCategoryViewModel.getImageCategoriesByImageIdFirebase(imageModel, new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -102,7 +102,7 @@ public class ImageFragment extends Fragment {
         FlexboxLayoutManager layoutManager = new FlexboxLayoutManager(requireContext().getApplicationContext());
         layoutManager.setFlexDirection(FlexDirection.ROW);
         binding.rvCategories.setLayoutManager(layoutManager);
-        categoryViewModel = CategoryViewModel.newInstance(requireActivity().getApplication());
+        categoryViewModel = CategoryViewModel.newInstance();
         categoryAdapter = new CategoryAdapter(new ArrayList<>());
         categoryViewModel.getCategories().observe(getViewLifecycleOwner(), categories -> {
             categoryAdapter.setCategoryModels(categories);

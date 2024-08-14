@@ -40,7 +40,7 @@ public class AddCategoryActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         binding = ActivityAddCategoryBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        categoryViewModel = CategoryViewModel.newInstance(getApplication());
+        categoryViewModel = CategoryViewModel.newInstance();
         initUI();
     }
 

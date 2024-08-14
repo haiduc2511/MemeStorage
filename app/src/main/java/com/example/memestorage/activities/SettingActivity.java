@@ -54,7 +54,7 @@ public class SettingActivity extends AppCompatActivity {
     }
 
     private void logOut() {
-        CategoryViewModel.newInstance(getApplication()).setCategories(new ArrayList<>());
+        CategoryViewModel.newInstance().setCategories(new ArrayList<>());
         mAuth.signOut();
         Intent intent = new Intent(this, StartActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

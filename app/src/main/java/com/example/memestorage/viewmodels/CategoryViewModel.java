@@ -17,19 +17,18 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CategoryViewModel extends AndroidViewModel {
+public class CategoryViewModel {
     private final CategoryRepo categoryRepo;
     private static MutableLiveData<List<CategoryModel>> categories = new MutableLiveData<>(new ArrayList<>());
     private static CategoryViewModel categoryViewModel;
 
-    private CategoryViewModel(@NonNull Application application) {
-        super(application);
+    private CategoryViewModel() {
         categoryRepo = new CategoryRepo();
     }
 
-    public static CategoryViewModel newInstance(@NonNull Application application) {
+    public static CategoryViewModel newInstance() {
         if (categoryViewModel == null) {
-            categoryViewModel = new CategoryViewModel(application);
+            categoryViewModel = new CategoryViewModel();
             categoryViewModel.getCategoriesFirebase(new OnCompleteListener<QuerySnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<QuerySnapshot> task) {

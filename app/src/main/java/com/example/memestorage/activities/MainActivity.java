@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
     }
     private void initViewModel() {
         imageViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()).create(ImageViewModel.class);
-        categoryViewModel = CategoryViewModel.newInstance(getApplication());
+        categoryViewModel = CategoryViewModel.newInstance();
         imageCategoryViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()).create(ImageCategoryViewModel.class);
 
     }
