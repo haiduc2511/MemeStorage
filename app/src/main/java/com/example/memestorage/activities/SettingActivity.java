@@ -42,14 +42,14 @@ public class SettingActivity extends AppCompatActivity {
             logOut();
         });
 
-//        binding.btSaveSetting.setOnClickListener(v -> {
-//            saveSettings();
-//        });
+        binding.btSaveSetting.setOnClickListener(v -> {
+            saveSettings();
+        });
     }
 
     @Override
     protected void onDestroy() {
-        saveSettings();
+//        saveSettings();
         super.onDestroy();
     }
 
