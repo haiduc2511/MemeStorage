@@ -54,10 +54,11 @@ public class CategoryViewModel {
     }
     public void addCategoryObserver(CategoryObserver categoryObserver) {
         categoryObservers.add(categoryObserver);
+        categoryObserver.notifyAdapter(categories);
     }
 
     public void setCategories(List<CategoryModel> categories) {
-        this.categories = categories;
+        CategoryViewModel.categories = categories;
         for (CategoryObserver categoryObserver : categoryObservers) {
             categoryObserver.notifyAdapter(categories);
         }

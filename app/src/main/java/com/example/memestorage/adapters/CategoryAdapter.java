@@ -11,12 +11,13 @@ import com.example.memestorage.R;
 import com.example.memestorage.databinding.ItemCategoryBinding;
 import com.example.memestorage.models.CategoryModel;
 import com.example.memestorage.models.ImageCategoryModel;
+import com.example.memestorage.utils.CategoryObserver;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder> {
+public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder> implements CategoryObserver {
     private List<CategoryModel> categoryModels;
     private Set<String> selectedCategories = new HashSet<>();
 
@@ -68,7 +69,10 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
     public int getItemCount() {
         return categoryModels.size();
     }
-
+    @Override
+    public void notifyAdapter(List<CategoryModel> categoryModels) {
+        this.setCategoryModels(categoryModels);
+    }
     public class CategoryViewHolder extends RecyclerView.ViewHolder {
         ItemCategoryBinding binding;
 

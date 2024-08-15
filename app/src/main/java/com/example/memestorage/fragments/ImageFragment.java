@@ -105,6 +105,7 @@ public class ImageFragment extends Fragment {
         categoryViewModel = CategoryViewModel.newInstance();
         categoryAdapter = new CategoryAdapter(new ArrayList<>());
         binding.rvCategories.setAdapter(categoryAdapter);
+        categoryViewModel.addCategoryObserver(categoryAdapter);
 
         imageViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()).create(ImageViewModel.class);
         binding.btSaveImage.setOnClickListener(v -> {

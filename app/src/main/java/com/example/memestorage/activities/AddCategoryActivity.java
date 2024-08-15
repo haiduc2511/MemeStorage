@@ -68,7 +68,6 @@ public class AddCategoryActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 categoryViewModel.setCategories(task.getResult().toObjects(CategoryModel.class));
-                categoryAdapter.setCategoryModels(categoryViewModel.getCategories());
             }
         });
 
