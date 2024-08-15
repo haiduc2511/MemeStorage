@@ -372,6 +372,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onSuccess(@io.reactivex.rxjava3.annotations.NonNull List<ImageModel> imageModels) {
                 imageViewModel.setImages(imageModels);
+                if (imageModels.isEmpty()) {
+                    binding.getRoot().setBackgroundResource(R.drawable.background3);
+                } else {
+                    binding.getRoot().setBackgroundResource(R.drawable.background);
+                }
                 for (ImageModel imageModel : imageModels) {
                     Log.d("receiving Images", imageModel.imageURL);
                     imageAdapter.addImage(imageModel);
