@@ -32,6 +32,7 @@ import com.example.memestorage.adapters.CategoryAdapter;
 import com.example.memestorage.adapters.MainCategoryAdapter;
 import com.example.memestorage.authentication.StartActivity;
 import com.example.memestorage.broadcastreceiver.InternetBroadcastReceiver;
+import com.example.memestorage.broadcastreceiver.NetworkStatusManager;
 import com.example.memestorage.models.CategoryModel;
 import com.example.memestorage.models.ImageCategoryModel;
 import com.example.memestorage.utils.ImageItemTouchHelper;
@@ -69,6 +70,7 @@ import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.core.Scheduler;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.core.SingleObserver;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.functions.Function;
 import io.reactivex.rxjava3.functions.Predicate;
@@ -86,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
     ImageAdapter imageAdapter;
     int numberOfTimesSearched = 0;
     boolean isFirstInternetConnectionCheck = true;
-    boolean hasInternetConnection = false;
+    NetworkStatusManager networkStatusManager = NetworkStatusManager.getInstance();
     CategorySearchListener onCategorySearchChosen = new CategorySearchListener() {
         @Override
         public void onCategorySearchChosen(Set<String> categoryIdSet) {
@@ -102,6 +104,8 @@ public class MainActivity extends AppCompatActivity {
     };
     InternetBroadcastReceiver internetBroadcastReceiver;
     SharedPrefManager sharedPrefManager;
+    CompositeDisposable compositeDisposable = new CompositeDisposable();
+    Observable<Long> networkObservable;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -112,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
         sharedPrefManager = new SharedPrefManager(this);
         initViewModel();
         initUI();
-        initInternetBroadcastReceiver();
+//        initInternetBroadcastReceiver();
     }
     private void initViewModel() {
         imageViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()).create(ImageViewModel.class);
@@ -124,19 +128,19 @@ public class MainActivity extends AppCompatActivity {
         internetBroadcastReceiver = new InternetBroadcastReceiver(new InternetBroadcastReceiver.NetworkChangeListener() {
             @Override
             public void onNetworkChange(boolean isConnected) {
-                binding.linearLayout.setVisibility(View.VISIBLE);
+//                binding.linearLayout.setVisibility(View.VISIBLE);
                 if (isFirstInternetConnectionCheck) {
                     if (!isConnected) {
                         showNetworkStatusBar("Không có kết nối mạng", R.color.red);
                         isFirstInternetConnectionCheck = false;
-                        hasInternetConnection = false;
+                        networkStatusManager.setConnected(false);
                     }
                 } else {
                     if (isConnected) {
-                        hasInternetConnection = true;
+                        networkStatusManager.setConnected(true);
                         showNetworkStatusBar("Đã kết nối lại mạng", R.color.green);
                     } else {
-                        hasInternetConnection = false;
+                        networkStatusManager.setConnected(false);
                         showNetworkStatusBar("Không có kết nối mạng", R.color.red);
                     }
                 }
@@ -147,26 +151,23 @@ public class MainActivity extends AppCompatActivity {
     private void showNetworkStatusBar(String message, int colorResource) {
         binding.linearLayout.setBackgroundColor(getResources().getColor(colorResource));
         binding.tvNetworkStatus.setText(message);
-        Observable.interval(3, TimeUnit.SECONDS)
+        networkObservable = Observable.interval(3, TimeUnit.SECONDS)
                 .takeWhile(new Predicate<Long>() {
                     @Override
                     public boolean test(Long aLong) throws Throwable {
-                        if (hasInternetConnection == true) {
-                            return false;
-                        }
-                        return true;
+                        return !networkStatusManager.isConnected();
                     }
                 }).subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<Long>() {
+                .observeOn(AndroidSchedulers.mainThread());
+        networkObservable.subscribe(new Observer<Long>() {
                     @Override
                     public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
-
+                        compositeDisposable.add(d);
                     }
 
                     @Override
                     public void onNext(@io.reactivex.rxjava3.annotations.NonNull Long aLong) {
-                        if (!hasInternetConnection) {
+                        if (!networkStatusManager.isConnected()) {
                             Toast.makeText(MainActivity.this, "Vẫn chưa có kết nối mạng", Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -179,8 +180,9 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onComplete() {
                         binding.tvNetworkStatus.setText("");
+                        Toast.makeText(MainActivity.this, "Đã có kết nối mạng", Toast.LENGTH_SHORT).show();
                         binding.linearLayout.setBackgroundColor(Color.TRANSPARENT);
-                        binding.linearLayout.setVisibility(View.INVISIBLE);
+//                        binding.linearLayout.setVisibility(View.INVISIBLE);
                     }
                 });
     }
@@ -195,12 +197,30 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        isFirstInternetConnectionCheck = true;
         unregisterReceiver(internetBroadcastReceiver);
+        isFirstInternetConnectionCheck = true;
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        compositeDisposable.clear();
+        binding.tvNetworkStatus.setText("");
+        binding.linearLayout.setBackgroundColor(Color.TRANSPARENT);
+    }
 
-//    private void hideSystemUI() {
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        initInternetBroadcastReceiver();
+    }
+
+    //    private void hideSystemUI() {
 //        View decorView = getWindow().getDecorView();
 //        int uiOptions = View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
 //                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
@@ -371,7 +391,6 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onSuccess(@io.reactivex.rxjava3.annotations.NonNull List<ImageModel> imageModels) {
-//                imageViewModel.setImages(imageModels);
                 if (imageModels.isEmpty()) {
                     binding.getRoot().setBackgroundResource(R.drawable.background3);
                 } else {
@@ -381,7 +400,6 @@ public class MainActivity extends AppCompatActivity {
                     Log.d("receiving Images", imageModel.imageURL);
                     imageAdapter.addImage(imageModel);
                 }
-                //imageAdapter.setImageModels(imageViewModel.getImages());
             }
 
             @Override

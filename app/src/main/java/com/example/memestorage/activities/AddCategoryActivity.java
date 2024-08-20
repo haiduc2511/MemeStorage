@@ -1,6 +1,9 @@
 package com.example.memestorage.activities;
 
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -15,6 +18,8 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 
 import com.example.memestorage.adapters.AddCategoryCategoryAdapter;
 import com.example.memestorage.adapters.MainCategoryAdapter;
+import com.example.memestorage.broadcastreceiver.InternetBroadcastReceiver;
+import com.example.memestorage.broadcastreceiver.NetworkStatusManager;
 import com.example.memestorage.databinding.ActivityAddCategoryBinding;
 import com.example.memestorage.utils.CategoryItemTouchHelper;
 import com.example.memestorage.viewmodels.CategoryViewModel;
@@ -33,6 +38,8 @@ public class AddCategoryActivity extends AppCompatActivity {
     ActivityAddCategoryBinding binding;
     CategoryViewModel categoryViewModel;
     AddCategoryCategoryAdapter categoryAdapter;
+    NetworkStatusManager networkStatusManager = NetworkStatusManager.getInstance();
+    InternetBroadcastReceiver internetBroadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +48,7 @@ public class AddCategoryActivity extends AppCompatActivity {
         binding = ActivityAddCategoryBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         categoryViewModel = CategoryViewModel.newInstance();
+        initInternetBroadcastReceiver();
         initUI();
     }
 
@@ -61,6 +69,30 @@ public class AddCategoryActivity extends AppCompatActivity {
         categoryAdapter.setCategoryModels(categoryViewModel.getCategories());
 //        getCategoriesFromFirebase();
 
+    }
+    private void initInternetBroadcastReceiver() {
+        internetBroadcastReceiver = new InternetBroadcastReceiver(new InternetBroadcastReceiver.NetworkChangeListener() {
+            @Override
+            public void onNetworkChange(boolean isConnected) {
+                if (isConnected) {
+                    networkStatusManager.setConnected(true);
+                } else {
+                    networkStatusManager.setConnected(false);
+                }
+            }
+        });
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(internetBroadcastReceiver, filter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(internetBroadcastReceiver);
     }
 
     private void getCategoriesFromFirebase() {
