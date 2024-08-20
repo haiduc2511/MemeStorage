@@ -54,7 +54,7 @@ public class CategoryViewModel {
     }
     public void addCategoryObserver(CategoryObserver categoryObserver) {
         categoryObservers.add(categoryObserver);
-        categoryObserver.notifyAdapter(categories);
+        categoryObserver.notifyAdapter(categories); //sợ memory leak (ở 100 cái imageFragment mình bấm vào) ko?
     }
 
     public void setCategories(List<CategoryModel> categories) {
