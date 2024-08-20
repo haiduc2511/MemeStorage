@@ -43,41 +43,42 @@ public class ImageItemTouchHelper extends ItemTouchHelper.SimpleCallback {
     @Override
     public void onSwiped(@NonNull final RecyclerView.ViewHolder viewHolder, int direction) {
         final int position = viewHolder.getAdapterPosition();
-        if (direction == ItemTouchHelper.LEFT) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(adapter.getContext());
-            builder.setTitle("Delete Player");
-            builder.setMessage("Are you sure you want to delete " +
-                     " ?");
-            builder.setPositiveButton("Confirm",
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            imageViewModel.deleteImageFirebase(imageViewModel.getImages().get(position).iId, new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(adapter.getContext());
+        builder.setTitle("Delete Image");
+        builder.setMessage("Are you sure you want to delete " +
+                 " ?");
+        builder.setPositiveButton("Confirm",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        imageViewModel.deleteImageFirebase(imageViewModel.getImages().get(position).iId, new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()) {
                                     imageViewModel.deleteImageFirebaseStorage(imageViewModel.getImages().get(position).imageURL);
                                     imageViewModel.getImages().remove(position);
                                     adapter.notifyItemRemoved(position);
                                     Toast.makeText(adapter.getContext(),
-                                            "deleted image "
+                                            "Deleted image "
                                             , Toast.LENGTH_SHORT).show();
 
                                     Log.d("Delete Image Firestore", "Image " + imageViewModel.getImages().get(position).imageName + " in Firestore deleted successfully");
+                                } else {
+                                    Log.d("Delete Image Firestore", "Image " + imageViewModel.getImages().get(position).imageName + " failed");
                                 }
-                            });
-                        }
-                    });
-            builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    adapter.notifyItemChanged(viewHolder.getAdapterPosition());
-                }
-            });
-            AlertDialog dialog = builder.create();
-            dialog.show();
-        } else {
-            Toast.makeText(adapter.getContext(), "Méo cho edit tên heh (chủ yếu do lười :v) " + position, Toast.LENGTH_SHORT).show();
-        }
+                            }
+                        });
+                    }
+                });
+        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                adapter.notifyItemChanged(viewHolder.getAdapterPosition());
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
         adapter.notifyItemChanged(viewHolder.getAdapterPosition());
     }
 
@@ -96,7 +97,7 @@ public class ImageItemTouchHelper extends ItemTouchHelper.SimpleCallback {
 //        float cornerRadius = 20 * density;
 
         if (dX > 0) {
-            icon = ContextCompat.getDrawable(adapter.getContext(), R.drawable.ic_baseline_edit);
+            icon = ContextCompat.getDrawable(adapter.getContext(), R.drawable.ic_baseline_delete);
 //            background = new ColorDrawable(ContextCompat.getColor(adapter.getContext(), R.color.green));
         } else {
             icon = ContextCompat.getDrawable(adapter.getContext(), R.drawable.ic_baseline_delete);
@@ -113,10 +114,10 @@ public class ImageItemTouchHelper extends ItemTouchHelper.SimpleCallback {
         if (dX < -maxSwipeDistance) dX = -maxSwipeDistance;
 
         if (dX > 0) { // Swiping to the right
-            icon = ContextCompat.getDrawable(adapter.getContext(), R.drawable.ic_baseline_edit);
+            icon = ContextCompat.getDrawable(adapter.getContext(), R.drawable.ic_baseline_delete);
             background = new GradientDrawable();
             background.setCornerRadius(40); // Set corner radius in dp
-            background.setColor(ContextCompat.getColor(adapter.getContext(), R.color.green));
+            background.setColor(Color.RED);
         } else if (dX < 0) { // Swiping to the left
             icon = ContextCompat.getDrawable(adapter.getContext(), R.drawable.ic_baseline_delete);
             background = new GradientDrawable();
