@@ -4,6 +4,7 @@ import static android.content.ContentValues.TAG;
 
 import android.content.ContentResolver;
 import android.graphics.Bitmap;
+import android.media.Image;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -46,10 +47,11 @@ public class ImageRepo {
     }
 
 
-    public void addImageFirebase(ImageModel imageModel) {
+    public ImageModel addImageFirebase(ImageModel imageModel) {
         String id = db.collection(USER_COLLECTION_NAME).document(myUserId).collection(IMAGE_COLLECTION_NAME).document().getId(); // Generate a new ID
         imageModel.iId = imageModel.imageName + id;
         myImagesRef.collection(IMAGE_COLLECTION_NAME).document(imageModel.iId).set(imageModel);
+        return imageModel;
     }
 
     // Read all my Images
@@ -108,9 +110,9 @@ public class ImageRepo {
                                             image.imageName = fileReference.getName();
                                             image.userId = myUserId;
                                             image.imageURL = downloadUri.toString();
-                                            addImageFirebase(image);
+                                            image = addImageFirebase(image);
                                             Log.d(TAG, "Upload images successful. Download URL: " + downloadUri.toString());
-                                            onSuccessUploadingImages.onSuccessUploadingImages();
+                                            onSuccessUploadingImages.onSuccessUploadingImages(image);
                                         }
                                     });
                                 }

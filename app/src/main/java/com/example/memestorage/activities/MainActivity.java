@@ -371,7 +371,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onSuccess(@io.reactivex.rxjava3.annotations.NonNull List<ImageModel> imageModels) {
-                imageViewModel.setImages(imageModels);
+//                imageViewModel.setImages(imageModels);
                 if (imageModels.isEmpty()) {
                     binding.getRoot().setBackgroundResource(R.drawable.background3);
                 } else {
@@ -436,8 +436,9 @@ public class MainActivity extends AppCompatActivity {
                 }
                 imageViewModel.uploadImagesFirebaseStorage(uriList, new UploadImageListener() {
                     @Override
-                    public void onSuccessUploadingImages() {
-                        retrieveImagesByRxJava();
+                    public void onSuccessUploadingImages(ImageModel imageModel) {
+                        imageAdapter.addImageFirst(imageModel);
+                        binding.rvImages.scrollToPosition(0);
                     }
                 });
             }
@@ -445,7 +446,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public interface UploadImageListener {
-        public void onSuccessUploadingImages();
+        public void onSuccessUploadingImages(ImageModel imageModel);
     }
 
     public interface CategorySearchListener {

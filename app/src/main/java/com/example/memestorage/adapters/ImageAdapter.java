@@ -47,6 +47,11 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
         notifyItemInserted(imageModels.size() - 1);
     }
 
+    public void addImageFirst(ImageModel imageModel) {
+        imageModels.add(0, imageModel);
+        notifyItemInserted(0);
+    }
+
     public void setImageModels(List<ImageModel> imageModels) {
         this.imageModels = imageModels;
         notifyDataSetChanged();
