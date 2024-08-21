@@ -21,21 +21,30 @@ import com.example.memestorage.R;
 import com.example.memestorage.databinding.ItemImageBinding;
 import com.example.memestorage.models.ImageModel;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHolder> {
-    private List<ImageModel> imageModels;
+    private List<ImageModel> imageModels = new ArrayList<>();
     private Context context;
     private FragmentManager fragmentManager;
-    private Set<ImageModel> imageModelsDownloaded;
+    private Set<ImageModel> imageModelsDownloaded = new HashSet<>();
+    private int numberOfColumn;
 
-    public ImageAdapter(List<ImageModel> dataList, Context context, FragmentManager fragmentManager) {
-        this.imageModels = dataList;
+    public ImageAdapter(Context context, FragmentManager fragmentManager, int numberOfColumn) {
+        this.numberOfColumn = numberOfColumn;
         this.context = context;
         this.fragmentManager = fragmentManager;
-        this.imageModelsDownloaded = new HashSet<>();
+    }
+
+    public int getNumberOfColumn() {
+        return numberOfColumn;
+    }
+
+    public void setNumberOfColumn(int numberOfColumn) {
+        this.numberOfColumn = numberOfColumn;
     }
 
     public Context getContext() {
@@ -71,7 +80,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
 
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
         int screenHeight = displayMetrics.heightPixels;
-        int imageHeight = screenHeight / 6; // 1/6 of the screen height
+        int imageHeight = screenHeight / numberOfColumn / 2; // 1/6 of the screen height
 
         ViewGroup.LayoutParams layoutParams = holder.binding.ivImage.getLayoutParams();
         layoutParams.height = imageHeight;

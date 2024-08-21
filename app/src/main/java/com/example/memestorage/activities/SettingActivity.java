@@ -36,8 +36,9 @@ public class SettingActivity extends AppCompatActivity {
     }
 
     private void initUI() {
-        binding.etLimitNumberOfImage.setHint("Number of images: " + sharedPrefManager.getData("Number of images"));
-        binding.etCompressPercentage.setHint("Compress %: " + sharedPrefManager.getData("Compress percentage"));
+        binding.etLimitNumberOfImage.setHint("Number of images: " + sharedPrefManager.getNumberOfImages());
+        binding.etCompressPercentage.setHint("Compress %: " + sharedPrefManager.getCompressPercentage());
+        binding.etNumberOfColumn.setHint("Number of column %: " + sharedPrefManager.getNumberOfColumn());
         binding.btLogOut.setOnClickListener(v -> {
             logOut();
         });
@@ -63,39 +64,66 @@ public class SettingActivity extends AppCompatActivity {
     }
 
     private void saveSettings() {
+        saveNumberOfImage();
+        saveCompressPercentage();
+        saveNumberOfColumn();
+    }
+
+    private void saveNumberOfImage() {
         String numberOfImage = binding.etLimitNumberOfImage.getText().toString();
+        if (numberOfImage.equals("")) {
+            return;
+        }
         if (isNumberLessThan300(numberOfImage)) {
-            sharedPrefManager.saveData("Number of images", numberOfImage);
+            sharedPrefManager.saveNumberOfImages(numberOfImage);
         } else {
             Toast.makeText(this, "Number of images not appropriate", Toast.LENGTH_SHORT).show();
         }
+    }
+    private void saveCompressPercentage() {
         String compressPercentage = binding.etCompressPercentage.getText().toString();
+        if (compressPercentage.equals("")) {
+            return;
+        }
         if (isNumberLessThan100(compressPercentage)) {
-            sharedPrefManager.saveData("Compress percentage", compressPercentage);
+            sharedPrefManager.saveCompressPercentage(compressPercentage);
         } else {
-            Toast.makeText(this, "Percentage not appropriate", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Compress percentage not appropriate", Toast.LENGTH_SHORT).show();
+        }
+    }
+    private void saveNumberOfColumn() {
+        String numberOfColumn = binding.etNumberOfColumn.getText().toString();
+        if (numberOfColumn.equals("")) {
+            return;
+        }
+        if (isNumberLessThan20(numberOfColumn)) {
+            sharedPrefManager.saveNumberOfColumn(numberOfColumn);
+        } else {
+            Toast.makeText(this, "Number of column not appropriate", Toast.LENGTH_SHORT).show();
         }
     }
 
+    private boolean isNumberLessThan20(String str) {
+        try {
+            double num = Double.parseDouble(str);
+            return num < 20 && num > 0;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
     private boolean isNumberLessThan100(String str) {
         try {
-            // Parse the string to a double
-            double num = Double.parseDouble(str);
-            // Check if the number is less than 100
+            double num = Integer.parseInt(str);
             return num < 100 && num > 0;
         } catch (NumberFormatException e) {
-            // If parsing fails, the string is not a number
             return false;
         }
     }
     private boolean isNumberLessThan300(String str) {
         try {
-            // Parse the string to a double
             double num = Double.parseDouble(str);
-            // Check if the number is less than 100
             return num < 300 && num > 0;
         } catch (NumberFormatException e) {
-            // If parsing fails, the string is not a number
             return false;
         }
     }

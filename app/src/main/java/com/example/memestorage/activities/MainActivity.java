@@ -187,9 +187,19 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+    private void resetIfNumberOfColumnChanges() {
+        int numberOfColumn = Integer.parseInt(sharedPrefManager.getNumberOfColumn());
+        if (numberOfColumn != imageAdapter.getNumberOfColumn()) {
+            binding.rvImages.setLayoutManager(new GridLayoutManager(this, numberOfColumn));
+            imageAdapter.setNumberOfColumn(numberOfColumn);
+            imageAdapter.notifyDataSetChanged();
+        }
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
+        resetIfNumberOfColumnChanges();
         IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
         registerReceiver(internetBroadcastReceiver, filter);
     }
@@ -276,8 +286,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initImages() {
-        binding.rvImages.setLayoutManager(new GridLayoutManager(this, 3));
-        imageAdapter = new ImageAdapter(new ArrayList<>(), MainActivity.this, getSupportFragmentManager());
+        binding.rvImages.setLayoutManager(new GridLayoutManager(this, Integer.parseInt(sharedPrefManager.getNumberOfColumn())));
+        imageAdapter = new ImageAdapter(MainActivity.this, getSupportFragmentManager(), Integer.parseInt(sharedPrefManager.getNumberOfColumn()));
         binding.rvImages.setAdapter(imageAdapter);
         ImageItemTouchHelper imageItemTouchHelper = new ImageItemTouchHelper(imageAdapter, imageViewModel);
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(imageItemTouchHelper);
