@@ -50,6 +50,10 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
     public Context getContext() {
         return context;
     }
+    public void deleteImage(int position) {
+        imageModels.remove(position);
+        notifyItemRemoved(position);
+    }
 
     public void addImage(ImageModel imageModel) {
         imageModels.add(imageModel);

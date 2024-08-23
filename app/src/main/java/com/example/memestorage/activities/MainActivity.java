@@ -383,6 +383,7 @@ public class MainActivity extends AppCompatActivity {
                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
                             if (task.isSuccessful()) {
                                 List<ImageModel> images = task.getResult().toObjects(ImageModel.class);
+                                imageViewModel.setImages(images);
                                 emitter.onSuccess(images);
                             } else {
                                 emitter.onError(task.getException());

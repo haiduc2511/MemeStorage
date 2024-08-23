@@ -57,7 +57,7 @@ public class ImageItemTouchHelper extends ItemTouchHelper.SimpleCallback {
                                 if (task.isSuccessful()) {
                                     imageViewModel.deleteImageFirebaseStorage(imageViewModel.getImages().get(position).imageURL);
                                     imageViewModel.getImages().remove(position);
-                                    adapter.notifyItemRemoved(position);
+                                    adapter.deleteImage(position);
                                     Toast.makeText(adapter.getContext(),
                                             "Deleted image "
                                             , Toast.LENGTH_SHORT).show();
