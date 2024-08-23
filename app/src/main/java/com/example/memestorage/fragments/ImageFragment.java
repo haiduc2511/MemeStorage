@@ -108,19 +108,33 @@ public class ImageFragment extends Fragment {
         categoryViewModel.addCategoryObserver(categoryAdapter);
 
         imageViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()).create(ImageViewModel.class);
-        binding.btSaveImage.setOnClickListener(v -> {
-            imageModel.imageName = binding.etImageName.getText().toString();
-            imageViewModel.updateImageFirebase(imageModel.iId, imageModel, new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
-                    Toast.makeText(requireContext().getApplicationContext(), "Image updated", Toast.LENGTH_SHORT).show();
-                }
-            });
-            updateImageCategories(categoryAdapter.getSelectedCategories(), imageCategoryViewModel.getImageCategories());
-
-        });
+//        binding.btSaveImage.setOnClickListener(v -> {
+//            imageModel.imageName = binding.etImageName.getText().toString();
+//            imageViewModel.updateImageFirebase(imageModel.iId, imageModel, new OnCompleteListener<Void>() {
+//                @Override
+//                public void onComplete(@NonNull Task<Void> task) {
+//                    Toast.makeText(requireContext().getApplicationContext(), "Image updated", Toast.LENGTH_SHORT).show();
+//                }
+//            });
+//            updateImageCategories(categoryAdapter.getSelectedCategories(), imageCategoryViewModel.getImageCategories());
+//
+//        });
 
         setImage();
+    }
+
+    @Override
+    public void onPause() {
+//        imageModel.imageName = binding.etImageName.getText().toString();
+//        imageViewModel.updateImageFirebase(imageModel.iId, imageModel, new OnCompleteListener<Void>() {
+//            @Override
+//            public void onComplete(@NonNull Task<Void> task) {
+//                Toast.makeText(requireContext().getApplicationContext(), "Image updated", Toast.LENGTH_SHORT).show();
+//            }
+//        });
+        updateImageCategories(categoryAdapter.getSelectedCategories(), imageCategoryViewModel.getImageCategories());
+
+        super.onPause();
     }
 
     private void setImage() {
