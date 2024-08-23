@@ -63,4 +63,11 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+
+    // Required for one-shot operations (to use `ListenableFuture` from Reactive Streams)
+    implementation(libs.guava)
+    implementation(libs.generativeai)
+
+    // Required for streaming operations (to use `Publisher` from Guava Android)
+    implementation(libs.reactive.streams)
 }
