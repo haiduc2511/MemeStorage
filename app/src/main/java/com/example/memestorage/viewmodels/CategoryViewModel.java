@@ -17,11 +17,14 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CategoryViewModel {
     private final CategoryRepo categoryRepo;
     private static List<CategoryModel> categories = new ArrayList<>();
+    private static Map<String, String> map = new HashMap<>();
     private static CategoryViewModel categoryViewModel;
     private List<CategoryObserver> categoryObservers = new ArrayList<>();
 
@@ -47,7 +50,22 @@ public class CategoryViewModel {
         categoryViewModel = null;
     }
 
+    public Map<String, String> getCategoryIdAndNameHashMap() {
+//        if (map.isEmpty()) {
+            for (CategoryModel categoryModel : categories) {
+                map.put(categoryModel.categoryName, categoryModel.cId);
+            }
+//        }
+        return map;
+    }
 
+    public static String getStringListOfCategoryNames() {
+        List<String> stringListOfCategoryNames = new ArrayList<>();
+        for (CategoryModel categoryModel : categories) {
+            stringListOfCategoryNames.add(categoryModel.categoryName);
+        }
+        return String.join(", ", stringListOfCategoryNames);
+    }
 
     public List<CategoryModel> getCategories() {
         return categories;

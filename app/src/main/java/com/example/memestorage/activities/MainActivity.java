@@ -468,6 +468,22 @@ public class MainActivity extends AppCompatActivity {
                         imageAdapter.addImageFirst(imageModel);
                         binding.rvImages.scrollToPosition(0);
                     }
+
+                    @Override
+                    public void onSuccessGetAICategoriesSuggestion(List<ImageCategoryModel> imageCategoryModels) {
+                        for (ImageCategoryModel imageCategoryModel : imageCategoryModels) {
+                            imageCategoryViewModel.addImageCategoryFirebase(imageCategoryModel, new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful()) {
+                                        Log.d("Adding imagecategories by AI's API", imageCategoryModel.toString());
+                                    } else {
+                                        Log.d("Adding imagecategories by AI's API", "Failed");
+                                    }
+                                }
+                            });
+                        }
+                    }
                 });
             }
         }
@@ -475,6 +491,7 @@ public class MainActivity extends AppCompatActivity {
 
     public interface UploadImageListener {
         public void onSuccessUploadingImages(ImageModel imageModel);
+        public void onSuccessGetAICategoriesSuggestion(List<ImageCategoryModel> imageCategoryModels);
     }
 
     public interface CategorySearchListener {

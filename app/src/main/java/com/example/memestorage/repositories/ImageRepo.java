@@ -2,21 +2,37 @@ package com.example.memestorage.repositories;
 
 import static android.content.ContentValues.TAG;
 
+
 import android.content.ContentResolver;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.Image;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 
+import com.example.memestorage.R;
 import com.example.memestorage.utils.FirebaseHelper;
 import com.example.memestorage.activities.MainActivity;
 import com.example.memestorage.models.ImageModel;
+import com.example.memestorage.utils.ImageCategoryUtil;
+import com.example.memestorage.viewmodels.CategoryViewModel;
+import com.google.ai.client.generativeai.GenerativeModel;
+import com.google.ai.client.generativeai.java.GenerativeModelFutures;
+import com.google.ai.client.generativeai.type.BlockThreshold;
+import com.google.ai.client.generativeai.type.Content;
+import com.google.ai.client.generativeai.type.GenerateContentResponse;
+import com.google.ai.client.generativeai.type.HarmCategory;
+import com.google.ai.client.generativeai.type.SafetySetting;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -28,9 +44,13 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class ImageRepo {
     private static final String IMAGE_COLLECTION_NAME = "images";
@@ -80,7 +100,7 @@ public class ImageRepo {
         myImagesRef.collection(IMAGE_COLLECTION_NAME).document(id).delete().addOnCompleteListener(onCompleteListener);
     }
 
-    public void uploadImagesFirebaseStorage(List<Uri> imageUris, ContentResolver contentResolver, MainActivity.UploadImageListener onSuccessUploadingImages) {
+    public void uploadImagesFirebaseStorage(List<Uri> imageUris, ContentResolver contentResolver, MainActivity.UploadImageListener uploadImageListener) {
         if (!imageUris.isEmpty()) {
             StorageReference storageReference = FirebaseStorage.getInstance().getReference("uploads");
 
@@ -106,13 +126,14 @@ public class ImageRepo {
                                     fileReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                         @Override
                                         public void onSuccess(Uri downloadUri) {
-                                            ImageModel image = new ImageModel();
-                                            image.imageName = fileReference.getName();
-                                            image.userId = myUserId;
-                                            image.imageURL = downloadUri.toString();
-                                            image = addImageFirebase(image);
+                                            ImageModel imageModel = new ImageModel();
+                                            imageModel.imageName = fileReference.getName();
+                                            imageModel.userId = myUserId;
+                                            imageModel.imageURL = downloadUri.toString();
+                                            imageModel = addImageFirebase(imageModel);
                                             Log.d(TAG, "Upload images successful. Download URL: " + downloadUri.toString());
-                                            onSuccessUploadingImages.onSuccessUploadingImages(image);
+                                            uploadImageListener.onSuccessUploadingImages(imageModel);
+                                            getAICategoriesSuggestions(bitmap, imageModel, uploadImageListener);
                                         }
                                     });
                                 }
@@ -130,6 +151,46 @@ public class ImageRepo {
         } else {
             Log.d(TAG, "No files selected");
         }
+    }
+
+    public void getAICategoriesSuggestions(Bitmap bitmap, ImageModel imageModel, MainActivity.UploadImageListener uploadImageListener){
+        SafetySetting harassmentSafety = new SafetySetting(HarmCategory.HARASSMENT, BlockThreshold.NONE);
+        SafetySetting hateSpeechSafety  = new SafetySetting(HarmCategory.HATE_SPEECH, BlockThreshold.NONE);
+        GenerativeModel generativeModel = new GenerativeModel("gemini-1.5-flash",
+                "AIzaSyA1nRy25ETbj9swvGC83kdchtB-9rG3Fks",
+                null,
+                Arrays.asList(harassmentSafety, hateSpeechSafety));
+
+        GenerativeModelFutures model = GenerativeModelFutures.from(generativeModel);
+        String categoryNames = CategoryViewModel.getStringListOfCategoryNames();
+        Content content = new Content.Builder()
+                .addText("i want to categorize this picture, 1 picture can have many categories," +
+                        " only choose the categories below, if not, leave it blank\n" +
+                        categoryNames + "\n" +
+                        "with each category separated by a comma")
+                .addImage(bitmap)
+                .build();
+        ListenableFuture<GenerateContentResponse> response = model.generateContent(content);
+
+        Executor executor = Executors.newSingleThreadExecutor();
+        Futures.addCallback(response, new FutureCallback<GenerateContentResponse>() {
+            @Override
+            public void onSuccess(GenerateContentResponse response) {
+                String responseText = response.getText();
+                if (responseText != null) {
+                    ;
+                    uploadImageListener.onSuccessGetAICategoriesSuggestion(ImageCategoryUtil
+                            .stringToImageCategoryList(responseText, imageModel));
+                } else {
+                    Log.d("AI Google response", "responseText null");
+                }
+
+            }
+            @Override
+            public void onFailure(Throwable t) {
+                t.printStackTrace();
+            }
+        }, executor);
     }
 
     public void deleteImageFirebaseStorage(String imageUrl) {
