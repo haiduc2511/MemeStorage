@@ -46,8 +46,8 @@ public class LoginActivity extends AppCompatActivity {
 
 
         binding.btLogin.setOnClickListener(v -> {
-            String password = binding.etPassword.getText().toString();
-            String email = binding.etEmail.getText().toString();
+            String password = binding.etPassword.getText().toString().trim();
+            String email = binding.etEmail.getText().toString().trim();
             Toast.makeText(LoginActivity.this, "click bt login", Toast.LENGTH_SHORT).show();
             if (password.length() < 8) {
                 Toast.makeText(this, "Mật khẩu chưa đủ 8 kí tự", Toast.LENGTH_SHORT).show();
