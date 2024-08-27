@@ -44,7 +44,14 @@ public class SuggestCategoryAdapter extends RecyclerView.Adapter<SuggestCategory
         holder.bind(categoryModel);
         holder.itemView.setOnClickListener(v -> {
             categoryClickListener.onSuggestedCategoryClick(categoryModel);
+            deleteSuggestedCategory(position);
         });
+    }
+
+    private void deleteSuggestedCategory(int position) {
+        categoryModels.remove(position);
+        notifyItemRemoved(position);
+        notifyItemRangeChanged(position, categoryModels.size());
     }
 
     @Override
