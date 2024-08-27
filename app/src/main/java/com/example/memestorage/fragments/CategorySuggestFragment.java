@@ -8,8 +8,10 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.memestorage.R;
+import com.example.memestorage.activities.AddCategoryActivity;
 import com.example.memestorage.adapters.CategoryAdapter;
 import com.example.memestorage.adapters.SuggestCategoryAdapter;
 import com.example.memestorage.databinding.FragmentCategorySuggestBinding;
@@ -32,6 +34,7 @@ public class CategorySuggestFragment extends Fragment {
     FragmentCategorySuggestBinding binding;
     CategoryViewModel categoryViewModel;
     SuggestCategoryAdapter suggestCategoryAdapter;
+    OnSuggestedCategoryClickListener suggestedCategoryClickListener;
     public static CategorySuggestFragment newInstance() {
         CategorySuggestFragment fragment = new CategorySuggestFragment();
         return fragment;
@@ -68,7 +71,18 @@ public class CategorySuggestFragment extends Fragment {
         layoutManager.setFlexDirection(FlexDirection.ROW);
         binding.rvCategories.setLayoutManager(layoutManager);
         categoryViewModel = CategoryViewModel.newInstance();
-        suggestCategoryAdapter = new SuggestCategoryAdapter();
+        suggestedCategoryClickListener = new OnSuggestedCategoryClickListener() {
+            @Override
+            public void onSuggestedCategoryClick(CategoryModel categoryModel) {
+                categoryViewModel.addCategoryFirebase(categoryModel, new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+
+                    }
+                });
+            }
+        };
+        suggestCategoryAdapter = new SuggestCategoryAdapter(suggestedCategoryClickListener);
         binding.rvCategories.setAdapter(suggestCategoryAdapter);
      }
 
@@ -81,5 +95,9 @@ public class CategorySuggestFragment extends Fragment {
                 }
             }
         });
+    }
+
+    public interface OnSuggestedCategoryClickListener {
+        void onSuggestedCategoryClick(CategoryModel categoryModel);
     }
 }

@@ -63,6 +63,11 @@ public class MainCategoryAdapter extends RecyclerView.Adapter<MainCategoryAdapte
     }
 
     @Override
+    public void notifyCategoryInserted(CategoryModel categoryModel) {
+        notifyItemInserted(categoryModels.size() - 1);
+    }
+
+    @Override
     public int getItemCount() {
         return categoryModels.size();
     }

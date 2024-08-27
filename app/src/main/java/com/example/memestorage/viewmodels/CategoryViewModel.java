@@ -84,6 +84,10 @@ public class CategoryViewModel {
 
     public void addCategoryFirebase(CategoryModel categoryModel, OnCompleteListener<Void> onCompleteListener) {
         categoryRepo.addCategoryFirebase(categoryModel, onCompleteListener);
+        categories.add(categoryModel);
+        for (CategoryObserver categoryObserver : categoryObservers) {
+            categoryObserver.notifyCategoryInserted(categoryModel);
+        }
     }
 
     public void getCategoriesFirebase(OnCompleteListener<QuerySnapshot> onCompleteListener) {

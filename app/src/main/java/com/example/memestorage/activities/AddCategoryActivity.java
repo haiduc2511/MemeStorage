@@ -3,6 +3,7 @@ package com.example.memestorage.activities;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -63,7 +64,7 @@ public class AddCategoryActivity extends AppCompatActivity {
         FlexboxLayoutManager layoutManager = new FlexboxLayoutManager(getApplicationContext());
         layoutManager.setFlexDirection(FlexDirection.ROW);
         binding.rvCategories.setLayoutManager(layoutManager);
-        categoryAdapter = new AddCategoryCategoryAdapter(new ArrayList<>(), this);
+        categoryAdapter = new AddCategoryCategoryAdapter(this);
         binding.rvCategories.setAdapter(categoryAdapter);
         CategoryItemTouchHelper categoryItemTouchHelper = new CategoryItemTouchHelper(categoryAdapter, categoryViewModel);
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(categoryItemTouchHelper);
@@ -123,6 +124,25 @@ public class AddCategoryActivity extends AppCompatActivity {
                 .commit();
     }
 
+//    private void addNewCategory() {
+//        String categoryName = binding.etCategoryName.getText().toString();
+//        CategoryModel categoryModel = new CategoryModel();
+//        categoryModel.categoryName = categoryName;
+//        categoryViewModel.addCategoryFirebase(categoryModel, new OnCompleteListener<Void>() {
+//            @Override
+//            public void onComplete(@NonNull Task<Void> task) {
+//                categoryViewModel.getCategoriesFirebase(new OnCompleteListener<QuerySnapshot>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+//                        categoryViewModel.setCategories(task.getResult().toObjects(CategoryModel.class));
+////                        categoryAdapter.setCategoryModels(categoryViewModel.getCategories());
+//                    }
+//                });
+//                Toast.makeText(AddCategoryActivity.this, "Add Category  " + categoryModel.categoryName + " successfully", Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//
+//    }
     private void addNewCategory() {
         String categoryName = binding.etCategoryName.getText().toString();
         CategoryModel categoryModel = new CategoryModel();
@@ -130,14 +150,7 @@ public class AddCategoryActivity extends AppCompatActivity {
         categoryViewModel.addCategoryFirebase(categoryModel, new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                categoryViewModel.getCategoriesFirebase(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        categoryViewModel.setCategories(task.getResult().toObjects(CategoryModel.class));
-//                        categoryAdapter.setCategoryModels(categoryViewModel.getCategories());
-                    }
-                });
-                Toast.makeText(AddCategoryActivity.this, "Add Category  " + categoryModel.categoryName + " successfully", Toast.LENGTH_SHORT).show();
+                Log.d("Add category model", categoryModel.toString());
             }
         });
 

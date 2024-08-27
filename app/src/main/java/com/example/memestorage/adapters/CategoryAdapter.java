@@ -73,6 +73,10 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
     public void notifyAdapter(List<CategoryModel> categoryModels) {
         this.setCategoryModels(categoryModels);
     }
+    @Override
+    public void notifyCategoryInserted(CategoryModel categoryModel) {
+        notifyItemInserted(categoryModels.size() - 1);
+    }
     public class CategoryViewHolder extends RecyclerView.ViewHolder {
         ItemCategoryBinding binding;
 

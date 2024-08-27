@@ -15,15 +15,15 @@ import com.example.memestorage.models.CategoryModel;
 import com.example.memestorage.models.ImageCategoryModel;
 import com.example.memestorage.utils.CategoryObserver;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 public class AddCategoryCategoryAdapter extends RecyclerView.Adapter<AddCategoryCategoryAdapter.AddCategoryCategoryViewHolder> implements CategoryObserver {
-    private List<CategoryModel> categoryModels;
+    private List<CategoryModel> categoryModels = new ArrayList<>();
     private Context context;
-    public AddCategoryCategoryAdapter(List<CategoryModel> categoryModels, Context context) {
-        this.categoryModels = categoryModels;
+    public AddCategoryCategoryAdapter(Context context) {
         this.context = context;
     }
 
@@ -56,6 +56,11 @@ public class AddCategoryCategoryAdapter extends RecyclerView.Adapter<AddCategory
     @Override
     public void notifyAdapter(List<CategoryModel> categoryModels) {
         this.setCategoryModels(categoryModels);
+    }
+
+    @Override
+    public void notifyCategoryInserted(CategoryModel categoryModel) {
+        notifyItemInserted(categoryModels.size() - 1);
     }
 
     @Override

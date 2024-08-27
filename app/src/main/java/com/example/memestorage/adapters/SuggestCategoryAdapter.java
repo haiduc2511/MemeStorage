@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.memestorage.R;
 import com.example.memestorage.databinding.ItemSuggestedCategoryBinding;
+import com.example.memestorage.fragments.CategorySuggestFragment;
 import com.example.memestorage.models.CategoryModel;
 import com.example.memestorage.models.ImageModel;
 
@@ -17,7 +18,9 @@ import java.util.List;
 
 public class SuggestCategoryAdapter extends RecyclerView.Adapter<SuggestCategoryAdapter.SuggestCategoryViewHolder> {
     private List<CategoryModel> categoryModels = new ArrayList<>();
-    public SuggestCategoryAdapter() {
+    private CategorySuggestFragment.OnSuggestedCategoryClickListener categoryClickListener;
+    public SuggestCategoryAdapter(CategorySuggestFragment.OnSuggestedCategoryClickListener categoryClickListener) {
+        this.categoryClickListener = categoryClickListener;
     }
     public void setCategoryModels(List<CategoryModel> categoryModels) {
         this.categoryModels = categoryModels;
@@ -39,6 +42,9 @@ public class SuggestCategoryAdapter extends RecyclerView.Adapter<SuggestCategory
     public void onBindViewHolder(@NonNull SuggestCategoryViewHolder holder, int position) {
         CategoryModel categoryModel = categoryModels.get(position);
         holder.bind(categoryModel);
+        holder.itemView.setOnClickListener(v -> {
+            categoryClickListener.onSuggestedCategoryClick(categoryModel);
+        });
     }
 
     @Override
