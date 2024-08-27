@@ -21,6 +21,8 @@ import com.example.memestorage.adapters.MainCategoryAdapter;
 import com.example.memestorage.broadcastreceiver.InternetBroadcastReceiver;
 import com.example.memestorage.broadcastreceiver.NetworkStatusManager;
 import com.example.memestorage.databinding.ActivityAddCategoryBinding;
+import com.example.memestorage.fragments.CategorySuggestFragment;
+import com.example.memestorage.fragments.ImageFragment;
 import com.example.memestorage.utils.CategoryItemTouchHelper;
 import com.example.memestorage.viewmodels.CategoryViewModel;
 import com.example.memestorage.models.CategoryModel;
@@ -32,6 +34,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class AddCategoryActivity extends AppCompatActivity {
 
@@ -68,7 +71,17 @@ public class AddCategoryActivity extends AppCompatActivity {
         categoryViewModel.addCategoryObserver(categoryAdapter);
         categoryAdapter.setCategoryModels(categoryViewModel.getCategories());
 //        getCategoriesFromFirebase();
+        binding.btAddCategory.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                openCategorySuggestFragment();
+                return false;
+            }
+        });
 
+        if (categoryViewModel.getCategories().isEmpty()) {
+            openCategorySuggestFragment();
+        }
     }
     private void initInternetBroadcastReceiver() {
         internetBroadcastReceiver = new InternetBroadcastReceiver(new InternetBroadcastReceiver.NetworkChangeListener() {
@@ -99,10 +112,23 @@ public class AddCategoryActivity extends AppCompatActivity {
         categoryViewModel.getCategoriesFirebase(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                categoryViewModel.setCategories(task.getResult().toObjects(CategoryModel.class));
+                if (task.isSuccessful()) {
+                    List<CategoryModel> categoryModelList = task.getResult().toObjects(CategoryModel.class);
+                    if (categoryModelList.isEmpty()) {
+                        openCategorySuggestFragment();
+                    }
+                }
             }
         });
 
+    }
+
+    private void openCategorySuggestFragment() {
+        CategorySuggestFragment fragment = CategorySuggestFragment.newInstance();
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container_add_category, fragment)
+                .addToBackStack(null)
+                .commit();
     }
 
     private void addNewCategory() {
