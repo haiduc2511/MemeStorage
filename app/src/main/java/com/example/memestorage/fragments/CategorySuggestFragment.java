@@ -2,6 +2,7 @@ package com.example.memestorage.fragments;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
@@ -10,31 +11,29 @@ import android.view.ViewGroup;
 
 import com.example.memestorage.R;
 import com.example.memestorage.adapters.CategoryAdapter;
+import com.example.memestorage.adapters.SuggestCategoryAdapter;
 import com.example.memestorage.databinding.FragmentCategorySuggestBinding;
 import com.example.memestorage.databinding.FragmentImageBinding;
+import com.example.memestorage.models.CategoryModel;
 import com.example.memestorage.models.ImageModel;
 import com.example.memestorage.viewmodels.CategoryViewModel;
 import com.example.memestorage.viewmodels.ImageCategoryViewModel;
 import com.example.memestorage.viewmodels.ImageViewModel;
 import com.google.android.flexbox.FlexDirection;
 import com.google.android.flexbox.FlexboxLayoutManager;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 
 public class CategorySuggestFragment extends Fragment {
     private static final String ARG_IMAGE = "image";
     FragmentCategorySuggestBinding binding;
-    private ImageModel imageModel;
-    ImageViewModel imageViewModel;
     CategoryViewModel categoryViewModel;
-    CategoryAdapter categoryAdapter;
-    ImageCategoryViewModel imageCategoryViewModel;
-
+    SuggestCategoryAdapter suggestCategoryAdapter;
     public static CategorySuggestFragment newInstance() {
         CategorySuggestFragment fragment = new CategorySuggestFragment();
-//        Bundle args = new Bundle();
-//        args.putParcelable(ARG_IMAGE, imageModel);
-//        fragment.setArguments(args);
         return fragment;
     }
 
@@ -42,7 +41,7 @@ public class CategorySuggestFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            imageModel = getArguments().getParcelable(ARG_IMAGE);
+
         }
     }
 
@@ -69,12 +68,18 @@ public class CategorySuggestFragment extends Fragment {
         layoutManager.setFlexDirection(FlexDirection.ROW);
         binding.rvCategories.setLayoutManager(layoutManager);
         categoryViewModel = CategoryViewModel.newInstance();
-        categoryAdapter = new CategoryAdapter(new ArrayList<>());
-        binding.rvCategories.setAdapter(categoryAdapter);
-        categoryViewModel.addCategoryObserver(categoryAdapter);
+        suggestCategoryAdapter = new SuggestCategoryAdapter();
+        binding.rvCategories.setAdapter(suggestCategoryAdapter);
      }
 
     private void retrieveData() {
-
+        categoryViewModel.getSuggestedCategoriesFirebase(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    suggestCategoryAdapter.setCategoryModels(task.getResult().toObjects(CategoryModel.class));
+                }
+            }
+        });
     }
 }

@@ -15,6 +15,7 @@ public class CategoryRepo {
     private static final String USER_COLLECTION_NAME = "users";
     private final FirebaseFirestore db = FirebaseHelper.getInstance().getDb();
     private DocumentReference myCategoriesRef = db.collection(USER_COLLECTION_NAME).document(myUserId);
+    private DocumentReference suggestedCategoriesRef = db.collection(USER_COLLECTION_NAME).document("rx6Gn3VW3Wa1cDQE2u5zHpmHYXr2");
 
 
     public CategoryRepo() {
@@ -35,9 +36,14 @@ public class CategoryRepo {
     }
 
 
-    // Read all categories
+    // Read all my categories
     public void getCategoriesFirebase(OnCompleteListener<QuerySnapshot> onCompleteListener) {
         myCategoriesRef.collection(CATEGORY_COLLECTION_NAME).get().addOnCompleteListener(onCompleteListener);
+    }
+
+    // Read all suggested categories
+    public void getSuggestedCategoriesFirebase(OnCompleteListener<QuerySnapshot> onCompleteListener) {
+        suggestedCategoriesRef.collection(CATEGORY_COLLECTION_NAME).get().addOnCompleteListener(onCompleteListener);
     }
 
 

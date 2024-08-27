@@ -79,9 +79,16 @@ public class AddCategoryActivity extends AppCompatActivity {
             }
         });
 
-        if (categoryViewModel.getCategories().isEmpty()) {
-            openCategorySuggestFragment();
-        }
+        categoryViewModel.getCategoriesFirebase(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    if (task.getResult().toObjects(CategoryModel.class).isEmpty()) {
+                        openCategorySuggestFragment();
+                    }
+                }
+            }
+        });
     }
     private void initInternetBroadcastReceiver() {
         internetBroadcastReceiver = new InternetBroadcastReceiver(new InternetBroadcastReceiver.NetworkChangeListener() {
@@ -106,21 +113,6 @@ public class AddCategoryActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         unregisterReceiver(internetBroadcastReceiver);
-    }
-
-    private void getCategoriesFromFirebase() {
-        categoryViewModel.getCategoriesFirebase(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    List<CategoryModel> categoryModelList = task.getResult().toObjects(CategoryModel.class);
-                    if (categoryModelList.isEmpty()) {
-                        openCategorySuggestFragment();
-                    }
-                }
-            }
-        });
-
     }
 
     private void openCategorySuggestFragment() {

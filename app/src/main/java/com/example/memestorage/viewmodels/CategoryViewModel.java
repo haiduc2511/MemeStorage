@@ -89,6 +89,9 @@ public class CategoryViewModel {
     public void getCategoriesFirebase(OnCompleteListener<QuerySnapshot> onCompleteListener) {
         categoryRepo.getCategoriesFirebase(onCompleteListener);
     }
+    public void getSuggestedCategoriesFirebase(OnCompleteListener<QuerySnapshot> onCompleteListener) {
+        categoryRepo.getSuggestedCategoriesFirebase(onCompleteListener);
+    }
 
     public void updateCategoryFirebase(String id, CategoryModel categoryModel, OnCompleteListener<Void> onCompleteListener) {
         categoryRepo.updateCategoryFirebase(id, categoryModel, onCompleteListener);
