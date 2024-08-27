@@ -70,4 +70,7 @@ dependencies {
 
     // Required for streaming operations (to use `Publisher` from Guava Android)
     implementation(libs.reactive.streams)
+
+    implementation ("com.cloudinary:cloudinary-android:2.5.0")
+    implementation("com.cloudinary:cloudinary-core:1.36.0")
 }
