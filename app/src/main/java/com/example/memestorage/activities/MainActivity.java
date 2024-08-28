@@ -3,14 +3,17 @@ package com.example.memestorage.activities;
 import static android.content.ContentValues.TAG;
 
 import android.Manifest;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.media.Image;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
@@ -27,6 +30,9 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 
+import com.cloudinary.android.MediaManager;
+import com.cloudinary.android.callback.ErrorInfo;
+import com.cloudinary.android.callback.UploadCallback;
 import com.example.memestorage.R;
 import com.example.memestorage.adapters.CategoryAdapter;
 import com.example.memestorage.adapters.MainCategoryAdapter;
@@ -39,6 +45,7 @@ import com.example.memestorage.utils.ImageItemTouchHelper;
 import com.example.memestorage.utils.FirebaseHelper;
 import com.example.memestorage.adapters.ImageAdapter;
 import com.example.memestorage.models.ImageModel;
+import com.example.memestorage.utils.MediaManagerState;
 import com.example.memestorage.utils.SharedPrefManager;
 import com.example.memestorage.viewmodels.CategoryViewModel;
 import com.example.memestorage.viewmodels.ImageCategoryViewModel;
@@ -56,8 +63,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -106,6 +117,7 @@ public class MainActivity extends AppCompatActivity {
     SharedPrefManager sharedPrefManager;
     CompositeDisposable compositeDisposable = new CompositeDisposable();
     Observable<Long> networkObservable;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -116,7 +128,20 @@ public class MainActivity extends AppCompatActivity {
         sharedPrefManager = new SharedPrefManager(this);
         initViewModel();
         initUI();
+        initCloudinary();
 //        initInternetBroadcastReceiver();
+    }
+    private void initCloudinary() {
+        if (!MediaManagerState.isInitialized()) {
+            Map<String, Object> config = new HashMap<>();
+            config.put("cloud_name", getString(R.string.cloud_name));
+            config.put("api_key", getString(R.string.api_key));
+            config.put("api_secret", getString(R.string.api_secret));
+//        config.put("secure", true);
+
+            MediaManager.init(this, config);
+            MediaManagerState.initialize();
+        }
     }
     private void initViewModel() {
         imageViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()).create(ImageViewModel.class);
@@ -463,7 +488,7 @@ public class MainActivity extends AppCompatActivity {
                     Uri imageUri = data.getData();
                     uriList.add(imageUri);
                 }
-                imageViewModel.uploadImagesFirebaseStorage(uriList, new UploadImageListener() {
+                imageViewModel.uploadImagesCloudinary(uriList, new UploadImageListener() {
                     @Override
                     public void onSuccessUploadingImages(ImageModel imageModel) {
                         imageAdapter.addImageFirst(imageModel);
@@ -486,9 +511,33 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 });
+//                imageViewModel.uploadImagesFirebaseStorage(uriList, new UploadImageListener() {
+//                    @Override
+//                    public void onSuccessUploadingImages(ImageModel imageModel) {
+//                        imageAdapter.addImageFirst(imageModel);
+//                        binding.rvImages.scrollToPosition(0);
+//                    }
+//
+//                    @Override
+//                    public void onSuccessGetAICategoriesSuggestion(List<ImageCategoryModel> imageCategoryModels) {
+//                        for (ImageCategoryModel imageCategoryModel : imageCategoryModels) {
+//                            imageCategoryViewModel.addImageCategoryFirebase(imageCategoryModel, new OnCompleteListener<Void>() {
+//                                @Override
+//                                public void onComplete(@NonNull Task<Void> task) {
+//                                    if (task.isSuccessful()) {
+//                                        Log.d("Adding imagecategories by AI's API", imageCategoryModel.toString());
+//                                    } else {
+//                                        Log.d("Adding imagecategories by AI's API", "Failed");
+//                                    }
+//                                }
+//                            });
+//                        }
+//                    }
+//                });
             }
         }
     }
+
 
     public interface UploadImageListener {
         public void onSuccessUploadingImages(ImageModel imageModel);

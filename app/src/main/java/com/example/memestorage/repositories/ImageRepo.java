@@ -14,6 +14,9 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 
+import com.cloudinary.android.MediaManager;
+import com.cloudinary.android.callback.ErrorInfo;
+import com.cloudinary.android.callback.UploadCallback;
 import com.example.memestorage.R;
 import com.example.memestorage.utils.FirebaseHelper;
 import com.example.memestorage.activities.MainActivity;
@@ -47,7 +50,9 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -144,6 +149,87 @@ public class ImageRepo {
                                     Log.d(TAG, "Upload images failed: " + e.getMessage());
                                 }
                             });
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        } else {
+            Log.d(TAG, "No files selected");
+        }
+
+    }
+
+    public void uploadImagesCloudinary(List<Uri> imageUris, ContentResolver contentResolver, MainActivity.UploadImageListener uploadImageListener) {
+        if (!imageUris.isEmpty()) {
+
+            for (Uri imageUri : imageUris) {
+                try {
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(contentResolver, imageUri);
+
+                    // Tạo ByteArrayOutputStream
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+                    // Nén Bitmap thành JPEG với chất lượng 50% (chất lượng có thể thay đổi từ 0 đến 100)
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
+
+                    // Chuyển ByteArrayOutputStream thành byte array
+                    byte[] data = baos.toByteArray();
+
+                    String imageName = System.currentTimeMillis() + myUserId;
+
+                    // Create an options map
+                    Map<String, Object> options = new HashMap<>();
+//                    options.put("upload_preset", "your_unsigned_preset");
+                    options.put("format", "png");
+                    options.put("folder", "meme_storage/images");
+                    options.put("public_id", imageName);
+
+                    // Upload the image byte array to Cloudinary
+                    MediaManager.get().upload(data)
+                            .unsigned("your_unsigned_preset")
+                            .options(options)
+                            .callback(new UploadCallback() {
+                                @Override
+                                public void onStart(String requestId) {
+                                    // Upload started
+                                    Log.d(TAG, "Upload started for request: " + requestId);
+                                }
+
+                                @Override
+                                public void onProgress(String requestId, long bytes, long totalBytes) {
+                                    // Upload progress
+                                    Log.d(TAG, "Upload progress for request: " + requestId + " - " + bytes + "/" + totalBytes);
+                                }
+
+                                @Override
+                                public void onSuccess(String requestId, Map resultData) {
+                                    // Upload success
+                                    String imageUrl = (String) resultData.get("secure_url");
+                                    Log.d(TAG, "Upload successful. Image URL: " + imageUrl);
+
+                                    ImageModel imageModel = new ImageModel();
+                                    imageModel.imageName = (String) resultData.get("public_id");
+                                    imageModel.userId = myUserId;
+                                    imageModel.imageURL = imageUrl;
+                                    imageModel = addImageFirebase(imageModel);
+                                    Log.d("Upload cloudinary", "Upload images successful. Download URL: " + imageUrl.toString());
+                                    uploadImageListener.onSuccessUploadingImages(imageModel);
+                                    getAICategoriesSuggestions(bitmap, imageModel, uploadImageListener);
+
+                                }
+
+                                @Override
+                                public void onError(String requestId, ErrorInfo error) {
+                                    // Upload error
+                                    Log.d(TAG, "Upload failed: " + error.getDescription());
+                                }
+
+                                @Override
+                                public void onReschedule(String requestId, ErrorInfo error) {
+                                    // Upload rescheduled
+                                    Log.d(TAG, "Upload rescheduled: " + error.getDescription());
+                                }
+                            }).dispatch();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
