@@ -73,8 +73,8 @@ public class ImageRepo {
 
 
     public ImageModel addImageFirebase(ImageModel imageModel) {
-        String id = db.collection(USER_COLLECTION_NAME).document(myUserId).collection(IMAGE_COLLECTION_NAME).document().getId(); // Generate a new ID
-        imageModel.iId = imageModel.imageName + id;
+//        String id = db.collection(USER_COLLECTION_NAME).document(myUserId).collection(IMAGE_COLLECTION_NAME).document().getId(); // Generate a new ID
+//        imageModel.iId = imageModel.imageName + id;
         myImagesRef.collection(IMAGE_COLLECTION_NAME).document(imageModel.iId).set(imageModel);
         return imageModel;
     }
@@ -175,14 +175,14 @@ public class ImageRepo {
                     // Chuyển ByteArrayOutputStream thành byte array
                     byte[] data = baos.toByteArray();
 
-                    String imageName = System.currentTimeMillis() + myUserId;
+                    String imageId = System.currentTimeMillis() + myUserId;
 
                     // Create an options map
                     Map<String, Object> options = new HashMap<>();
 //                    options.put("upload_preset", "your_unsigned_preset");
                     options.put("format", "png");
                     options.put("folder", "meme_storage/images");
-                    options.put("public_id", imageName);
+                    options.put("public_id", imageId);
 
                     // Upload the image byte array to Cloudinary
                     MediaManager.get().upload(data)
@@ -208,11 +208,12 @@ public class ImageRepo {
                                     Log.d(TAG, "Upload successful. Image URL: " + imageUrl);
 
                                     ImageModel imageModel = new ImageModel();
+                                    imageModel.iId = imageId;
                                     imageModel.imageName = (String) resultData.get("public_id");
                                     imageModel.userId = myUserId;
                                     imageModel.imageURL = imageUrl;
                                     imageModel = addImageFirebase(imageModel);
-                                    Log.d("Upload cloudinary", "Upload images successful. Download URL: " + imageUrl.toString());
+                                    Log.d("Upload cloudinary", "Upload images successful. Download URL: " + imageModel.toString() + " \n" +  imageUrl.toString());
                                     uploadImageListener.onSuccessUploadingImages(imageModel);
                                     getAICategoriesSuggestions(bitmap, imageModel, uploadImageListener);
 

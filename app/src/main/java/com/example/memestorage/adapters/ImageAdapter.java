@@ -6,6 +6,7 @@ import android.media.Image;
 import android.net.Uri;
 import android.os.Environment;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +17,10 @@ import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.cloudinary.Transformation;
+import com.cloudinary.android.MediaManager;
+import com.cloudinary.transformation.TextLayer;
 import com.example.memestorage.fragments.ImageFragment;
 import com.example.memestorage.R;
 import com.example.memestorage.databinding.ItemImageBinding;
@@ -133,7 +138,14 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
 
         public void bind(ImageModel imageModel) {
             // Load image using Glide or Picasso
-            Glide.with(itemView.getContext()).load(imageModel.imageURL).into(binding.ivImage);
+            String url = MediaManager.get().url()
+                    .transformation(new Transformation()
+                            .height(150).width(150).crop("fill")
+                            .quality("auto:low").fetchFormat("auto"))
+                    .generate(imageModel.imageName);
+            Log.d("URL CLOUDINARY", url);
+            Glide.with(itemView.getContext()).load(url)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL).into(binding.ivImage);
             binding.setImageModel(imageModel);
             if (imageModelsDownloaded.contains(imageModel)) {
                 binding.ivDownload.setImageResource(R.drawable.ic_download_done);
