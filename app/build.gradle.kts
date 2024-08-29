@@ -73,4 +73,8 @@ dependencies {
 
     implementation ("com.cloudinary:cloudinary-android:2.5.0")
     implementation("com.cloudinary:cloudinary-core:1.36.0")
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:adapter-rxjava3:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
 }

@@ -364,6 +364,11 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this, AddCategoryActivity.class);
             startActivity(intent);
         });
+
+        binding.btBrowseMemes.setOnClickListener(v -> {
+            Intent intent = new Intent(this, BrowseMemeActivity.class);
+            startActivity(intent);
+        });
     }
 
     private void initCategories() {
