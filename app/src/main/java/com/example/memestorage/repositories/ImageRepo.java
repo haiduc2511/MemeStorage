@@ -85,6 +85,11 @@ public class ImageRepo {
                 .orderBy("iId", Query.Direction.DESCENDING).limit(limit).get().addOnCompleteListener(onCompleteListener);
     }
 
+    public void getMoreMyImagesFirebase(int limit, DocumentSnapshot lastDocument, OnCompleteListener<QuerySnapshot> onCompleteListener) {
+        myImagesRef.collection(IMAGE_COLLECTION_NAME)
+                .orderBy("iId", Query.Direction.DESCENDING).startAfter(lastDocument).limit(limit).get().addOnCompleteListener(onCompleteListener);
+    }
+
     public void getMyImagesByIdFirebase(String iId, OnCompleteListener<DocumentSnapshot> onCompleteListener) {
         myImagesRef.collection(IMAGE_COLLECTION_NAME).document(iId).get().addOnCompleteListener(onCompleteListener);
     }

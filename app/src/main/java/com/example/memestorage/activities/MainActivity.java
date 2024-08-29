@@ -29,6 +29,7 @@ import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.cloudinary.android.MediaManager;
 import com.cloudinary.android.callback.ErrorInfo;
@@ -109,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
             if (categoryIdSet.size() != 0) {
                 getImageCategoriesByCategoryIdList(categoryIdList);
             } else {
+                imageAdapter.setImageModels(new ArrayList<>());
                 retrieveImagesByRxJava();
             }
         }
@@ -117,6 +119,7 @@ public class MainActivity extends AppCompatActivity {
     SharedPrefManager sharedPrefManager;
     CompositeDisposable compositeDisposable = new CompositeDisposable();
     Observable<Long> networkObservable;
+    DocumentSnapshot lastVisible;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -317,6 +320,16 @@ public class MainActivity extends AppCompatActivity {
         ImageItemTouchHelper imageItemTouchHelper = new ImageItemTouchHelper(imageAdapter, imageViewModel);
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(imageItemTouchHelper);
         itemTouchHelper.attachToRecyclerView(binding.rvImages);
+        binding.rvImages.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                if (!recyclerView.canScrollVertically(1)) {
+                    retrieveMoreImagesByRxJava();
+                }
+            }
+        });
         retrieveImagesByRxJava();
     }
 
@@ -393,7 +406,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void retrieveImagesByRxJava() {
-        imageAdapter.setImageModels(new ArrayList<>());
         String numberOfImages;
         if (sharedPrefManager.contains("Number of images")) {
             numberOfImages = sharedPrefManager.getData("Number of images");
@@ -410,6 +422,9 @@ public class MainActivity extends AppCompatActivity {
                                 List<ImageModel> images = task.getResult().toObjects(ImageModel.class);
                                 imageViewModel.setImages(images);
                                 emitter.onSuccess(images);
+                                if (!images.isEmpty()) {
+                                    lastVisible = task.getResult().getDocuments().get(task.getResult().size() - 1);
+                                }
                             } else {
                                 emitter.onError(task.getException());
                             }
@@ -432,6 +447,60 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     binding.getRoot().setBackgroundResource(R.drawable.background);
                 }
+                for (ImageModel imageModel : imageModels) {
+                    Log.d("receiving Images", imageModel.imageURL);
+                    imageAdapter.addImage(imageModel);
+                }
+            }
+
+            @Override
+            public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
+                Log.d("error rxjava", e.getMessage());
+                Log.w(TAG, "Error getting my imageModel", e);
+            }
+        });
+    }
+
+    private void retrieveMoreImagesByRxJava() {
+        String numberOfImages;
+        if (sharedPrefManager.contains("Number of images")) {
+            numberOfImages = sharedPrefManager.getData("Number of images");
+        } else {
+            numberOfImages = "40";
+        }
+        Single<List<ImageModel>> observable = Single.<List<ImageModel>>create(emitter -> {
+
+                    if (lastVisible != null) {
+                        imageViewModel.getMoreMyImagesFirebase(Integer.parseInt(numberOfImages), lastVisible, new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    List<ImageModel> images = task.getResult().toObjects(ImageModel.class);
+                                    imageViewModel.setImages(images);
+                                    emitter.onSuccess(images);
+                                    if (!images.isEmpty()) {
+                                        lastVisible = task.getResult().getDocuments().get(task.getResult().size() - 1);
+                                    }
+                                } else {
+                                    emitter.onError(task.getException());
+                                }
+
+                            }
+                        });
+                    }
+
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+
+        observable.subscribe(new SingleObserver<List<ImageModel>>() {
+            @Override
+            public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onSuccess(@io.reactivex.rxjava3.annotations.NonNull List<ImageModel> imageModels) {
                 for (ImageModel imageModel : imageModels) {
                     Log.d("receiving Images", imageModel.imageURL);
                     imageAdapter.addImage(imageModel);
