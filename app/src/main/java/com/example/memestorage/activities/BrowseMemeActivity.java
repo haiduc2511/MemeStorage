@@ -51,8 +51,8 @@ public class BrowseMemeActivity extends AppCompatActivity {
                     public void onSubscribe(Disposable d) {}
 
                     @Override
-                    public void onNext(MemeBrowsedModel meme) {
-                        memeSearchedAdapter.addMemeBrowsed(meme);
+                    public void onNext(MemeBrowsedModel memeBrowsedModel) {
+                        memeSearchedAdapter.addMemeBrowsed(memeBrowsedModel);
                     }
 
                     @Override
