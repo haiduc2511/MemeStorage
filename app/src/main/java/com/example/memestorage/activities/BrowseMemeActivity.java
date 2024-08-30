@@ -52,7 +52,7 @@ public class BrowseMemeActivity extends AppCompatActivity {
 
                     @Override
                     public void onNext(MemeBrowsedModel meme) {
-                        memeSearchedAdapter.addMemeSearched(meme);
+                        memeSearchedAdapter.addMemeBrowsed(meme);
                     }
 
                     @Override

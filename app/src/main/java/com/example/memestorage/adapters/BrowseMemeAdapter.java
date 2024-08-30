@@ -40,7 +40,7 @@ import java.util.ArrayList;
 
 public class BrowseMemeAdapter extends RecyclerView.Adapter<BrowseMemeAdapter.MemeViewHolder> {
 
-    private final List<MemeBrowsedModel> memes = new ArrayList<>();
+    private final List<MemeBrowsedModel> memeBrowsedModels = new ArrayList<>();
     private Context context;
 
     public BrowseMemeAdapter(Context context) {
@@ -57,27 +57,27 @@ public class BrowseMemeAdapter extends RecyclerView.Adapter<BrowseMemeAdapter.Me
 
     @Override
     public void onBindViewHolder(@NonNull MemeViewHolder holder, int position) {
-        MemeBrowsedModel meme = memes.get(position);
+        MemeBrowsedModel memeBrowsedModel = memeBrowsedModels.get(position);
 
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
         int screenHeight = displayMetrics.heightPixels;
         int imageHeight = screenHeight / 6; // 1/6 of the screen height
 
-        ViewGroup.LayoutParams layoutParams = holder.binding.imageView.getLayoutParams();
+        ViewGroup.LayoutParams layoutParams = holder.binding.ivMemeBrowsed.getLayoutParams();
         layoutParams.height = imageHeight;
-        holder.binding.imageView.setLayoutParams(layoutParams);
+        holder.binding.ivMemeBrowsed.setLayoutParams(layoutParams);
 
-        holder.bind(meme);
+        holder.bind(memeBrowsedModel);
     }
 
     @Override
     public int getItemCount() {
-        return memes.size();
+        return memeBrowsedModels.size();
     }
 
-    public void addMemeSearched(MemeBrowsedModel meme) {
-        memes.add(meme);
-        notifyItemInserted(memes.size() - 1);
+    public void addMemeBrowsed(MemeBrowsedModel memeBrowsedModel) {
+        memeBrowsedModels.add(memeBrowsedModel);
+        notifyItemInserted(memeBrowsedModels.size() - 1);
     }
     public class MemeViewHolder extends RecyclerView.ViewHolder {
 
@@ -88,10 +88,10 @@ public class BrowseMemeAdapter extends RecyclerView.Adapter<BrowseMemeAdapter.Me
             this.binding = binding;
         }
 
-        public void bind(MemeBrowsedModel meme) {
-            Glide.with(binding.imageView.getContext())
-                    .load(meme.getUrl())
-                    .into(binding.imageView);
+        public void bind(MemeBrowsedModel memeBrowsedModel) {
+            Glide.with(binding.ivMemeBrowsed.getContext())
+                    .load(memeBrowsedModel.getUrl())
+                    .into(binding.ivMemeBrowsed);
         }
     }
 }
