@@ -1,5 +1,7 @@
 package com.example.memestorage.fragments;
 
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -14,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.example.memestorage.R;
 import com.example.memestorage.adapters.CategoryAdapter;
 import com.example.memestorage.adapters.MainCategoryAdapter;
 import com.example.memestorage.databinding.FragmentImageBinding;
@@ -43,6 +46,8 @@ public class ImageFragment extends Fragment {
     }
 
     private static final String ARG_IMAGE = "image";
+    private static final String ARG_PRELOADED_IMAGE = "preload image";
+    private Bitmap imageBitmapPreload;
     FragmentImageBinding binding;
     private ImageModel imageModel;
     ImageViewModel imageViewModel;
@@ -50,10 +55,11 @@ public class ImageFragment extends Fragment {
     CategoryAdapter categoryAdapter;
     ImageCategoryViewModel imageCategoryViewModel;
 
-    public static ImageFragment newInstance(ImageModel imageModel) {
+    public static ImageFragment newInstance(ImageModel imageModel, Bitmap imageBitmapPreload) {
         ImageFragment fragment = new ImageFragment();
         Bundle args = new Bundle();
         args.putParcelable(ARG_IMAGE, imageModel);
+        args.putParcelable(ARG_PRELOADED_IMAGE, imageBitmapPreload);
         fragment.setArguments(args);
         return fragment;
     }
@@ -63,6 +69,7 @@ public class ImageFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             imageModel = getArguments().getParcelable(ARG_IMAGE);
+            imageBitmapPreload = getArguments().getParcelable(ARG_PRELOADED_IMAGE);
         }
     }
 
@@ -108,30 +115,12 @@ public class ImageFragment extends Fragment {
         categoryViewModel.addCategoryObserver(categoryAdapter);
 
         imageViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()).create(ImageViewModel.class);
-//        binding.btSaveImage.setOnClickListener(v -> {
-//            imageModel.imageName = binding.etImageName.getText().toString();
-//            imageViewModel.updateImageFirebase(imageModel.iId, imageModel, new OnCompleteListener<Void>() {
-//                @Override
-//                public void onComplete(@NonNull Task<Void> task) {
-//                    Toast.makeText(requireContext().getApplicationContext(), "Image updated", Toast.LENGTH_SHORT).show();
-//                }
-//            });
-//            updateImageCategories(categoryAdapter.getSelectedCategories(), imageCategoryViewModel.getImageCategories());
-//
-//        });
-
         setImage();
     }
 
     @Override
     public void onPause() {
-//        imageModel.imageName = binding.etImageName.getText().toString();
-//        imageViewModel.updateImageFirebase(imageModel.iId, imageModel, new OnCompleteListener<Void>() {
-//            @Override
-//            public void onComplete(@NonNull Task<Void> task) {
-//                Toast.makeText(requireContext().getApplicationContext(), "Image updated", Toast.LENGTH_SHORT).show();
-//            }
-//        });
+
         updateImageCategories(categoryAdapter.getSelectedCategories(), imageCategoryViewModel.getImageCategories());
 
         super.onPause();
@@ -139,8 +128,7 @@ public class ImageFragment extends Fragment {
 
     private void setImage() {
         binding.setImageModel(imageModel);
-
-        Glide.with(this).load(imageModel.imageURL).into(binding.ivImage);
+        Glide.with(this).load(imageModel.imageURL).placeholder(new BitmapDrawable(getResources(), imageBitmapPreload)).into(binding.ivImage);
 
         DisplayMetrics displayMetrics = requireActivity().getApplicationContext().getResources().getDisplayMetrics();
         int screenHeight = displayMetrics.heightPixels;
@@ -151,6 +139,7 @@ public class ImageFragment extends Fragment {
             layoutParams.height = imageHeight;
             binding.ivImage.setLayoutParams(layoutParams);
         }
+
     }
 
     private void updateImageCategories(Set<String> selectedCategories, List<ImageCategoryModel> imageCategoryModels) {

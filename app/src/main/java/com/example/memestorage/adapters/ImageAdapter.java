@@ -2,6 +2,9 @@ package com.example.memestorage.adapters;
 
 import android.app.DownloadManager;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.media.Image;
 import android.net.Uri;
 import android.os.Environment;
@@ -12,12 +15,15 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.cloudinary.Transformation;
 import com.cloudinary.android.MediaManager;
 import com.cloudinary.transformation.TextLayer;
@@ -120,38 +126,56 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
                 }
             });
 
-            binding.ivImage.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    int position = getAdapterPosition();
-                    if (position != RecyclerView.NO_POSITION) {
-                        ImageModel image = imageModels.get(position);
-                        ImageFragment fragment = ImageFragment.newInstance(image);
-                        fragmentManager.beginTransaction()
-                                .replace(R.id.fragment_container, fragment)
-                                .addToBackStack(null)
-                                .commit();
-                    }
-                }
-            });
+
         }
 
         public void bind(ImageModel imageModel) {
             // Load image using Glide or Picasso
             String url = MediaManager.get().url()
                     .transformation(new Transformation()
-                            .height(150).width(150).crop("fill")
-                            .quality("auto:low").fetchFormat("auto"))
+                            .quality("auto:low"))
                     .generate(imageModel.imageName);
             Log.d("URL CLOUDINARY", url);
-            Glide.with(itemView.getContext()).load(url)
-                    .diskCacheStrategy(DiskCacheStrategy.ALL).into(binding.ivImage);
+            Glide.with(itemView.getContext()).asBitmap().load(url)
+                    .into(new CustomTarget<Bitmap>() {
+                        @Override
+                        public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                            binding.ivImage.setImageBitmap(resource);
+                            binding.ivImage.setOnClickListener(new View.OnClickListener() {
+
+                                @Override
+                                public void onClick(View v) {
+//                                    imageBitmapPreloaded = ((BitmapDrawable) binding.ivImage.getDrawable()).getBitmap();
+
+                                    Glide.with(context).load(imageModel.imageURL).preload();
+                                    int position = getAdapterPosition();
+                                    if (position != RecyclerView.NO_POSITION) {
+                                        ImageModel image = imageModels.get(position);
+                                        ImageFragment fragment = ImageFragment.newInstance(image, resource);
+                                        fragmentManager.beginTransaction()
+                                                .replace(R.id.fragment_container, fragment)
+                                                .addToBackStack(null)
+                                                .commit();
+                                    }
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onLoadCleared(@Nullable Drawable placeholder) {
+
+                        }
+                    });
+
+
             binding.setImageModel(imageModel);
             if (imageModelsDownloaded.contains(imageModel)) {
                 binding.ivDownload.setImageResource(R.drawable.ic_download_done);
             } else {
                 binding.ivDownload.setImageResource(R.drawable.ic_download);
             }
+
+
         }
     }
     private void downloadImageLikeTinCoder(String imageUrl, String imageName) {
