@@ -33,6 +33,14 @@ public class ImageViewModel extends AndroidViewModel {
         this.images = images;
     }
 
+    public void addImages(List<ImageModel> images) {
+        this.images.addAll(images);
+    }
+
+    public void addImageFirst(ImageModel imageModel) {
+        this.images.add(0, imageModel);
+    }
+
     public List<ImageModel> getImages() {
         return images;
     }

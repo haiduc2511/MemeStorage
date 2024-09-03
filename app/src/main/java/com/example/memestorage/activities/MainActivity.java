@@ -481,7 +481,7 @@ public class MainActivity extends AppCompatActivity {
                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                 if (task.isSuccessful()) {
                                     List<ImageModel> images = task.getResult().toObjects(ImageModel.class);
-                                    imageViewModel.setImages(images);
+                                    imageViewModel.addImages(images);
                                     emitter.onSuccess(images);
                                     if (!images.isEmpty()) {
                                         lastVisible = task.getResult().getDocuments().get(task.getResult().size() - 1);
@@ -565,6 +565,7 @@ public class MainActivity extends AppCompatActivity {
                 imageViewModel.uploadImagesCloudinary(uriList, new UploadImageListener() {
                     @Override
                     public void onSuccessUploadingImages(ImageModel imageModel) {
+                        imageViewModel.addImageFirst(imageModel);
                         imageAdapter.addImageFirst(imageModel);
                         binding.rvImages.scrollToPosition(0);
                     }

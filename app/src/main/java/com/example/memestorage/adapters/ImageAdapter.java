@@ -136,6 +136,18 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
                             .quality("auto:low"))
                     .generate(imageModel.imageName);
             Log.d("URL CLOUDINARY", url);
+            loadImageWithGlide(url);
+
+            binding.setImageModel(imageModel);
+            if (imageModelsDownloaded.contains(imageModel)) {
+                binding.ivDownload.setImageResource(R.drawable.ic_download_done);
+            } else {
+                binding.ivDownload.setImageResource(R.drawable.ic_download);
+            }
+        }
+
+        public void loadImageWithGlide(String url) {
+            binding.ivImage.setImageResource(R.drawable.ic_loading2);
             Glide.with(itemView.getContext()).asBitmap().load(url)
                     .into(new CustomTarget<Bitmap>() {
                         @Override
@@ -147,7 +159,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
                                 public void onClick(View v) {
 //                                    imageBitmapPreloaded = ((BitmapDrawable) binding.ivImage.getDrawable()).getBitmap();
 
-                                    Glide.with(context).load(imageModel.imageURL).preload();
+//                                    Glide.with(context).load(imageModel.imageURL).preload();
                                     int position = getAdapterPosition();
                                     if (position != RecyclerView.NO_POSITION) {
                                         ImageModel image = imageModels.get(position);
@@ -163,17 +175,19 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
 
                         @Override
                         public void onLoadCleared(@Nullable Drawable placeholder) {
+                            binding.ivImage.setImageDrawable(placeholder);
 
                         }
+
+                        @Override
+                        public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                            super.onLoadFailed(errorDrawable);
+                            binding.ivImage.setImageResource(R.drawable.ic_reload_image2);
+                            binding.ivImage.setOnClickListener(v -> {
+                                loadImageWithGlide(url);
+                            });
+                        }
                     });
-
-
-            binding.setImageModel(imageModel);
-            if (imageModelsDownloaded.contains(imageModel)) {
-                binding.ivDownload.setImageResource(R.drawable.ic_download_done);
-            } else {
-                binding.ivDownload.setImageResource(R.drawable.ic_download);
-            }
 
 
         }
