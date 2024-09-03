@@ -101,6 +101,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
         layoutParams.height = imageHeight;
         holder.binding.ivImage.setLayoutParams(layoutParams);
 
+        holder.incrementTimeBound();
         holder.bind(data);
     }
 
@@ -111,6 +112,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
 
     public class ImageViewHolder extends RecyclerView.ViewHolder {
         ItemImageBinding binding;
+        int timeBound = 0;
 
         public ImageViewHolder(@NonNull ItemImageBinding binding) {
             super(binding.getRoot());
@@ -125,8 +127,10 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
                     imageModelsDownloaded.add(image);
                 }
             });
+        }
 
-
+        public void incrementTimeBound() {
+            timeBound++;
         }
 
         public void bind(ImageModel imageModel) {
@@ -147,6 +151,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
         }
 
         public void loadImageWithGlide(String url) {
+            int thisTimeBound = timeBound;
             binding.ivImage.setImageResource(R.drawable.ic_loading2);
             Glide.with(itemView.getContext()).asBitmap().load(url)
                     .into(new CustomTarget<Bitmap>() {
@@ -182,10 +187,14 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
                         @Override
                         public void onLoadFailed(@Nullable Drawable errorDrawable) {
                             super.onLoadFailed(errorDrawable);
-                            binding.ivImage.setImageResource(R.drawable.ic_reload_image2);
-                            binding.ivImage.setOnClickListener(v -> {
-                                loadImageWithGlide(url);
-                            });
+                            Log.d("thisTimeBound", thisTimeBound + " " + timeBound);
+                            if (thisTimeBound == timeBound) {
+                                binding.ivImage.setImageResource(R.drawable.ic_reload_image2);
+                                binding.ivImage.setOnClickListener(v -> {
+                                    loadImageWithGlide(url);
+                                    notifyItemChanged(getAdapterPosition());
+                                });
+                            }
                         }
                     });
 
