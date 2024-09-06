@@ -153,7 +153,8 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
         public void loadImageWithGlide(String url) {
             int thisTimeBound = timeBound;
             binding.ivImage.setImageResource(R.drawable.ic_loading2);
-            Glide.with(itemView.getContext()).asBitmap().load(url)
+            Glide.with(context).asBitmap().load(url)
+                    .error(Glide.with(context).asBitmap().load(url))
                     .into(new CustomTarget<Bitmap>() {
                         @Override
                         public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
