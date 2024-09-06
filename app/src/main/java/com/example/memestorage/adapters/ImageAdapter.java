@@ -137,7 +137,8 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
             // Load image using Glide or Picasso
             String url = MediaManager.get().url()
                     .transformation(new Transformation()
-                            .quality("auto:low"))
+                            .quality("1")
+                            .width(100))
                     .generate(imageModel.imageName);
             Log.d("URL CLOUDINARY", url);
             loadImageWithGlide(url);
