@@ -34,6 +34,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.cloudinary.android.MediaManager;
 import com.cloudinary.android.callback.ErrorInfo;
 import com.cloudinary.android.callback.UploadCallback;
+import com.example.memestorage.BuildConfig;
 import com.example.memestorage.R;
 import com.example.memestorage.adapters.CategoryAdapter;
 import com.example.memestorage.adapters.MainCategoryAdapter;
@@ -42,6 +43,7 @@ import com.example.memestorage.broadcastreceiver.InternetBroadcastReceiver;
 import com.example.memestorage.broadcastreceiver.NetworkStatusManager;
 import com.example.memestorage.models.CategoryModel;
 import com.example.memestorage.models.ImageCategoryModel;
+import com.example.memestorage.utils.CloudinaryHelper;
 import com.example.memestorage.utils.ImageItemTouchHelper;
 import com.example.memestorage.utils.FirebaseHelper;
 import com.example.memestorage.adapters.ImageAdapter;
@@ -137,9 +139,9 @@ public class MainActivity extends AppCompatActivity {
     private void initCloudinary() {
         if (!MediaManagerState.isInitialized()) {
             Map<String, Object> config = new HashMap<>();
-            config.put("cloud_name", getString(R.string.cloud_name));
-            config.put("api_key", getString(R.string.api_key));
-            config.put("api_secret", getString(R.string.api_secret));
+            config.put("cloud_name", BuildConfig.CLOUD_NAME);
+            config.put("api_key", BuildConfig.API_KEY);
+            config.put("api_secret", BuildConfig.API_SECRET);
 //        config.put("secure", true);
 
             MediaManager.init(this, config);

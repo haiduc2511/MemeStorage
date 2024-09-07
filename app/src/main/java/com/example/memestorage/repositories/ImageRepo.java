@@ -14,10 +14,13 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 
+import com.cloudinary.Cloudinary;
 import com.cloudinary.android.MediaManager;
 import com.cloudinary.android.callback.ErrorInfo;
 import com.cloudinary.android.callback.UploadCallback;
+import com.cloudinary.utils.ObjectUtils;
 import com.example.memestorage.R;
+import com.example.memestorage.utils.CloudinaryHelper;
 import com.example.memestorage.utils.FirebaseHelper;
 import com.example.memestorage.activities.MainActivity;
 import com.example.memestorage.models.ImageModel;
@@ -302,4 +305,9 @@ public class ImageRepo {
             }
         });
     }
+
+//    public void deleteImageCloudinary(String imageUrl) {
+//        Map result = CloudinaryHelper.getInstance().uploader().destroy("public_id_cua_anh", ObjectUtils.emptyMap());
+//        System.out.println(result);
+//    }
 }
