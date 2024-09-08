@@ -1,5 +1,7 @@
 package com.example.memestorage.utils;
 
+import android.util.Log;
+
 import com.example.memestorage.models.ImageCategoryModel;
 import com.example.memestorage.models.ImageModel;
 import com.example.memestorage.viewmodels.CategoryViewModel;
@@ -15,11 +17,13 @@ public class ImageCategoryUtil {
         String[] arrayCategoryNames = response.split(",\\s*");
         Map<String, String> mapCategories = CategoryViewModel.newInstance().getCategoryIdAndNameHashMap();
         for (String categoryName : arrayCategoryNames) {
+            Log.d("Check gemini response to Category", categoryName);
             if (mapCategories.containsKey(categoryName)) {
                 ImageCategoryModel imageCategoryModel = new ImageCategoryModel();
                 imageCategoryModel.imageId = imageModel.iId;
                 imageCategoryModel.categoryId = mapCategories.get(categoryName);
                 imageCategoryModels.add(imageCategoryModel);
+                Log.d("Check gemini Category to imageCategory", categoryName);
             }
         }
         return imageCategoryModels;

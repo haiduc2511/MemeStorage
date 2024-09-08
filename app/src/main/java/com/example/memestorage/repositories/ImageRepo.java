@@ -4,9 +4,10 @@ import static android.content.ContentValues.TAG;
 
 
 import android.content.ContentResolver;
-import android.database.Observable;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.media.Image;
 import android.net.Uri;
 import android.provider.MediaStore;
@@ -14,8 +15,17 @@ import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.request.transition.Transition;
 import com.cloudinary.Cloudinary;
+import com.cloudinary.Transformation;
 import com.cloudinary.android.MediaManager;
 import com.cloudinary.android.callback.ErrorInfo;
 import com.cloudinary.android.callback.UploadCallback;
@@ -66,7 +76,10 @@ import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.CompletableEmitter;
 import io.reactivex.rxjava3.core.CompletableObserver;
 import io.reactivex.rxjava3.core.CompletableOnSubscribe;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.functions.Function;
 
 public class ImageRepo {
     private static final String IMAGE_COLLECTION_NAME = "images";
@@ -175,9 +188,134 @@ public class ImageRepo {
 
     }
 
-    public void uploadImagesCloudinary(List<Uri> imageUris, ContentResolver contentResolver, MainActivity.UploadImageListener uploadImageListener) {
+    public void uploadImagesCloudinary(List<Uri> imageUris, ContentResolver contentResolver, MainActivity.UploadImageListener uploadImageListener, Context context) {
         if (!imageUris.isEmpty()) {
+            Observable.fromIterable(imageUris)
+                    .map(new Function<Uri, byte[]>() {
+                        @Override
+                        public byte[] apply(Uri imageUri) throws Throwable {
+                            Log.d("Check xem den doan mapping rxjava chua", "check");
+                            try {
+                                Bitmap bitmap = MediaStore.Images.Media.getBitmap(contentResolver, imageUri);
 
+                                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+                                bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
+
+                                byte[] data = baos.toByteArray();
+
+                                return data;
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+
+                            return new byte[0];
+                        }
+                    })
+                    .subscribe(new Observer<byte[]>() {
+                        @Override
+                        public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
+
+                        }
+
+                        @Override
+                        public void onNext(byte @io.reactivex.rxjava3.annotations.NonNull [] data) {
+                            String imageId = System.currentTimeMillis() + myUserId;
+
+                            Map<String, Object> options = new HashMap<>();
+                            options.put("format", "png");
+                            options.put("folder", "meme_storage/images");
+                            options.put("public_id", imageId);
+
+                            MediaManager.get().upload(data)
+                                    .unsigned("your_unsigned_preset")
+                                    .options(options)
+                                    .callback(new UploadCallback() {
+                                        @Override
+                                        public void onStart(String requestId) {
+                                            // Upload started
+                                            Log.d(TAG, "Upload started for request: " + requestId);
+                                        }
+
+                                        @Override
+                                        public void onProgress(String requestId, long bytes, long totalBytes) {
+                                            // Upload progress
+                                            Log.d(TAG, "Upload progress for request: " + requestId + " - " + bytes + "/" + totalBytes);
+                                        }
+
+                                        @Override
+                                        public void onSuccess(String requestId, Map resultData) {
+                                            // Upload success
+                                            String imageUrl = (String) resultData.get("secure_url");
+                                            Log.d(TAG, "Upload successful. Image URL: " + imageUrl);
+
+                                            ImageModel imageModel = new ImageModel();
+                                            imageModel.iId = imageId;
+                                            imageModel.imageName = (String) resultData.get("public_id");
+                                            imageModel.userId = myUserId;
+                                            imageModel.imageURL = imageUrl;
+                                            imageModel = addImageFirebase(imageModel);
+                                            Log.d("Upload cloudinary", "Upload images successful. Download URL: " + imageModel.toString() + " \n" +  imageUrl.toString());
+                                            uploadImageListener.onSuccessUploadingImages(imageModel);
+                                            String url = MediaManager.get().url()
+//                                                    .transformation(new Transformation()
+//                                                            .quality("1")
+//                                                            .width(400))
+                                                    .generate(imageModel.imageName);
+
+                                            ImageModel finalImageModel = imageModel;
+                                            Glide.with(context).asBitmap().load(url).listener(new RequestListener<Bitmap>() {
+                                                        @Override
+                                                        public boolean onLoadFailed(@Nullable GlideException e, @Nullable Object model, @NonNull Target<Bitmap> target, boolean isFirstResource) {
+                                                            e.printStackTrace();
+                                                            Log.d("Check Image before giving to Gemini", model.toString());
+                                                            return false;
+                                                        }
+
+                                                        @Override
+                                                        public boolean onResourceReady(@NonNull Bitmap resource, @NonNull Object model, Target<Bitmap> target, @NonNull DataSource dataSource, boolean isFirstResource) {
+                                                            return false;
+                                                        }
+                                                    })
+                                                    .into(new CustomTarget<Bitmap>() {
+                                                @Override
+                                                public void onResourceReady(@NonNull Bitmap bitmap, @Nullable Transition<? super Bitmap> transition) {
+                                                    getAICategoriesSuggestions(bitmap, finalImageModel, uploadImageListener);
+                                                    Log.d("Image size before giving to Gemini", String.valueOf(bitmap.getAllocationByteCount()));
+                                                }
+
+                                                @Override
+                                                public void onLoadCleared(@Nullable Drawable placeholder) {
+
+                                                }
+                                            });
+
+                                        }
+
+                                        @Override
+                                        public void onError(String requestId, ErrorInfo error) {
+                                            // Upload error
+                                            Log.d(TAG, "Upload failed: " + error.getDescription());
+                                        }
+
+                                        @Override
+                                        public void onReschedule(String requestId, ErrorInfo error) {
+                                            // Upload rescheduled
+                                            Log.d(TAG, "Upload rescheduled: " + error.getDescription());
+                                        }
+                                    }).dispatch();
+                        }
+
+                        @Override
+                        public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
+
+                        }
+
+                        @Override
+                        public void onComplete() {
+
+                        }
+                    });
             for (Uri imageUri : imageUris) {
                 try {
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(contentResolver, imageUri);
@@ -201,52 +339,7 @@ public class ImageRepo {
                     options.put("public_id", imageId);
 
                     // Upload the image byte array to Cloudinary
-                    MediaManager.get().upload(data)
-                            .unsigned("your_unsigned_preset")
-                            .options(options)
-                            .callback(new UploadCallback() {
-                                @Override
-                                public void onStart(String requestId) {
-                                    // Upload started
-                                    Log.d(TAG, "Upload started for request: " + requestId);
-                                }
 
-                                @Override
-                                public void onProgress(String requestId, long bytes, long totalBytes) {
-                                    // Upload progress
-                                    Log.d(TAG, "Upload progress for request: " + requestId + " - " + bytes + "/" + totalBytes);
-                                }
-
-                                @Override
-                                public void onSuccess(String requestId, Map resultData) {
-                                    // Upload success
-                                    String imageUrl = (String) resultData.get("secure_url");
-                                    Log.d(TAG, "Upload successful. Image URL: " + imageUrl);
-
-                                    ImageModel imageModel = new ImageModel();
-                                    imageModel.iId = imageId;
-                                    imageModel.imageName = (String) resultData.get("public_id");
-                                    imageModel.userId = myUserId;
-                                    imageModel.imageURL = imageUrl;
-                                    imageModel = addImageFirebase(imageModel);
-                                    Log.d("Upload cloudinary", "Upload images successful. Download URL: " + imageModel.toString() + " \n" +  imageUrl.toString());
-                                    uploadImageListener.onSuccessUploadingImages(imageModel);
-                                    getAICategoriesSuggestions(bitmap, imageModel, uploadImageListener);
-
-                                }
-
-                                @Override
-                                public void onError(String requestId, ErrorInfo error) {
-                                    // Upload error
-                                    Log.d(TAG, "Upload failed: " + error.getDescription());
-                                }
-
-                                @Override
-                                public void onReschedule(String requestId, ErrorInfo error) {
-                                    // Upload rescheduled
-                                    Log.d(TAG, "Upload rescheduled: " + error.getDescription());
-                                }
-                            }).dispatch();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -281,7 +374,7 @@ public class ImageRepo {
             public void onSuccess(GenerateContentResponse response) {
                 String responseText = response.getText();
                 if (responseText != null) {
-                    ;
+                    Log.d("Gemini response", imageModel.imageURL + "\n" + responseText);
                     uploadImageListener.onSuccessGetAICategoriesSuggestion(ImageCategoryUtil
                             .stringToImageCategoryList(responseText, imageModel));
                 } else {

@@ -587,7 +587,7 @@ public class MainActivity extends AppCompatActivity {
                             });
                         }
                     }
-                });
+                }, this);
 //                imageViewModel.uploadImagesFirebaseStorage(uriList, new UploadImageListener() {
 //                    @Override
 //                    public void onSuccessUploadingImages(ImageModel imageModel) {

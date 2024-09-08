@@ -3,6 +3,7 @@ package com.example.memestorage.viewmodels;
 import static android.content.ContentValues.TAG;
 
 import android.app.Application;
+import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
@@ -83,8 +84,8 @@ public class ImageViewModel extends AndroidViewModel {
     public void uploadImagesFirebaseStorage(List<Uri> imageUris, MainActivity.UploadImageListener onSuccessUploadingImages) {
         imageRepo.uploadImagesFirebaseStorage(imageUris,getApplication().getContentResolver() , onSuccessUploadingImages);
     }
-    public void uploadImagesCloudinary(List<Uri> imageUris, MainActivity.UploadImageListener onSuccessUploadingImages) {
-        imageRepo.uploadImagesCloudinary(imageUris, getApplication().getContentResolver(), onSuccessUploadingImages);
+    public void uploadImagesCloudinary(List<Uri> imageUris, MainActivity.UploadImageListener onSuccessUploadingImages, Context context) {
+        imageRepo.uploadImagesCloudinary(imageUris, getApplication().getContentResolver(), onSuccessUploadingImages, context);
     }
 
     public void deleteImageFirebaseStorage(String url) {
