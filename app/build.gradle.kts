@@ -13,9 +13,9 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
-        buildConfigField("String", "CLOUD_NAME", "\"${"CLOUD_NAME"}\"")
-        buildConfigField("String", "API_KEY", "\"${"API_KEY"}\"")
-        buildConfigField("String", "API_SECRET", "\"${"API_SECRET"}\"")
+        buildConfigField("String", "CLOUD_NAME", "\"${properties.get("CLOUD_NAME")}\"")
+        buildConfigField("String", "API_KEY", "\"${properties.get("API_KEY")}\"")
+        buildConfigField("String", "API_SECRET", "\"${properties.get("API_SECRET")}\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

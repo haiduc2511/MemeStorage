@@ -4,6 +4,7 @@ import static android.content.ContentValues.TAG;
 
 
 import android.content.ContentResolver;
+import android.database.Observable;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.Image;
@@ -18,6 +19,7 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.android.MediaManager;
 import com.cloudinary.android.callback.ErrorInfo;
 import com.cloudinary.android.callback.UploadCallback;
+import com.cloudinary.api.ApiResponse;
 import com.cloudinary.utils.ObjectUtils;
 import com.example.memestorage.R;
 import com.example.memestorage.utils.CloudinaryHelper;
@@ -59,6 +61,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
+import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.CompletableEmitter;
+import io.reactivex.rxjava3.core.CompletableObserver;
+import io.reactivex.rxjava3.core.CompletableOnSubscribe;
+import io.reactivex.rxjava3.disposables.Disposable;
 
 public class ImageRepo {
     private static final String IMAGE_COLLECTION_NAME = "images";
@@ -306,8 +314,35 @@ public class ImageRepo {
         });
     }
 
-//    public void deleteImageCloudinary(String imageUrl) {
-//        Map result = CloudinaryHelper.getInstance().uploader().destroy("public_id_cua_anh", ObjectUtils.emptyMap());
-//        System.out.println(result);
-//    }
+    public void deleteImageCloudinary(ImageModel imageModel) {
+        Completable.create(emitter -> {
+            try {
+                Map<String, Object> deleteParams = ObjectUtils.asMap("invalidate", true );
+                CloudinaryHelper.getInstance().uploader().destroy(imageModel.imageName, deleteParams);
+                emitter.onComplete();
+            } catch (IOException e) {
+                emitter.onError(e);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }).subscribe(new CompletableObserver() {
+            @Override
+            public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onComplete() {
+                Log.d("Delete Image Cloudinary", "Successful");
+
+            }
+
+            @Override
+            public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
+                Log.d("Delete Image Cloudinary", "Failed");
+                e.printStackTrace();
+            }
+        });
+
+    }
 }

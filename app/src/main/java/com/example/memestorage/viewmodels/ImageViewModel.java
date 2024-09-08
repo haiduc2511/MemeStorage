@@ -9,17 +9,21 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 
+import com.cloudinary.utils.ObjectUtils;
 import com.example.memestorage.activities.MainActivity;
 import com.example.memestorage.models.ImageCategoryModel;
 import com.example.memestorage.models.ImageModel;
 import com.example.memestorage.repositories.ImageRepo;
+import com.example.memestorage.utils.CloudinaryHelper;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ImageViewModel extends AndroidViewModel {
     private final ImageRepo imageRepo = new ImageRepo();
@@ -85,5 +89,9 @@ public class ImageViewModel extends AndroidViewModel {
 
     public void deleteImageFirebaseStorage(String url) {
         imageRepo.deleteImageFirebaseStorage(url);
+    }
+
+    public void deleteImageCloudinary(ImageModel imageModel) {
+        imageRepo.deleteImageCloudinary(imageModel);
     }
 }
