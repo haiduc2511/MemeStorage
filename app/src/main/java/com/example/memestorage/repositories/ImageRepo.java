@@ -320,34 +320,6 @@ public class ImageRepo {
 
                         }
                     });
-            for (Uri imageUri : imageUris) {
-                try {
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(contentResolver, imageUri);
-
-                    // Tạo ByteArrayOutputStream
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-                    // Nén Bitmap thành JPEG với chất lượng 50% (chất lượng có thể thay đổi từ 0 đến 100)
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
-
-                    // Chuyển ByteArrayOutputStream thành byte array
-                    byte[] data = baos.toByteArray();
-
-                    String imageId = System.currentTimeMillis() + myUserId;
-
-                    // Create an options map
-                    Map<String, Object> options = new HashMap<>();
-//                    options.put("upload_preset", "your_unsigned_preset");
-                    options.put("format", "png");
-                    options.put("folder", "meme_storage/images");
-                    options.put("public_id", imageId);
-
-                    // Upload the image byte array to Cloudinary
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
         } else {
             Log.d(TAG, "No files selected");
         }
