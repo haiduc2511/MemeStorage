@@ -122,7 +122,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
                 int position = getAdapterPosition();
                 if (position != RecyclerView.NO_POSITION) {
                     ImageModel image = imageModels.get(position);
-                    downloadImageLikeTinCoder(image.imageURL, image.imageName);
+                    downloadImageLikeTinCoder(image.imageURL, image.iId);
                     binding.ivDownload.setImageResource(R.drawable.ic_download_done);
                     imageModelsDownloaded.add(image);
                 }
@@ -137,7 +137,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
             // Load image using Glide or Picasso
             String url = MediaManager.get().url()
                     .transformation(new Transformation()
-                            .quality("1")
+                            .quality("50")
                             .width(100))
                     .generate(imageModel.imageName);
             Log.d("URL CLOUDINARY", url);
@@ -203,7 +203,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
 
         }
     }
-    private void downloadImageLikeTinCoder(String imageUrl, String imageName) {
+    private void downloadImageLikeTinCoder(String imageUrl, String iId) {
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(imageUrl));
         request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE | DownloadManager.Request.NETWORK_WIFI);
         request.setTitle("Download meme");
@@ -211,7 +211,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
 
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
         String directoryPath = Environment.DIRECTORY_PICTURES + "/MemeStorage";
-        String filePath = System.currentTimeMillis() + "and" + imageName;
+        String filePath = System.currentTimeMillis() + "and" + iId;
 
         request.setDestinationInExternalPublicDir(directoryPath, filePath);
 

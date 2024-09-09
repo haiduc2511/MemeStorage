@@ -72,6 +72,7 @@ import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.CompletableEmitter;
 import io.reactivex.rxjava3.core.CompletableObserver;
@@ -80,6 +81,7 @@ import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.functions.Function;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class ImageRepo {
     private static final String IMAGE_COLLECTION_NAME = "images";
@@ -212,6 +214,8 @@ public class ImageRepo {
                             return new byte[0];
                         }
                     })
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new Observer<byte[]>() {
                         @Override
                         public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
@@ -223,7 +227,7 @@ public class ImageRepo {
                             String imageId = System.currentTimeMillis() + myUserId;
 
                             Map<String, Object> options = new HashMap<>();
-                            options.put("format", "png");
+                            options.put("format", "jpg");
                             options.put("folder", "meme_storage/images");
                             options.put("public_id", imageId);
 
