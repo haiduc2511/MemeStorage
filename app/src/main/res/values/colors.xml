@@ -2,9 +2,9 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="colorPrimary">#6200EE</color>
-    <color name="colorPrimaryDark">#3700B3</color>
-    <color name="colorAccent">#03DAC5</color>
+    <color name="colorPrimary">#2E2E2E</color>
+    <color name="colorPrimaryDark">#1C1C1C</color>
+    <color name="colorAccent">#728FCE</color>
     <color name="red">#FF0000</color>
     <color name="green">#00FF00</color>
     <color name="blue">#0000FF</color>
@@ -31,4 +31,19 @@
     <color name="lavender">#E6E6FA</color>
     <color name="coral">#FF7F50</color>
     <color name="salmon">#FA8072</color>
+    <color name="dimGray">#696969</color>
+    <color name="lightSlateGray">#778899</color>
+    <color name="slateGray">#708090</color>
+    <color name="gainsboro">#DCDCDC</color>
+    <color name="charcoal">#36454F</color>
+    <color name="ashGray">#B2BEB5</color>
+    <color name="battleshipGray">#848482</color>
+    <color name="almost_black">#1A1A1A</color>
+    <color name="jet_gray">#202020</color>
+    <color name="charcoal_gray">#2E2E2E</color>
+    <color name="gunmetal_gray">#2A3439</color>
+    <color name="ebony_gray">#555D50</color>
+    <color name="black_gray">#1C1C1C</color>
+    <color name="onyx_gray">#353839</color>
+    <color name="eerie_black">#1B1B1B</color>
 </resources>

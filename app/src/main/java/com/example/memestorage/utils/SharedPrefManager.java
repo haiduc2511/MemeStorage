@@ -52,13 +52,40 @@ public class SharedPrefManager {
     }
 
     public String getNumberOfColumn() {
-        if (!contains("Number of column")) {
+        if (!contains("Number of columns")) {
             return "3";
         }
-        return this.getData("Number of column");
+        return this.getData("Number of columns");
     }
 
-
-
-
+    public String getPowerMode() {
+        if (!contains("Power mode")) {
+            return "high";
+        }
+        return this.getData("Power mode");
+    }
+    public void savePowerMode(String powerMode) {
+        this.saveData("Power mode", powerMode);
+        if (powerMode.equals("low")) {
+            saveNumberOfImages("15");
+            saveFetchQuality("low");
+        }
+        if (powerMode.equals("medium")) {
+            saveNumberOfImages("30");
+            saveFetchQuality("medium");
+        }
+        if (powerMode.equals("high")) {
+            saveNumberOfImages("60");
+            saveFetchQuality("high");
+        }
+    }
+    public String getFetchQuality() {
+        if (!contains("Fetch Quality")) {
+            return "high";
+        }
+        return this.getData("Fetch Quality");
+    }
+    public void saveFetchQuality(String fetchQuality) {
+        this.saveData("Fetch Quality", fetchQuality);
+    }
 }
