@@ -77,6 +77,17 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
     public void notifyCategoryInserted(CategoryModel categoryModel) {
         notifyItemInserted(categoryModels.size() - 1);
     }
+
+    @Override
+    public void notifyCategoryDeleted(int position) {
+        notifyItemRemoved(position);
+    }
+
+    @Override
+    public void notifyCategoryUpdated(int position) {
+        notifyItemChanged(position);
+    }
+
     public class CategoryViewHolder extends RecyclerView.ViewHolder {
         ItemCategoryBinding binding;
 

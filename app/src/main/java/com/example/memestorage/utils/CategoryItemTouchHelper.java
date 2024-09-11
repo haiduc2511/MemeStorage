@@ -52,12 +52,7 @@ public class CategoryItemTouchHelper extends ItemTouchHelper.SimpleCallback {
                     new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            categoryViewModel.deleteCategoryFirebase(categoryViewModel.getCategories().get(position).cId, new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    Log.d("Delete Category Firestore", "Category in Firestore deleted successfully");
-                                }
-                            });
+                            categoryViewModel.deleteCategoryFirebase(categoryViewModel.getCategories().get(position).cId);
                             categoryViewModel.getCategories().remove(position);
                             adapter.notifyItemRemoved(position);
                             Toast.makeText(adapter.getContext(),

@@ -64,6 +64,16 @@ public class AddCategoryCategoryAdapter extends RecyclerView.Adapter<AddCategory
     }
 
     @Override
+    public void notifyCategoryDeleted(int position) {
+        notifyItemRemoved(position);
+    }
+
+    @Override
+    public void notifyCategoryUpdated(int position) {
+        notifyItemChanged(position);
+    }
+
+    @Override
     public int getItemCount() {
         return categoryModels.size();
     }

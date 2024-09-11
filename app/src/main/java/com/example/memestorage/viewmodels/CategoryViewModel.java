@@ -1,6 +1,7 @@
 package com.example.memestorage.viewmodels;
 
 import android.app.Application;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -101,7 +102,22 @@ public class CategoryViewModel {
         categoryRepo.updateCategoryFirebase(id, categoryModel, onCompleteListener);
     }
 
-    public void deleteCategoryFirebase(String id, OnCompleteListener<Void> onCompleteListener) {
-        categoryRepo.deleteCategoryFirebase(id, onCompleteListener);
+    public void deleteCategoryFirebase(String id) {
+        categoryRepo.deleteCategoryFirebase(id, new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                for (int i = 0; i < categories.size(); i++) {
+                    if (categories.get(i).cId.equals(id)) {
+                        categories.remove(i);
+                        for (CategoryObserver categoryObserver : categoryObservers) {
+                            categoryObserver.notifyCategoryDeleted(i);
+                        }
+                        break;
+                    }
+                }
+                Log.d("Delete Category Firestore", "Category in Firestore deleted successfully");
+
+            }
+        });
     }
 }
