@@ -1,5 +1,9 @@
 package com.example.memestorage.utils;
 
+import static androidx.core.content.ContextCompat.getSystemService;
+
+import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -7,6 +11,8 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -19,6 +25,7 @@ import com.example.memestorage.R;
 import com.example.memestorage.adapters.AddCategoryCategoryAdapter;
 import com.example.memestorage.adapters.CategoryAdapter;
 import com.example.memestorage.adapters.ImageAdapter;
+import com.example.memestorage.models.CategoryModel;
 import com.example.memestorage.viewmodels.CategoryViewModel;
 import com.example.memestorage.viewmodels.ImageViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -44,34 +51,89 @@ public class CategoryItemTouchHelper extends ItemTouchHelper.SimpleCallback {
     public void onSwiped(@NonNull final RecyclerView.ViewHolder viewHolder, int direction) {
         final int position = viewHolder.getAdapterPosition();
         if (direction == ItemTouchHelper.LEFT) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(adapter.getContext());
-            builder.setTitle("Delete Player");
-            builder.setMessage("Are you sure you want to delete " +
-                    " ?");
-            builder.setPositiveButton("Confirm",
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            categoryViewModel.deleteCategoryFirebase(categoryViewModel.getCategories().get(position).cId);
-                            categoryViewModel.getCategories().remove(position);
-                            adapter.notifyItemRemoved(position);
-                            Toast.makeText(adapter.getContext(),
-                                    "deleted category "
-                                    , Toast.LENGTH_SHORT).show();
-                        }
-                    });
-            builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    adapter.notifyItemChanged(viewHolder.getAdapterPosition());
-                }
-            });
-            AlertDialog dialog = builder.create();
-            dialog.show();
+            showDeleteDialog(viewHolder, position);
         } else {
+            showEditDialog(viewHolder, position);
             Toast.makeText(adapter.getContext(), "Méo cho edit tên heh (chủ yếu do lười :v) " + position, Toast.LENGTH_SHORT).show();
         }
         adapter.notifyItemChanged(viewHolder.getAdapterPosition());
+    }
+
+    private void showEditDialog(@NonNull final RecyclerView.ViewHolder viewHolder, int position) {
+        CategoryModel categoryModel = adapter.getCategoryModels().get(position);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(adapter.getContext());
+        builder.setTitle("Edit Item Name");
+
+        final EditText input = new EditText(adapter.getContext());
+        input.setText(categoryModel.categoryName);
+        input.setSelection(input.getText().length());
+        input.requestFocus();
+        builder.setView(input);
+
+        input.postDelayed(() -> {
+            InputMethodManager imm = (InputMethodManager) adapter.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
+            }
+        }, 200);
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String newCategoryName = input.getText().toString().trim();
+                if (!newCategoryName.isEmpty()) {
+                    // Update the item's name
+                    Toast.makeText(adapter.getContext(),
+                            "Edited category " +
+                                    adapter.getCategoryModels().get(position).categoryName +
+                                    " to " +
+                                    newCategoryName
+                            , Toast.LENGTH_SHORT).show();
+                    categoryModel.categoryName = newCategoryName;
+                    categoryViewModel.updateCategoryFirebase(categoryModel.cId, categoryModel);
+                    adapter.notifyItemChanged(position);
+
+                }
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                adapter.notifyItemChanged(viewHolder.getAdapterPosition());
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+    }
+
+    private void showDeleteDialog(@NonNull final RecyclerView.ViewHolder viewHolder, int position) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(adapter.getContext());
+        builder.setTitle("Delete Category");
+        builder.setMessage("Are you sure you want to delete " +
+                adapter.getCategoryModels().get(position).categoryName +
+                " ?");
+        builder.setPositiveButton("Confirm",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Toast.makeText(adapter.getContext(),
+                                "deleted category " +
+                                        adapter.getCategoryModels().get(position).categoryName
+                                , Toast.LENGTH_SHORT).show();
+                        categoryViewModel.deleteCategoryFirebase(categoryViewModel.getCategories().get(position).cId);
+//                        categoryViewModel.getCategories().remove(position); // lỗi xoá 2 lần
+//                        adapter.notifyItemRemoved(position);
+                    }
+                });
+        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                adapter.notifyItemChanged(viewHolder.getAdapterPosition());
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     @Override

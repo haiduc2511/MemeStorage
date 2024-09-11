@@ -54,6 +54,7 @@ public class SettingActivity extends AppCompatActivity {
             builder.setPositiveButton("OK", (dialog, which) -> {
                 String selectedNumber = String.valueOf(numberPicker.getValue());
                 if (isNumberLessThan100(selectedNumber)) {
+                    binding.btNumberOfImages.setText(selectedNumber);
                     sharedPrefManager.saveNumberOfImages(selectedNumber);
                 } else {
                     Toast.makeText(this, "Number of images not appropriate", Toast.LENGTH_SHORT).show();

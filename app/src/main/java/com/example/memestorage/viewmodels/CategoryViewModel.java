@@ -98,8 +98,21 @@ public class CategoryViewModel {
         categoryRepo.getSuggestedCategoriesFirebase(onCompleteListener);
     }
 
-    public void updateCategoryFirebase(String id, CategoryModel categoryModel, OnCompleteListener<Void> onCompleteListener) {
-        categoryRepo.updateCategoryFirebase(id, categoryModel, onCompleteListener);
+    public void updateCategoryFirebase(String id, CategoryModel categoryModel) {
+        categoryRepo.updateCategoryFirebase(id, categoryModel, new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+
+                for (int i = 0; i < categories.size(); i++) {
+                    if (categories.get(i).cId.equals(id)) {
+                        for (CategoryObserver categoryObserver : categoryObservers) {
+                            categoryObserver.notifyCategoryUpdated(i);
+                        }
+                        break;
+                    }
+                }
+            }
+        });
     }
 
     public void deleteCategoryFirebase(String id) {
