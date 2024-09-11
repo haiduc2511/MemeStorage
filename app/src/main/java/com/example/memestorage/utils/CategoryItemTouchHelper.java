@@ -54,10 +54,10 @@ public class CategoryItemTouchHelper extends ItemTouchHelper.SimpleCallback {
             showDeleteDialog(viewHolder, position);
         } else {
             showEditDialog(viewHolder, position);
-            Toast.makeText(adapter.getContext(), "Méo cho edit tên heh (chủ yếu do lười :v) " + position, Toast.LENGTH_SHORT).show();
         }
         adapter.notifyItemChanged(viewHolder.getAdapterPosition());
     }
+
 
     private void showEditDialog(@NonNull final RecyclerView.ViewHolder viewHolder, int position) {
         CategoryModel categoryModel = adapter.getCategoryModels().get(position);
@@ -91,7 +91,7 @@ public class CategoryItemTouchHelper extends ItemTouchHelper.SimpleCallback {
                             , Toast.LENGTH_SHORT).show();
                     categoryModel.categoryName = newCategoryName;
                     categoryViewModel.updateCategoryFirebase(categoryModel.cId, categoryModel);
-                    adapter.notifyItemChanged(position);
+//                    adapter.notifyItemChanged(position);
 
                 }
             }
@@ -122,8 +122,6 @@ public class CategoryItemTouchHelper extends ItemTouchHelper.SimpleCallback {
                                         adapter.getCategoryModels().get(position).categoryName
                                 , Toast.LENGTH_SHORT).show();
                         categoryViewModel.deleteCategoryFirebase(categoryViewModel.getCategories().get(position).cId);
-//                        categoryViewModel.getCategories().remove(position); // lỗi xoá 2 lần
-//                        adapter.notifyItemRemoved(position);
                     }
                 });
         builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
