@@ -41,6 +41,10 @@ public class CategoryViewModel {
                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
                     if (task.isSuccessful()) {
                         categories = task.getResult().toObjects(CategoryModel.class);
+                        for (CategoryModel categoryModel : categories) {
+                            map.put(categoryModel.categoryName, categoryModel.cId);
+                        }
+
                     }
                 }
             });
@@ -52,12 +56,21 @@ public class CategoryViewModel {
     }
 
     public Map<String, String> getCategoryIdAndNameHashMap() {
-//        if (map.isEmpty()) {
+        if (map.isEmpty()) {
             for (CategoryModel categoryModel : categories) {
                 map.put(categoryModel.categoryName, categoryModel.cId);
             }
-//        }
-        return map;
+            return map;
+        } else {
+            return map;
+        }
+    }
+
+    private void resetCategoryIdAndNameHashMap() {
+        map.clear();
+        for (CategoryModel categoryModel : categories) {
+            map.put(categoryModel.categoryName, categoryModel.cId);
+        }
     }
 
     public static String getStringListOfCategoryNames() {
@@ -89,6 +102,7 @@ public class CategoryViewModel {
         for (CategoryObserver categoryObserver : categoryObservers) {
             categoryObserver.notifyCategoryInserted(categoryModel);
         }
+        resetCategoryIdAndNameHashMap();
     }
 
     public void getCategoriesFirebase(OnCompleteListener<QuerySnapshot> onCompleteListener) {
@@ -113,6 +127,7 @@ public class CategoryViewModel {
                 }
             }
         });
+        resetCategoryIdAndNameHashMap();
     }
 
     public void deleteCategoryFirebase(String id) {
@@ -132,5 +147,6 @@ public class CategoryViewModel {
 
             }
         });
+        resetCategoryIdAndNameHashMap();
     }
 }
