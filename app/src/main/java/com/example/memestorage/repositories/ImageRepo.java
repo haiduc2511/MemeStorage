@@ -337,13 +337,16 @@ public class ImageRepo {
         String categoryNames = CategoryViewModel.getStringListOfCategoryNames();
         Content content = new Content.Builder()
                 .addText("i want to categorize this picture, 1 picture can have many categories," +
-                        " only choose the categories below, if not, leave it blank\n" +
+                        " only choose the categories below, if not, leave it blank, and give me no duplicates\n" +
                         categoryNames + "\n" +
                         "with each category separated by a comma")
                 .addImage(bitmap)
                 .build();
+        Log.d("Gemini text chat", "i want to categorize this picture, 1 picture can have many categories," +
+                " only choose the categories below, if not, leave it blank, and give me no duplicates\n" +
+                categoryNames + "\n" +
+                "with each category separated by a comma");
         ListenableFuture<GenerateContentResponse> response = model.generateContent(content);
-
         Executor executor = Executors.newSingleThreadExecutor();
         Futures.addCallback(response, new FutureCallback<GenerateContentResponse>() {
             @Override
