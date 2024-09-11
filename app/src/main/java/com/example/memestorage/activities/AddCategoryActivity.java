@@ -58,8 +58,22 @@ public class AddCategoryActivity extends AppCompatActivity {
 
     private void initUI() {
         binding.btAddCategory.setOnClickListener(v -> {
+            String categoryName = binding.etCategoryName.getText().toString();
+            if (categoryName.isEmpty()) {
+                Toast.makeText(this, "You must enter category's name first", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (categoryName.length() > 50) {
+                Toast.makeText(this, "Category's name's too long", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (CategoryViewModel.newInstance().getCategories().size() > 30) {
+                Toast.makeText(this, "Too many categories", Toast.LENGTH_SHORT).show();
+                return;
+            }
             addNewCategory();
-            binding.etCategoryName.setText("");
         });
         FlexboxLayoutManager layoutManager = new FlexboxLayoutManager(getApplicationContext());
         layoutManager.setFlexDirection(FlexDirection.ROW);
@@ -126,12 +140,6 @@ public class AddCategoryActivity extends AppCompatActivity {
 
     private void addNewCategory() {
         String categoryName = binding.etCategoryName.getText().toString();
-
-        if (categoryName.isEmpty()) {
-            Toast.makeText(this, "You must enter category's name first", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
         CategoryModel categoryModel = new CategoryModel();
         categoryModel.categoryName = categoryName;
         categoryViewModel.addCategoryFirebase(categoryModel, new OnCompleteListener<Void>() {
@@ -140,6 +148,7 @@ public class AddCategoryActivity extends AppCompatActivity {
                 Log.d("Add category model", categoryModel.toString());
             }
         });
+        binding.etCategoryName.setText("");
 
     }
 }
