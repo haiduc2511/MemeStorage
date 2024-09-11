@@ -35,7 +35,7 @@ public class SharedPrefManager {
     }
 
     public void saveNumberOfColumn(String numberOfColumn) {
-        this.saveData("Number of column", numberOfColumn);
+        this.saveData("Number of columns", numberOfColumn);
     }
     public String getNumberOfImages() {
         if (!contains("Number of images")) {
@@ -68,20 +68,20 @@ public class SharedPrefManager {
         this.saveData("Power mode", powerMode);
         if (powerMode.equals("low")) {
             saveNumberOfImages("15");
-            saveFetchQuality("low");
+            saveFetchQuality("100");
         }
         if (powerMode.equals("medium")) {
             saveNumberOfImages("30");
-            saveFetchQuality("medium");
+            saveFetchQuality("200");
         }
         if (powerMode.equals("high")) {
             saveNumberOfImages("60");
-            saveFetchQuality("high");
+            saveFetchQuality("300");
         }
     }
     public String getFetchQuality() {
         if (!contains("Fetch Quality")) {
-            return "high";
+            return "300";
         }
         return this.getData("Fetch Quality");
     }

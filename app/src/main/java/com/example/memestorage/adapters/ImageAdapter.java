@@ -31,6 +31,7 @@ import com.example.memestorage.fragments.ImageFragment;
 import com.example.memestorage.R;
 import com.example.memestorage.databinding.ItemImageBinding;
 import com.example.memestorage.models.ImageModel;
+import com.example.memestorage.utils.SharedPrefManager;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -43,11 +44,13 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
     private FragmentManager fragmentManager;
     private Set<ImageModel> imageModelsDownloaded = new HashSet<>();
     private int numberOfColumn;
+    private SharedPrefManager sharedPrefManager;
 
     public ImageAdapter(Context context, FragmentManager fragmentManager, int numberOfColumn) {
         this.numberOfColumn = numberOfColumn;
         this.context = context;
         this.fragmentManager = fragmentManager;
+        this.sharedPrefManager = new SharedPrefManager(context);
     }
 
     public int getNumberOfColumn() {
@@ -137,8 +140,8 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
             // Load image using Glide or Picasso
             String url = MediaManager.get().url()
                     .transformation(new Transformation()
-                            .quality("50")
-                            .width(100))
+                            .quality("70")
+                            .width(Integer.parseInt(sharedPrefManager.getFetchQuality())))
                     .generate(imageModel.imageName);
             Log.d("URL CLOUDINARY", url);
             loadImageWithGlide(url);

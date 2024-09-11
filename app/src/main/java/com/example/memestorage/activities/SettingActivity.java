@@ -53,7 +53,7 @@ public class SettingActivity extends AppCompatActivity {
             builder.setView(numberPicker);
             builder.setPositiveButton("OK", (dialog, which) -> {
                 String selectedNumber = String.valueOf(numberPicker.getValue());
-                if (isNumberLessThan300(selectedNumber)) {
+                if (isNumberLessThan100(selectedNumber)) {
                     sharedPrefManager.saveNumberOfImages(selectedNumber);
                 } else {
                     Toast.makeText(this, "Number of images not appropriate", Toast.LENGTH_SHORT).show();
@@ -67,13 +67,14 @@ public class SettingActivity extends AppCompatActivity {
             NumberPicker numberPicker = new NumberPicker(this);
             numberPicker.setMinValue(1);
             numberPicker.setMaxValue(20);
-            numberPicker.setValue(Integer.parseInt(sharedPrefManager.getNumberOfImages()));
+            numberPicker.setValue(Integer.parseInt(sharedPrefManager.getNumberOfColumn()));
 
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setView(numberPicker);
             builder.setPositiveButton("OK", (dialog, which) -> {
                 String selectedNumber = String.valueOf(numberPicker.getValue());
-                if (isNumberLessThan300(selectedNumber)) {
+                if (isNumberLessThan20(selectedNumber)) {
+                    binding.btNumberOfColumn.setText(selectedNumber);
                     sharedPrefManager.saveNumberOfColumn(selectedNumber);
                 } else {
                     Toast.makeText(this, "Number of columns not appropriate", Toast.LENGTH_SHORT).show();
@@ -87,6 +88,9 @@ public class SettingActivity extends AppCompatActivity {
             logOut();
         });
 
+        binding.fabBack.setOnClickListener(v -> {
+            getOnBackPressedDispatcher().onBackPressed();
+        });
     }
 
     @Override
@@ -96,9 +100,17 @@ public class SettingActivity extends AppCompatActivity {
     }
 
     private void initPowerModeToggleGroup() {
-        MaterialButtonToggleGroup toggleGroup = findViewById(R.id.tg_power_mode);
+        if (sharedPrefManager.getPowerMode().equals("low")) {
+            updateButtonChose(binding.btnLow);
+        }
+        if (sharedPrefManager.getPowerMode().equals("medium")) {
+            updateButtonChose(binding.btnMedium);
+        }
+        if (sharedPrefManager.getPowerMode().equals("high")) {
+            updateButtonChose(binding.btnHigh);
+        }
 
-        toggleGroup.addOnButtonCheckedListener(new MaterialButtonToggleGroup.OnButtonCheckedListener() {
+        binding.tgPowerMode.addOnButtonCheckedListener(new MaterialButtonToggleGroup.OnButtonCheckedListener() {
             @Override
             public void onButtonChecked(MaterialButtonToggleGroup group, int checkedId, boolean isChecked) {
                 if (isChecked) {
@@ -165,7 +177,7 @@ public class SettingActivity extends AppCompatActivity {
 
     private boolean isNumberLessThan20(String str) {
         try {
-            double num = Double.parseDouble(str);
+            int num = Integer.parseInt(str);
             return num < 20 && num > 0;
         } catch (NumberFormatException e) {
             return false;
