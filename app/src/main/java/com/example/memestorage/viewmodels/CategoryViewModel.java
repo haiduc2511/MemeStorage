@@ -53,6 +53,7 @@ public class CategoryViewModel {
     }
     public static void resetInstance() {
         categoryViewModel = null;
+        map.clear();
     }
 
     public Map<String, String> getCategoryIdAndNameHashMap() {
