@@ -23,7 +23,10 @@ public class ImageCategoryUtil {
                 imageCategoryModel.imageId = imageModel.iId;
                 imageCategoryModel.categoryId = mapCategories.get(categoryName);
                 imageCategoryModels.add(imageCategoryModel);
-                Log.d("Check gemini Category to imageCategory", categoryName);
+                Log.d("Check gemini Category if it's in hashmap to imageCategory", imageCategoryModel.toString());
+            }
+            if (imageCategoryModels.size() > 50) {
+                break;
             }
         }
         return imageCategoryModels;
