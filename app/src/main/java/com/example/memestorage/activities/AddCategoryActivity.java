@@ -124,27 +124,14 @@ public class AddCategoryActivity extends AppCompatActivity {
                 .commit();
     }
 
-//    private void addNewCategory() {
-//        String categoryName = binding.etCategoryName.getText().toString();
-//        CategoryModel categoryModel = new CategoryModel();
-//        categoryModel.categoryName = categoryName;
-//        categoryViewModel.addCategoryFirebase(categoryModel, new OnCompleteListener<Void>() {
-//            @Override
-//            public void onComplete(@NonNull Task<Void> task) {
-//                categoryViewModel.getCategoriesFirebase(new OnCompleteListener<QuerySnapshot>() {
-//                    @Override
-//                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-//                        categoryViewModel.setCategories(task.getResult().toObjects(CategoryModel.class));
-////                        categoryAdapter.setCategoryModels(categoryViewModel.getCategories());
-//                    }
-//                });
-//                Toast.makeText(AddCategoryActivity.this, "Add Category  " + categoryModel.categoryName + " successfully", Toast.LENGTH_SHORT).show();
-//            }
-//        });
-//
-//    }
     private void addNewCategory() {
         String categoryName = binding.etCategoryName.getText().toString();
+
+        if (categoryName.isEmpty()) {
+            Toast.makeText(this, "You must enter category's name first", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         CategoryModel categoryModel = new CategoryModel();
         categoryModel.categoryName = categoryName;
         categoryViewModel.addCategoryFirebase(categoryModel, new OnCompleteListener<Void>() {
