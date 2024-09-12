@@ -42,11 +42,12 @@ public class SettingActivity extends AppCompatActivity {
         initPowerModeToggleGroup();
         binding.btNumberOfImages.setText(sharedPrefManager.getNumberOfImages());
         binding.btNumberOfColumn.setText(sharedPrefManager.getNumberOfColumn());
+        binding.btFetchQuality.setText(sharedPrefManager.getFetchQuality());
 
         binding.btNumberOfImages.setOnClickListener(v -> {
             NumberPicker numberPicker = new NumberPicker(this);
             numberPicker.setMinValue(1);
-            numberPicker.setMaxValue(100);
+            numberPicker.setMaxValue(30);
             numberPicker.setValue(Integer.parseInt(sharedPrefManager.getNumberOfImages()));
 
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -58,6 +59,34 @@ public class SettingActivity extends AppCompatActivity {
                     sharedPrefManager.saveNumberOfImages(selectedNumber);
                 } else {
                     Toast.makeText(this, "Number of images not appropriate", Toast.LENGTH_SHORT).show();
+                }
+            });
+            builder.setNegativeButton("Cancel", null);
+            builder.show();
+        });
+
+        binding.btFetchQuality.setOnClickListener(v -> {
+            NumberPicker numberPicker = new NumberPicker(this);
+            numberPicker.setMinValue(1);
+            numberPicker.setMaxValue(80);
+            numberPicker.setValue(Integer.parseInt(sharedPrefManager.getNumberOfImages()));
+            NumberPicker.Formatter formatter = new NumberPicker.Formatter() {
+                @Override
+                public String format(int value) {
+                    int temp = value * 5;
+                    return "" + temp;
+                }
+            };
+            numberPicker.setFormatter(formatter);
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setView(numberPicker);
+            builder.setPositiveButton("OK", (dialog, which) -> {
+                String selectedNumber = String.valueOf(numberPicker.getValue() * 5);
+                if (isNumberLessThan500(selectedNumber)) {
+                    binding.btFetchQuality.setText(selectedNumber);
+                    sharedPrefManager.saveFetchQuality(selectedNumber);
+                } else {
+                    Toast.makeText(this, "Fetch Quality not appropriate", Toast.LENGTH_SHORT).show();
                 }
             });
             builder.setNegativeButton("Cancel", null);
@@ -127,6 +156,7 @@ public class SettingActivity extends AppCompatActivity {
                     }
                     binding.btNumberOfImages.setText(sharedPrefManager.getNumberOfImages());
                     binding.btNumberOfColumn.setText(sharedPrefManager.getNumberOfColumn());
+                    binding.btFetchQuality.setText(sharedPrefManager.getFetchQuality());
                 }
             }
         });
@@ -159,7 +189,7 @@ public class SettingActivity extends AppCompatActivity {
         if (numberOfImage.equals("")) {
             return;
         }
-        if (isNumberLessThan300(numberOfImage)) {
+        if (isNumberLessThan500(numberOfImage)) {
             sharedPrefManager.saveNumberOfImages(numberOfImage);
         } else {
             Toast.makeText(this, "Number of images not appropriate", Toast.LENGTH_SHORT).show();
@@ -192,10 +222,10 @@ public class SettingActivity extends AppCompatActivity {
             return false;
         }
     }
-    private boolean isNumberLessThan300(String str) {
+    private boolean isNumberLessThan500(String str) {
         try {
             double num = Double.parseDouble(str);
-            return num < 300 && num > 0;
+            return num < 500 && num > 0;
         } catch (NumberFormatException e) {
             return false;
         }

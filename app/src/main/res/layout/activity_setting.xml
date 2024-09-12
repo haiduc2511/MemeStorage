@@ -41,6 +41,7 @@
         android:id="@+id/textView4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:text="Number of images"
         android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
@@ -132,6 +133,29 @@
             android:textColor="@color/white" />
     </com.google.android.material.button.MaterialButtonToggleGroup>
 
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Fetch quality"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/bt_number_of_images" />
+
+    <Button
+        android:id="@+id/bt_fetch_quality"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/colorPrimary"
+        android:layout_marginTop="8dp"
+        android:text="Fetch quality"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView2" />
+
     <Button
         android:id="@+id/bt_log_out"
         android:layout_width="wrap_content"
@@ -141,6 +165,8 @@
         android:text="Log out"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/bt_fetch_quality" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
