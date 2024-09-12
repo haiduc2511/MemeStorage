@@ -10,6 +10,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.media.Image;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
@@ -91,6 +93,8 @@ public class ImageRepo {
     private final FirebaseStorage storage = FirebaseHelper.getInstance().getStorage();
 
     private DocumentReference myImagesRef = db.collection(USER_COLLECTION_NAME).document(myUserId);
+    private static final int MAX_RETRIES = 5;
+    private static final long BASE_DELAY_MS = 6000L; // Start with 6 second delay
 
 
 
@@ -136,59 +140,59 @@ public class ImageRepo {
         myImagesRef.collection(IMAGE_COLLECTION_NAME).document(id).delete().addOnCompleteListener(onCompleteListener);
     }
 
-    public void uploadImagesFirebaseStorage(List<Uri> imageUris, ContentResolver contentResolver, MainActivity.UploadImageListener uploadImageListener) {
-        if (!imageUris.isEmpty()) {
-            StorageReference storageReference = FirebaseStorage.getInstance().getReference("uploads");
-
-            for (Uri imageUri : imageUris) {
-                try {
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(contentResolver, imageUri);
-
-                    // Tạo ByteArrayOutputStream
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-                    // Nén Bitmap thành JPEG với chất lượng 50% (chất lượng có thể thay đổi từ 0 đến 100)
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
-
-                    // Chuyển ByteArrayOutputStream thành byte array
-                    byte[] data = baos.toByteArray();
-
-                    StorageReference fileReference = storageReference.child("" + System.currentTimeMillis());
-
-                    fileReference.putBytes(data)
-                            .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                                @Override
-                                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                    fileReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                        @Override
-                                        public void onSuccess(Uri downloadUri) {
-                                            ImageModel imageModel = new ImageModel();
-                                            imageModel.imageName = fileReference.getName();
-                                            imageModel.userId = myUserId;
-                                            imageModel.imageURL = downloadUri.toString();
-                                            imageModel = addImageFirebase(imageModel);
-                                            Log.d(TAG, "Upload images successful. Download URL: " + downloadUri.toString());
-                                            uploadImageListener.onSuccessUploadingImages(imageModel);
-                                            getAICategoriesSuggestions(bitmap, imageModel, uploadImageListener);
-                                        }
-                                    });
-                                }
-                            })
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Log.d(TAG, "Upload images failed: " + e.getMessage());
-                                }
-                            });
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        } else {
-            Log.d(TAG, "No files selected");
-        }
-
-    }
+//    public void uploadImagesFirebaseStorage(List<Uri> imageUris, ContentResolver contentResolver, MainActivity.UploadImageListener uploadImageListener) {
+//        if (!imageUris.isEmpty()) {
+//            StorageReference storageReference = FirebaseStorage.getInstance().getReference("uploads");
+//
+//            for (Uri imageUri : imageUris) {
+//                try {
+//                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(contentResolver, imageUri);
+//
+//                    // Tạo ByteArrayOutputStream
+//                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//
+//                    // Nén Bitmap thành JPEG với chất lượng 50% (chất lượng có thể thay đổi từ 0 đến 100)
+//                    bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
+//
+//                    // Chuyển ByteArrayOutputStream thành byte array
+//                    byte[] data = baos.toByteArray();
+//
+//                    StorageReference fileReference = storageReference.child("" + System.currentTimeMillis());
+//
+//                    fileReference.putBytes(data)
+//                            .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+//                                @Override
+//                                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+//                                    fileReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+//                                        @Override
+//                                        public void onSuccess(Uri downloadUri) {
+//                                            ImageModel imageModel = new ImageModel();
+//                                            imageModel.imageName = fileReference.getName();
+//                                            imageModel.userId = myUserId;
+//                                            imageModel.imageURL = downloadUri.toString();
+//                                            imageModel = addImageFirebase(imageModel);
+//                                            Log.d(TAG, "Upload images successful. Download URL: " + downloadUri.toString());
+//                                            uploadImageListener.onSuccessUploadingImages(imageModel);
+//                                            getAICategoriesSuggestions(bitmap, imageModel, uploadImageListener);
+//                                        }
+//                                    });
+//                                }
+//                            })
+//                            .addOnFailureListener(new OnFailureListener() {
+//                                @Override
+//                                public void onFailure(@NonNull Exception e) {
+//                                    Log.d(TAG, "Upload images failed: " + e.getMessage());
+//                                }
+//                            });
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        } else {
+//            Log.d(TAG, "No files selected");
+//        }
+//
+//    }
 
     public void uploadImagesCloudinary(List<Uri> imageUris, ContentResolver contentResolver, MainActivity.UploadImageListener uploadImageListener, Context context) {
         if (!imageUris.isEmpty()) {
@@ -284,7 +288,7 @@ public class ImageRepo {
                                                     .into(new CustomTarget<Bitmap>() {
                                                 @Override
                                                 public void onResourceReady(@NonNull Bitmap bitmap, @Nullable Transition<? super Bitmap> transition) {
-                                                    getAICategoriesSuggestions(bitmap, finalImageModel, uploadImageListener);
+                                                    getAICategoriesSuggestions(bitmap, finalImageModel, uploadImageListener, 0);
                                                     Log.d("Image size before giving to Gemini", String.valueOf(bitmap.getAllocationByteCount()));
                                                 }
 
@@ -325,7 +329,13 @@ public class ImageRepo {
         }
     }
 
-    public void getAICategoriesSuggestions(Bitmap bitmap, ImageModel imageModel, MainActivity.UploadImageListener uploadImageListener){
+    public void getAICategoriesSuggestions(Bitmap bitmap, ImageModel imageModel, MainActivity.UploadImageListener uploadImageListener, int retryCount){
+        if (retryCount > MAX_RETRIES) {
+            Log.d("AI Google response", "Max retries reached. Giving up.");
+            return;
+        }
+        Log.d("AI Google response", "This is the " + retryCount + " time");
+
         SafetySetting harassmentSafety = new SafetySetting(HarmCategory.HARASSMENT, BlockThreshold.NONE);
         SafetySetting hateSpeechSafety  = new SafetySetting(HarmCategory.HATE_SPEECH, BlockThreshold.NONE);
         GenerativeModel generativeModel = new GenerativeModel("gemini-1.5-flash",
@@ -342,10 +352,6 @@ public class ImageRepo {
                         "with each category separated by a comma")
                 .addImage(bitmap)
                 .build();
-        Log.d("Gemini text chat", "i want to categorize this picture, 1 picture can have many categories," +
-                " only choose the categories below, if not, leave it blank, and give me no duplicates\n" +
-                categoryNames + "\n" +
-                "with each category separated by a comma");
         ListenableFuture<GenerateContentResponse> response = model.generateContent(content);
         Executor executor = Executors.newSingleThreadExecutor();
         Futures.addCallback(response, new FutureCallback<GenerateContentResponse>() {
@@ -363,7 +369,15 @@ public class ImageRepo {
             }
             @Override
             public void onFailure(Throwable t) {
-                t.printStackTrace();
+                if (t.getMessage().contains("RESOURCE_EXHAUSTED")) {
+                    // Exponential backoff retry mechanism
+                    long delay = (long) (BASE_DELAY_MS * Math.pow(3, retryCount)); // Exponential backoff
+                    Log.d("AI Google Failed response", "Resource exhausted. Retrying in " + delay + "ms...");
+                    new Handler(Looper.getMainLooper()).postDelayed(() ->
+                            getAICategoriesSuggestions(bitmap, imageModel, uploadImageListener, retryCount + 1), delay);
+                } else {
+                    t.printStackTrace();
+                }
             }
         }, executor);
     }
