@@ -138,12 +138,19 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
 
         public void bind(ImageModel imageModel) {
             // Load image using Glide or Picasso
-            String url = MediaManager.get().url()
-                    .transformation(new Transformation()
-                            .quality("70")
-                            .width(Integer.parseInt(sharedPrefManager.getFetchQuality())))
-                    .generate(imageModel.imageName);
-            Log.d("URL CLOUDINARY", url);
+            String url = "";
+            if (imageModel.iId.length() > 36) {
+                 url = MediaManager.get().url()
+                        .transformation(new Transformation()
+                                .quality("70")
+                                .width(Integer.parseInt(sharedPrefManager.getFetchQuality())))
+                        .generate(imageModel.imageName);
+                 Log.d("URL CLOUDINARY", url);
+            } else {
+                url = imageModel.imageURL;
+                Log.d("URL FireStore", url);
+            }
+
             loadImageWithGlide(url);
 
             binding.setImageModel(imageModel);
