@@ -67,15 +67,15 @@ public class SharedPrefManager {
     public void savePowerMode(String powerMode) {
         this.saveData("Power mode", powerMode);
         if (powerMode.equals("low")) {
-            saveNumberOfImages("15");
+            saveNumberOfImages("10");
             saveFetchQuality("100");
         }
         if (powerMode.equals("medium")) {
-            saveNumberOfImages("30");
+            saveNumberOfImages("20");
             saveFetchQuality("200");
         }
         if (powerMode.equals("high")) {
-            saveNumberOfImages("60");
+            saveNumberOfImages("30");
             saveFetchQuality("300");
         }
     }

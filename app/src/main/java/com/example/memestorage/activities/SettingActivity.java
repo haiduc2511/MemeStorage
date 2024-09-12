@@ -69,7 +69,6 @@ public class SettingActivity extends AppCompatActivity {
             NumberPicker numberPicker = new NumberPicker(this);
             numberPicker.setMinValue(1);
             numberPicker.setMaxValue(80);
-            numberPicker.setValue(Integer.parseInt(sharedPrefManager.getNumberOfImages()));
             NumberPicker.Formatter formatter = new NumberPicker.Formatter() {
                 @Override
                 public String format(int value) {
@@ -78,6 +77,7 @@ public class SettingActivity extends AppCompatActivity {
                 }
             };
             numberPicker.setFormatter(formatter);
+            numberPicker.setValue(Integer.parseInt(sharedPrefManager.getFetchQuality()) / 5);
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setView(numberPicker);
             builder.setPositiveButton("OK", (dialog, which) -> {

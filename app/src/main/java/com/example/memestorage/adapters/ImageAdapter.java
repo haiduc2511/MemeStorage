@@ -216,12 +216,12 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
     private void downloadImageLikeTinCoder(String imageUrl, String iId) {
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(imageUrl));
         request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE | DownloadManager.Request.NETWORK_WIFI);
-        request.setTitle("Download meme");
-        request.setDescription("Downloading meme mtfk...");
+        request.setTitle("Download from meme storage");
+        request.setDescription("Downloading...");
 
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
         String directoryPath = Environment.DIRECTORY_PICTURES + "/MemeStorage";
-        String filePath = System.currentTimeMillis() + "and" + iId;
+        String filePath = System.currentTimeMillis() + "and" + iId + ".jpg";
 
         request.setDestinationInExternalPublicDir(directoryPath, filePath);
 

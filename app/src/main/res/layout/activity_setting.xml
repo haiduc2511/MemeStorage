@@ -44,8 +44,7 @@
         android:layout_marginTop="16dp"
         android:text="Number of images"
         android:textColor="@color/white"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/tg_power_mode"
         app:layout_constraintTop_toBottomOf="@+id/tg_power_mode" />
 
     <Button
@@ -55,8 +54,8 @@
         android:layout_marginTop="8dp"
         android:backgroundTint="@color/colorPrimary"
         android:text="Number of images"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/textView4"
+        app:layout_constraintStart_toStartOf="@+id/textView4"
         app:layout_constraintTop_toBottomOf="@+id/textView4" />
 
     <TextView
@@ -137,23 +136,22 @@
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
         android:text="Fetch quality"
+        android:layout_margin="16dp"
         android:textColor="@color/white"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/tg_power_mode"
         app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/bt_number_of_images" />
+        app:layout_constraintTop_toBottomOf="@+id/tg_power_mode" />
 
     <Button
         android:id="@+id/bt_fetch_quality"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:backgroundTint="@color/colorPrimary"
         android:layout_marginTop="8dp"
+        android:backgroundTint="@color/colorPrimary"
         android:text="Fetch quality"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/textView2"
+        app:layout_constraintStart_toStartOf="@+id/textView2"
         app:layout_constraintTop_toBottomOf="@+id/textView2" />
 
     <Button
