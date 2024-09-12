@@ -102,6 +102,7 @@ public class MainActivity extends AppCompatActivity {
     ImageAdapter imageAdapter;
     int numberOfTimesSearched = 0;
     boolean isFirstInternetConnectionCheck = true;
+    boolean searchingByCategory = false; //for lazy loading (retrieveMoreImages..)
     NetworkStatusManager networkStatusManager = NetworkStatusManager.getInstance();
     CategorySearchListener onCategorySearchChosen = new CategorySearchListener() {
         @Override
@@ -111,9 +112,11 @@ public class MainActivity extends AppCompatActivity {
             imageAdapter.setImageModels(new ArrayList<>());
             if (categoryIdSet.size() != 0) {
                 getImageCategoriesByCategoryIdList(categoryIdList);
+                searchingByCategory = true;
             } else {
                 imageAdapter.setImageModels(new ArrayList<>());
                 retrieveImagesByRxJava();
+                searchingByCategory = false;
             }
         }
     };
@@ -414,6 +417,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void retrieveImagesByRxJava() {
         String numberOfImages;
+        final int thisSearchNumber = numberOfTimesSearched;
         if (sharedPrefManager.contains("Number of images")) {
             numberOfImages = sharedPrefManager.getData("Number of images");
         } else {
@@ -456,7 +460,9 @@ public class MainActivity extends AppCompatActivity {
                 }
                 for (ImageModel imageModel : imageModels) {
                     Log.d("receiving Images", imageModel.imageURL);
-                    imageAdapter.addImage(imageModel);
+                    if (thisSearchNumber == numberOfTimesSearched) {
+                        imageAdapter.addImage(imageModel);
+                    }
                 }
             }
 
@@ -469,6 +475,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void retrieveMoreImagesByRxJava() {
+        if (searchingByCategory) {
+            return;
+        }
         String numberOfImages;
         if (sharedPrefManager.contains("Number of images")) {
             numberOfImages = sharedPrefManager.getData("Number of images");
