@@ -25,6 +25,7 @@ import com.example.memestorage.databinding.ActivityAddCategoryBinding;
 import com.example.memestorage.fragments.CategorySuggestFragment;
 import com.example.memestorage.fragments.ImageFragment;
 import com.example.memestorage.utils.CategoryItemTouchHelper;
+import com.example.memestorage.utils.CategoryUtil;
 import com.example.memestorage.viewmodels.CategoryViewModel;
 import com.example.memestorage.models.CategoryModel;
 import com.example.memestorage.R;
@@ -59,21 +60,9 @@ public class AddCategoryActivity extends AppCompatActivity {
     private void initUI() {
         binding.btAddCategory.setOnClickListener(v -> {
             String categoryName = binding.etCategoryName.getText().toString();
-            if (categoryName.isEmpty()) {
-                Toast.makeText(this, "You must enter category's name first", Toast.LENGTH_SHORT).show();
-                return;
+            if (CategoryUtil.catetogyIsAcceptable(categoryName, this)) {
+                addNewCategory();
             }
-
-            if (categoryName.length() > 50) {
-                Toast.makeText(this, "Category's name's too long", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            if (CategoryViewModel.newInstance().getCategories().size() > 30) {
-                Toast.makeText(this, "Too many categories", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            addNewCategory();
         });
         FlexboxLayoutManager layoutManager = new FlexboxLayoutManager(getApplicationContext());
         layoutManager.setFlexDirection(FlexDirection.ROW);

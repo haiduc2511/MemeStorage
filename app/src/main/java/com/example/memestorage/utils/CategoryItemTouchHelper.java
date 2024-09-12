@@ -81,8 +81,7 @@ public class CategoryItemTouchHelper extends ItemTouchHelper.SimpleCallback {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String newCategoryName = input.getText().toString().trim();
-                if (!newCategoryName.isEmpty()) {
-                    // Update the item's name
+                if (CategoryUtil.catetogyIsAcceptable(newCategoryName, adapter.getContext())) {
                     Toast.makeText(adapter.getContext(),
                             "Edited category " +
                                     adapter.getCategoryModels().get(position).categoryName +
