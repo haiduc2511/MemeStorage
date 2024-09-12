@@ -18,10 +18,11 @@ public class ImageCategoryUtil {
         Map<String, String> mapCategories = CategoryViewModel.newInstance().getCategoryIdAndNameHashMap();
         for (String categoryName : arrayCategoryNames) {
             Log.d("Check gemini response to Category", categoryName);
-            if (mapCategories.containsKey(categoryName)) {
+            String finalCategoryName = categoryName.trim();
+            if (mapCategories.containsKey(finalCategoryName)) {
                 ImageCategoryModel imageCategoryModel = new ImageCategoryModel();
                 imageCategoryModel.imageId = imageModel.iId;
-                imageCategoryModel.categoryId = mapCategories.get(categoryName);
+                imageCategoryModel.categoryId = mapCategories.get(finalCategoryName);
                 imageCategoryModels.add(imageCategoryModel);
                 Log.d("Check gemini Category if it's in hashmap to imageCategory", imageCategoryModel.toString());
             }
