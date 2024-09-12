@@ -202,7 +202,7 @@ public class ImageRepo {
 
                                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-                                bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
+                                bitmap.compress(Bitmap.CompressFormat.JPEG, 99, baos);
 
                                 byte[] data = baos.toByteArray();
 
