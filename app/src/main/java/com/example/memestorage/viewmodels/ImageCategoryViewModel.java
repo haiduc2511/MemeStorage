@@ -59,4 +59,10 @@ public class ImageCategoryViewModel extends AndroidViewModel {
     public void deleteImageCategoryFirebase(String id, OnCompleteListener<Void> onCompleteListener) {
         imageCategoryRepo.deleteImageCategoryFirebase(id, onCompleteListener);
     }
+    public void deleteImageCategoryByCategoryIdFirebase(String categoryId) {
+        imageCategoryRepo.deleteImageCategoryByCategoryIdFirebase(categoryId);
+    }
+    public void deleteImageCategoryByImageIdFirebase(String imageId) {
+        imageCategoryRepo.deleteImageCategoryByImageIdFirebase(imageId);
+    }
 }

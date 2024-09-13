@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.memestorage.R;
 import com.example.memestorage.adapters.ImageAdapter;
+import com.example.memestorage.viewmodels.ImageCategoryViewModel;
 import com.example.memestorage.viewmodels.ImageViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -28,11 +29,13 @@ public class ImageItemTouchHelper extends ItemTouchHelper.SimpleCallback {
 
     private ImageAdapter adapter;
     private ImageViewModel imageViewModel;
+    private ImageCategoryViewModel imageCategoryViewModel;
 
-    public ImageItemTouchHelper(ImageAdapter adapter, ImageViewModel imageViewModel) {
+    public ImageItemTouchHelper(ImageAdapter adapter, ImageViewModel imageViewModel, ImageCategoryViewModel imageCategoryViewModel) {
         super(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
         this.adapter = adapter;
         this.imageViewModel = imageViewModel;
+        this.imageCategoryViewModel = imageCategoryViewModel;
     }
 
     @Override
@@ -51,7 +54,9 @@ public class ImageItemTouchHelper extends ItemTouchHelper.SimpleCallback {
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        imageViewModel.deleteImageFirebase(imageViewModel.getImages().get(position).iId, new OnCompleteListener<Void>() {
+                        String imageId = imageViewModel.getImages().get(position).iId;
+                        imageCategoryViewModel.deleteImageCategoryByImageIdFirebase(imageId);
+                        imageViewModel.deleteImageFirebase(imageId, new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()) {

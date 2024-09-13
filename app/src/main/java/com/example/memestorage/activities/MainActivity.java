@@ -322,7 +322,7 @@ public class MainActivity extends AppCompatActivity {
         binding.rvImages.setLayoutManager(new GridLayoutManager(this, Integer.parseInt(sharedPrefManager.getNumberOfColumn())));
         imageAdapter = new ImageAdapter(MainActivity.this, getSupportFragmentManager(), Integer.parseInt(sharedPrefManager.getNumberOfColumn()));
         binding.rvImages.setAdapter(imageAdapter);
-        ImageItemTouchHelper imageItemTouchHelper = new ImageItemTouchHelper(imageAdapter, imageViewModel);
+        ImageItemTouchHelper imageItemTouchHelper = new ImageItemTouchHelper(imageAdapter, imageViewModel, imageCategoryViewModel);
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(imageItemTouchHelper);
         itemTouchHelper.attachToRecyclerView(binding.rvImages);
         binding.rvImages.addOnScrollListener(new RecyclerView.OnScrollListener() {

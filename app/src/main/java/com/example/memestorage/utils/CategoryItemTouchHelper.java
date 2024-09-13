@@ -27,6 +27,7 @@ import com.example.memestorage.adapters.CategoryAdapter;
 import com.example.memestorage.adapters.ImageAdapter;
 import com.example.memestorage.models.CategoryModel;
 import com.example.memestorage.viewmodels.CategoryViewModel;
+import com.example.memestorage.viewmodels.ImageCategoryViewModel;
 import com.example.memestorage.viewmodels.ImageViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -35,11 +36,12 @@ public class CategoryItemTouchHelper extends ItemTouchHelper.SimpleCallback {
 
     private AddCategoryCategoryAdapter adapter;
     private CategoryViewModel categoryViewModel;
-
-    public CategoryItemTouchHelper(AddCategoryCategoryAdapter adapter, CategoryViewModel categoryViewModel) {
+    private ImageCategoryViewModel imageCategoryViewModel;
+    public CategoryItemTouchHelper(AddCategoryCategoryAdapter adapter, CategoryViewModel categoryViewModel, ImageCategoryViewModel imageCategoryViewModel) {
         super(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
         this.adapter = adapter;
         this.categoryViewModel = categoryViewModel;
+        this.imageCategoryViewModel = imageCategoryViewModel;
     }
 
     @Override
@@ -120,7 +122,9 @@ public class CategoryItemTouchHelper extends ItemTouchHelper.SimpleCallback {
                                 "deleted category " +
                                         adapter.getCategoryModels().get(position).categoryName
                                 , Toast.LENGTH_SHORT).show();
-                        categoryViewModel.deleteCategoryFirebase(categoryViewModel.getCategories().get(position).cId);
+                        String categoryId = categoryViewModel.getCategories().get(position).cId;
+                        imageCategoryViewModel.deleteImageCategoryByCategoryIdFirebase(categoryId);
+                        categoryViewModel.deleteCategoryFirebase(categoryId);
                     }
                 });
         builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {

@@ -40,6 +40,8 @@ public class SettingActivity extends AppCompatActivity {
 
     private void initUI() {
         initPowerModeToggleGroup();
+        binding.tvSettingActivityName.setText(mAuth.getUid().toString());
+        binding.tvSettingActivityName.setTextSize(10);
         binding.btNumberOfImages.setText(sharedPrefManager.getNumberOfImages());
         binding.btNumberOfColumn.setText(sharedPrefManager.getNumberOfColumn());
         binding.btFetchQuality.setText(sharedPrefManager.getFetchQuality());

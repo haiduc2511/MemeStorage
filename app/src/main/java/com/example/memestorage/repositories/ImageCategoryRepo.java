@@ -1,13 +1,19 @@
 package com.example.memestorage.repositories;
 
+import android.util.Log;
+
+import androidx.annotation.NonNull;
+
 import com.example.memestorage.models.ImageModel;
 import com.example.memestorage.utils.FirebaseHelper;
 import com.example.memestorage.models.ImageCategoryModel;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.List;
 import java.util.Objects;
 
 public class ImageCategoryRepo {
@@ -66,4 +72,45 @@ public class ImageCategoryRepo {
         myImageCategoriesRef.collection(IMAGE_CATEGORY_COLLECTION_NAME).document(id).delete().addOnCompleteListener(onCompleteListener);
     }
 
+    public void deleteImageCategoryByCategoryIdFirebase(String categoryId) {
+        myImageCategoriesRef.collection(IMAGE_CATEGORY_COLLECTION_NAME).whereEqualTo("categoryId", categoryId)
+                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        Log.d("ImageCategory deletion by categoryId", categoryId);
+                        if (task.isSuccessful()) {
+                            List<ImageCategoryModel> imageCategoryModelList = task.getResult().toObjects(ImageCategoryModel.class);
+                            for (ImageCategoryModel imageCategoryModel : imageCategoryModelList) {
+                                deleteImageCategoryFirebase(imageCategoryModel.icId, new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        Log.d("ImageCategory deletion", imageCategoryModel.toString());
+                                    }
+                                });
+                            }
+                        }
+                    }
+                });
+    }
+
+    public void deleteImageCategoryByImageIdFirebase(String imageId) {
+        myImageCategoriesRef.collection(IMAGE_CATEGORY_COLLECTION_NAME).whereEqualTo("imageId", imageId)
+                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        Log.d("ImageCategory deletion by imageId", imageId);
+                        if (task.isSuccessful()) {
+                            List<ImageCategoryModel> imageCategoryModelList = task.getResult().toObjects(ImageCategoryModel.class);
+                            for (ImageCategoryModel imageCategoryModel : imageCategoryModelList) {
+                                deleteImageCategoryFirebase(imageCategoryModel.icId, new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        Log.d("ImageCategory deletion", imageCategoryModel.toString());
+                                    }
+                                });
+                            }
+                        }
+                    }
+                });
+    }
 }

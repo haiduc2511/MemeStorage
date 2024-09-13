@@ -29,6 +29,7 @@ import com.example.memestorage.utils.CategoryUtil;
 import com.example.memestorage.viewmodels.CategoryViewModel;
 import com.example.memestorage.models.CategoryModel;
 import com.example.memestorage.R;
+import com.example.memestorage.viewmodels.ImageCategoryViewModel;
 import com.google.android.flexbox.FlexDirection;
 import com.google.android.flexbox.FlexboxLayoutManager;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -42,6 +43,7 @@ public class AddCategoryActivity extends AppCompatActivity {
 
     ActivityAddCategoryBinding binding;
     CategoryViewModel categoryViewModel;
+    ImageCategoryViewModel imageCategoryViewModel;
     AddCategoryCategoryAdapter categoryAdapter;
     NetworkStatusManager networkStatusManager = NetworkStatusManager.getInstance();
     InternetBroadcastReceiver internetBroadcastReceiver;
@@ -53,6 +55,7 @@ public class AddCategoryActivity extends AppCompatActivity {
         binding = ActivityAddCategoryBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         categoryViewModel = CategoryViewModel.newInstance();
+        imageCategoryViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()).create(ImageCategoryViewModel.class);
         initInternetBroadcastReceiver();
         initUI();
     }
@@ -69,7 +72,7 @@ public class AddCategoryActivity extends AppCompatActivity {
         binding.rvCategories.setLayoutManager(layoutManager);
         categoryAdapter = new AddCategoryCategoryAdapter(this);
         binding.rvCategories.setAdapter(categoryAdapter);
-        CategoryItemTouchHelper categoryItemTouchHelper = new CategoryItemTouchHelper(categoryAdapter, categoryViewModel);
+        CategoryItemTouchHelper categoryItemTouchHelper = new CategoryItemTouchHelper(categoryAdapter, categoryViewModel, imageCategoryViewModel);
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(categoryItemTouchHelper);
         itemTouchHelper.attachToRecyclerView(binding.rvCategories);
         categoryViewModel.addCategoryObserver(categoryAdapter);
