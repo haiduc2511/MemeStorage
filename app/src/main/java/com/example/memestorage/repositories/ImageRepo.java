@@ -94,7 +94,7 @@ public class ImageRepo {
 
     private DocumentReference myImagesRef = db.collection(USER_COLLECTION_NAME).document(myUserId);
     private static final int MAX_RETRIES = 5;
-    private static final long BASE_DELAY_MS = 6000L; // Start with 6 second delay
+    private static final long BASE_DELAY_MS = 10000L; // Start with 10 seconds delay
 
 
 
@@ -369,10 +369,13 @@ public class ImageRepo {
             }
             @Override
             public void onFailure(Throwable t) {
-                if (t.getMessage().contains("RESOURCE_EXHAUSTED")) {
+                if (t.getMessage().contains("RESOURCE_EXHAUSTED")
+                            || t.getMessage().contains("SAFETY")
+                                || t.getMessage().contains("UNAVAILABLE")) {
                     // Exponential backoff retry mechanism
-                    long delay = (long) (BASE_DELAY_MS * Math.pow(3, retryCount)); // Exponential backoff
-                    Log.d("AI Google Failed response", "Resource exhausted. Retrying in " + delay + "ms...");
+                    long delay = (long) (BASE_DELAY_MS * Math.pow(2, retryCount)); // Exponential backoff
+                    Log.d("AI Google Failed response", t.getMessage());
+                    Log.d("AI Google Failed response", "Retrying in " + delay + "ms...");
                     new Handler(Looper.getMainLooper()).postDelayed(() ->
                             getAICategoriesSuggestions(bitmap, imageModel, uploadImageListener, retryCount + 1), delay);
                 } else {
