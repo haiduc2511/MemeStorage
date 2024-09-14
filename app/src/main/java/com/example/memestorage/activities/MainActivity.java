@@ -30,6 +30,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.cloudinary.android.MediaManager;
 import com.cloudinary.android.callback.ErrorInfo;
@@ -70,6 +71,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -110,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
             numberOfTimesSearched++;
             List<String> categoryIdList = new ArrayList<>(categoryIdSet);
             imageAdapter.setImageModels(new ArrayList<>());
-            if (categoryIdSet.size() != 0) {
+            if (!categoryIdSet.isEmpty()) {
                 getImageCategoriesByCategoryIdList(categoryIdList);
                 searchingByCategory = true;
             } else {
@@ -312,10 +314,23 @@ public class MainActivity extends AppCompatActivity {
 
         initCategories();
 
+        initSwipeLayout();
+
         initImages();
 
 //        retrieveImages();
 //        hideSystemUI();
+    }
+    private void initSwipeLayout() {
+        binding.slRvImages.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                onCategorySearchChosen.onCategorySearchChosen(categoryAdapter.getSelectedCategories());
+                if(binding.slRvImages.isRefreshing()) {
+                    binding.slRvImages.setRefreshing(false);
+                }
+            }
+        });
     }
 
     private void initImages() {

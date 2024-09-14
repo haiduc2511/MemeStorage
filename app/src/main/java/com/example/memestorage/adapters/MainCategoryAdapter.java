@@ -31,6 +31,11 @@ public class MainCategoryAdapter extends RecyclerView.Adapter<MainCategoryAdapte
         this.categoryModels = categoryModels;
         notifyDataSetChanged();
     }
+
+    public Set<String> getSelectedCategories() {
+        return selectedCategories;
+    }
+
     @NonNull
     @Override
     public CategoryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

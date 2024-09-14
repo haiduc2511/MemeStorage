@@ -27,6 +27,7 @@ public class BrowseMemeActivity extends AppCompatActivity {
 
     private MemeBrowsedViewModel memeViewModel;
     private BrowseMemeAdapter memeSearchedAdapter;
+    public AddMemeToGalleryListener addMemeToGalleryListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +37,15 @@ public class BrowseMemeActivity extends AppCompatActivity {
 
         memeViewModel = new ViewModelProvider(this).get(MemeBrowsedViewModel.class);
 
-        memeSearchedAdapter = new BrowseMemeAdapter(this);
+        addMemeToGalleryListener = new AddMemeToGalleryListener() {
+            @Override
+            public void onAddMemeToGallery() {
+
+            }
+        };
+
+
+        memeSearchedAdapter = new BrowseMemeAdapter(this, addMemeToGalleryListener);
         binding.recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
         binding.recyclerView.setAdapter(memeSearchedAdapter);
 
@@ -63,5 +72,9 @@ public class BrowseMemeActivity extends AppCompatActivity {
                     @Override
                     public void onComplete() {}
                 });
+    }
+
+    public interface AddMemeToGalleryListener {
+        public void onAddMemeToGallery();
     }
 }

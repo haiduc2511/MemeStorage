@@ -1,16 +1,20 @@
 package com.example.memestorage.adapters;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import android.content.Context;
@@ -32,19 +36,27 @@ import android.content.Context;
         import androidx.annotation.NonNull;
         import androidx.recyclerview.widget.RecyclerView;
         import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
+import com.example.memestorage.activities.BrowseMemeActivity;
 import com.example.memestorage.databinding.ItemMemeBrowsedBinding;
+import com.example.memestorage.models.ImageModel;
 import com.example.memestorage.models.MemeBrowsedModel;
 
 import java.util.ArrayList;
         import java.util.List;
+import java.util.Set;
 
 public class BrowseMemeAdapter extends RecyclerView.Adapter<BrowseMemeAdapter.MemeViewHolder> {
 
     private final List<MemeBrowsedModel> memeBrowsedModels = new ArrayList<>();
     private Context context;
+    private Set<MemeBrowsedModel> memeBrowsedModelAddedSet = new HashSet<>();
+    BrowseMemeActivity.AddMemeToGalleryListener memeToGalleryListener;
 
-    public BrowseMemeAdapter(Context context) {
+    public BrowseMemeAdapter(Context context, BrowseMemeActivity.AddMemeToGalleryListener memeToGalleryListener) {
         this.context = context;
+        this.memeToGalleryListener = memeToGalleryListener;
     }
 
     @NonNull
@@ -90,8 +102,21 @@ public class BrowseMemeAdapter extends RecyclerView.Adapter<BrowseMemeAdapter.Me
 
         public void bind(MemeBrowsedModel memeBrowsedModel) {
             Glide.with(binding.ivMemeBrowsed.getContext())
+                    .asBitmap()
                     .load(memeBrowsedModel.getUrl())
-                    .into(binding.ivMemeBrowsed);
+                    .into(new CustomTarget<Bitmap>() {
+                        @Override
+                        public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                            binding.ivAddToGallery.setOnClickListener(v -> {
+
+                            });
+                        }
+
+                        @Override
+                        public void onLoadCleared(@Nullable Drawable placeholder) {
+
+                        }
+                    });
         }
     }
 }
