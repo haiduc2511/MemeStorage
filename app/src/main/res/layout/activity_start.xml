@@ -5,6 +5,8 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
+    android:backgroundTint="@color/white"
     tools:context=".authentication.StartActivity">
 
     <ImageView
@@ -23,6 +25,7 @@
         android:layout_height="60dp"
         android:layout_marginBottom="24dp"
         android:backgroundTint="@color/black"
+        android:textColor="@color/white"
         android:text="Login"
         app:layout_constraintBottom_toTopOf="@+id/bt_register"
         app:layout_constraintEnd_toEndOf="parent"
