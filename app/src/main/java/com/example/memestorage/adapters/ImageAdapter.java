@@ -220,8 +220,8 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
         request.setDescription("Downloading...");
 
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-        String directoryPath = Environment.DIRECTORY_PICTURES + "/MemeStorage";
-        String filePath = System.currentTimeMillis() + "and" + iId + ".jpg";
+        String directoryPath = Environment.DIRECTORY_PICTURES;
+        String filePath =   "MemeStorage/" + System.currentTimeMillis() + "and" + iId + ".jpg";
 
         request.setDestinationInExternalPublicDir(directoryPath, filePath);
 
