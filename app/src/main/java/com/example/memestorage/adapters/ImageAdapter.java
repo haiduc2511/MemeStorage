@@ -2,6 +2,7 @@ package com.example.memestorage.adapters;
 
 import android.app.DownloadManager;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -16,6 +17,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.FileProvider;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -33,6 +35,9 @@ import com.example.memestorage.databinding.ItemImageBinding;
 import com.example.memestorage.models.ImageModel;
 import com.example.memestorage.utils.SharedPrefManager;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -129,6 +134,24 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
                     binding.ivDownload.setImageResource(R.drawable.ic_download_done);
                     imageModelsDownloaded.add(image);
                 }
+            });
+
+            binding.ivShare.setOnClickListener(v -> {
+                int position = getAdapterPosition();
+                binding.ivShare.setImageResource(R.drawable.ic_loading3);
+                Glide.with(context).asBitmap().load(imageModels.get(position).imageURL)
+                        .into(new CustomTarget<Bitmap>() {
+                            @Override
+                            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                                binding.ivShare.setImageResource(R.drawable.ic_download_done);
+                                shareImageToOtherApps(resource);
+                            }
+
+                            @Override
+                            public void onLoadCleared(@Nullable Drawable placeholder) {
+
+                            }
+                        });
             });
         }
 
@@ -229,5 +252,28 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
         if (downloadManager != null) {
             downloadManager.enqueue(request);
         }
+    }
+
+    private void shareImageToOtherApps(Bitmap bitmap) {
+        Uri imageUri = saveImageToCache(bitmap);
+
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("image/*");
+        shareIntent.putExtra(Intent.EXTRA_STREAM, imageUri);
+        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+        context.startActivity(Intent.createChooser(shareIntent, "Share Image via"));
+    }
+
+    private Uri saveImageToCache(Bitmap bitmap) {
+        File cachePath = new File(context.getCacheDir(), "images");
+        cachePath.mkdirs(); // Create directory if needed
+        File file = new File(cachePath, "image.png");
+        try (FileOutputStream stream = new FileOutputStream(file)) {
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return FileProvider.getUriForFile(context, context.getPackageName() + ".fileprovider", file);
     }
 }
