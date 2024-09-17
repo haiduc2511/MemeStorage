@@ -10,6 +10,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 
+import com.cloudinary.android.callback.UploadCallback;
 import com.cloudinary.utils.ObjectUtils;
 import com.example.memestorage.activities.MainActivity;
 import com.example.memestorage.models.ImageCategoryModel;
@@ -50,8 +51,8 @@ public class ImageViewModel extends AndroidViewModel {
         return images;
     }
 
-    public void addImageFirebase(ImageModel imageModel) {
-        imageRepo.addImageFirebase(imageModel);
+    public ImageModel addImageFirebase(ImageModel imageModel) {
+        return imageRepo.addImageFirebase(imageModel);
     }
 
     public void getMyImagesFirebase(int limit, OnCompleteListener<QuerySnapshot> onCompleteListener) {
@@ -84,8 +85,8 @@ public class ImageViewModel extends AndroidViewModel {
 //    public void uploadImagesFirebaseStorage(List<Uri> imageUris, MainActivity.UploadImageListener onSuccessUploadingImages) {
 //        imageRepo.uploadImagesFirebaseStorage(imageUris,getApplication().getContentResolver() , onSuccessUploadingImages);
 //    }
-    public void uploadImagesCloudinary(List<Uri> imageUris, MainActivity.UploadImageListener onSuccessUploadingImages, Context context) {
-        imageRepo.uploadImagesCloudinary(imageUris, getApplication().getContentResolver(), onSuccessUploadingImages, context);
+    public void uploadImagesCloudinary(List<Uri> imageUris, UploadCallback uploadCallback) {
+        imageRepo.uploadImagesCloudinary(imageUris, getApplication().getContentResolver(), uploadCallback);
     }
 
     public void deleteImageFirebaseStorage(String url) {

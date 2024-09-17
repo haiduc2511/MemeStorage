@@ -194,7 +194,7 @@ public class ImageRepo {
 //
 //    }
 
-    public void uploadImagesCloudinary(List<Uri> imageUris, ContentResolver contentResolver, MainActivity.UploadImageListener uploadImageListener, Context context) {
+    public void uploadImagesCloudinary(List<Uri> imageUris, ContentResolver contentResolver, UploadCallback uploadCallback) {
         if (!imageUris.isEmpty()) {
             Observable.fromIterable(imageUris)
                     .map(new Function<Uri, byte[]>() {
@@ -238,80 +238,7 @@ public class ImageRepo {
                             MediaManager.get().upload(data)
                                     .unsigned("your_unsigned_preset")
                                     .options(options)
-                                    .callback(new UploadCallback() {
-                                        @Override
-                                        public void onStart(String requestId) {
-                                            // Upload started
-                                            Log.d(TAG, "Upload started for request: " + requestId);
-                                        }
-
-                                        @Override
-                                        public void onProgress(String requestId, long bytes, long totalBytes) {
-                                            // Upload progress
-                                            Log.d(TAG, "Upload progress for request: " + requestId + " - " + bytes + "/" + totalBytes);
-                                        }
-
-                                        @Override
-                                        public void onSuccess(String requestId, Map resultData) {
-                                            // Upload success
-                                            String imageUrl = (String) resultData.get("secure_url");
-                                            Log.d(TAG, "Upload successful. Image URL: " + imageUrl);
-
-                                            ImageModel imageModel = new ImageModel();
-                                            imageModel.iId = imageId;
-                                            imageModel.imageName = (String) resultData.get("public_id");
-                                            imageModel.userId = myUserId;
-                                            imageModel.imageURL = imageUrl;
-                                            imageModel = addImageFirebase(imageModel);
-                                            Log.d("Upload cloudinary", "Upload images successful. Download URL: " + imageModel.toString() + " \n" +  imageUrl.toString());
-                                            uploadImageListener.onSuccessUploadingImages(imageModel);
-                                            String url = MediaManager.get().url()
-//                                                    .transformation(new Transformation()
-//                                                            .quality("1")
-//                                                            .width(400))
-                                                    .generate(imageModel.imageName);
-
-                                            ImageModel finalImageModel = imageModel;
-                                            Glide.with(context).asBitmap().load(url).listener(new RequestListener<Bitmap>() {
-                                                        @Override
-                                                        public boolean onLoadFailed(@Nullable GlideException e, @Nullable Object model, @NonNull Target<Bitmap> target, boolean isFirstResource) {
-                                                            e.printStackTrace();
-                                                            Log.d("Check Image before giving to Gemini", model.toString());
-                                                            return false;
-                                                        }
-
-                                                        @Override
-                                                        public boolean onResourceReady(@NonNull Bitmap resource, @NonNull Object model, Target<Bitmap> target, @NonNull DataSource dataSource, boolean isFirstResource) {
-                                                            return false;
-                                                        }
-                                                    })
-                                                    .into(new CustomTarget<Bitmap>() {
-                                                @Override
-                                                public void onResourceReady(@NonNull Bitmap bitmap, @Nullable Transition<? super Bitmap> transition) {
-                                                    getAICategoriesSuggestions(bitmap, finalImageModel, uploadImageListener, 0);
-                                                    Log.d("Image size before giving to Gemini", String.valueOf(bitmap.getAllocationByteCount()));
-                                                }
-
-                                                @Override
-                                                public void onLoadCleared(@Nullable Drawable placeholder) {
-
-                                                }
-                                            });
-
-                                        }
-
-                                        @Override
-                                        public void onError(String requestId, ErrorInfo error) {
-                                            // Upload error
-                                            Log.d(TAG, "Upload failed: " + error.getDescription());
-                                        }
-
-                                        @Override
-                                        public void onReschedule(String requestId, ErrorInfo error) {
-                                            // Upload rescheduled
-                                            Log.d(TAG, "Upload rescheduled: " + error.getDescription());
-                                        }
-                                    }).dispatch();
+                                    .callback(uploadCallback).dispatch();
                         }
 
                         @Override
@@ -329,61 +256,61 @@ public class ImageRepo {
         }
     }
 
-    public void getAICategoriesSuggestions(Bitmap bitmap, ImageModel imageModel, MainActivity.UploadImageListener uploadImageListener, int retryCount){
-        if (retryCount > MAX_RETRIES) {
-            Log.d("AI Google response", "Max retries reached. Giving up.");
-            return;
-        }
-        Log.d("AI Google response", "This is the " + retryCount + " time");
-
-        SafetySetting harassmentSafety = new SafetySetting(HarmCategory.HARASSMENT, BlockThreshold.NONE);
-        SafetySetting hateSpeechSafety  = new SafetySetting(HarmCategory.HATE_SPEECH, BlockThreshold.NONE);
-        GenerativeModel generativeModel = new GenerativeModel("gemini-1.5-flash",
-                "AIzaSyA1nRy25ETbj9swvGC83kdchtB-9rG3Fks",
-                null,
-                Arrays.asList(harassmentSafety, hateSpeechSafety));
-
-        GenerativeModelFutures model = GenerativeModelFutures.from(generativeModel);
-        String categoryNames = CategoryViewModel.getStringListOfCategoryNames();
-        Content content = new Content.Builder()
-                .addText("i want to categorize this picture, 1 picture can have many categories," +
-                        " only choose the categories below, if not, leave it blank, and give me no duplicates\n" +
-                        categoryNames + "\n" +
-                        "with each category separated by a comma")
-                .addImage(bitmap)
-                .build();
-        ListenableFuture<GenerateContentResponse> response = model.generateContent(content);
-        Executor executor = Executors.newSingleThreadExecutor();
-        Futures.addCallback(response, new FutureCallback<GenerateContentResponse>() {
-            @Override
-            public void onSuccess(GenerateContentResponse response) {
-                String responseText = response.getText();
-                if (responseText != null) {
-                    Log.d("Gemini response", imageModel.imageURL + "\n" + responseText);
-                    uploadImageListener.onSuccessGetAICategoriesSuggestion(ImageCategoryUtil
-                            .stringToImageCategoryList(responseText, imageModel));
-                } else {
-                    Log.d("AI Google response", "responseText null");
-                }
-
-            }
-            @Override
-            public void onFailure(Throwable t) {
-                if (t.getMessage().contains("RESOURCE_EXHAUSTED")
-                            || t.getMessage().contains("SAFETY")
-                                || t.getMessage().contains("UNAVAILABLE")) {
-                    // Exponential backoff retry mechanism
-                    long delay = (long) (BASE_DELAY_MS * Math.pow(2, retryCount)); // Exponential backoff
-                    Log.d("AI Google Failed response", t.getMessage());
-                    Log.d("AI Google Failed response", "Retrying in " + delay + "ms...");
-                    new Handler(Looper.getMainLooper()).postDelayed(() ->
-                            getAICategoriesSuggestions(bitmap, imageModel, uploadImageListener, retryCount + 1), delay);
-                } else {
-                    t.printStackTrace();
-                }
-            }
-        }, executor);
-    }
+//    public void getAICategoriesSuggestions(Bitmap bitmap, ImageModel imageModel, MainActivity.UploadImageListener uploadImageListener, int retryCount){
+//        if (retryCount > MAX_RETRIES) {
+//            Log.d("AI Google response", "Max retries reached. Giving up.");
+//            return;
+//        }
+//        Log.d("AI Google response", "This is the " + retryCount + " time");
+//
+//        SafetySetting harassmentSafety = new SafetySetting(HarmCategory.HARASSMENT, BlockThreshold.NONE);
+//        SafetySetting hateSpeechSafety  = new SafetySetting(HarmCategory.HATE_SPEECH, BlockThreshold.NONE);
+//        GenerativeModel generativeModel = new GenerativeModel("gemini-1.5-flash",
+//                "AIzaSyA1nRy25ETbj9swvGC83kdchtB-9rG3Fks",
+//                null,
+//                Arrays.asList(harassmentSafety, hateSpeechSafety));
+//
+//        GenerativeModelFutures model = GenerativeModelFutures.from(generativeModel);
+//        String categoryNames = CategoryViewModel.getStringListOfCategoryNames();
+//        Content content = new Content.Builder()
+//                .addText("i want to categorize this picture, 1 picture can have many categories," +
+//                        " only choose the categories below, if not, leave it blank, and give me no duplicates\n" +
+//                        categoryNames + "\n" +
+//                        "with each category separated by a comma")
+//                .addImage(bitmap)
+//                .build();
+//        ListenableFuture<GenerateContentResponse> response = model.generateContent(content);
+//        Executor executor = Executors.newSingleThreadExecutor();
+//        Futures.addCallback(response, new FutureCallback<GenerateContentResponse>() {
+//            @Override
+//            public void onSuccess(GenerateContentResponse response) {
+//                String responseText = response.getText();
+//                if (responseText != null) {
+//                    Log.d("Gemini response", imageModel.imageURL + "\n" + responseText);
+//                    uploadImageListener.onSuccessGetAICategoriesSuggestion(ImageCategoryUtil
+//                            .stringToImageCategoryList(responseText, imageModel));
+//                } else {
+//                    Log.d("AI Google response", "responseText null");
+//                }
+//
+//            }
+//            @Override
+//            public void onFailure(Throwable t) {
+//                if (t.getMessage().contains("RESOURCE_EXHAUSTED")
+//                            || t.getMessage().contains("SAFETY")
+//                                || t.getMessage().contains("UNAVAILABLE")) {
+//                    // Exponential backoff retry mechanism
+//                    long delay = (long) (BASE_DELAY_MS * Math.pow(2, retryCount)); // Exponential backoff
+//                    Log.d("AI Google Failed response", t.getMessage());
+//                    Log.d("AI Google Failed response", "Retrying in " + delay + "ms...");
+//                    new Handler(Looper.getMainLooper()).postDelayed(() ->
+//                            getAICategoriesSuggestions(bitmap, imageModel, uploadImageListener, retryCount + 1), delay);
+//                } else {
+//                    t.printStackTrace();
+//                }
+//            }
+//        }, executor);
+//    }
 
     public void deleteImageFirebaseStorage(String imageUrl) {
         StorageReference storageRef = storage.getReferenceFromUrl(imageUrl);

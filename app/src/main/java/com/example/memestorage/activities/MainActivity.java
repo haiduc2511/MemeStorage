@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.media.Image;
 import android.net.ConnectivityManager;
 import android.net.Uri;
@@ -32,6 +33,13 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.request.transition.Transition;
 import com.cloudinary.android.MediaManager;
 import com.cloudinary.android.callback.ErrorInfo;
 import com.cloudinary.android.callback.UploadCallback;
@@ -127,6 +135,7 @@ public class MainActivity extends AppCompatActivity {
     CompositeDisposable compositeDisposable = new CompositeDisposable();
     Observable<Long> networkObservable;
     DocumentSnapshot lastVisible;
+    String myUserId = Objects.requireNonNull(FirebaseHelper.getInstance().getAuth().getCurrentUser()).getUid();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -588,53 +597,66 @@ public class MainActivity extends AppCompatActivity {
                     Uri imageUri = data.getData();
                     uriList.add(imageUri);
                 }
-                imageViewModel.uploadImagesCloudinary(uriList, new UploadImageListener() {
+                imageViewModel.uploadImagesCloudinary(uriList, new UploadCallback() {
                     @Override
-                    public void onSuccessUploadingImages(ImageModel imageModel) {
-                        imageViewModel.addImageFirst(imageModel);
-                        imageAdapter.addImageFirst(imageModel);
-                        binding.rvImages.scrollToPosition(0);
+                    public void onStart(String requestId) {
+                        Log.d(TAG, "Upload started for request: " + requestId);
+
                     }
 
                     @Override
-                    public void onSuccessGetAICategoriesSuggestion(List<ImageCategoryModel> imageCategoryModels) {
-                        for (ImageCategoryModel imageCategoryModel : imageCategoryModels) {
-                            imageCategoryViewModel.addImageCategoryFirebase(imageCategoryModel, new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if (task.isSuccessful()) {
-                                        Log.d("Adding imagecategories by AI's API", imageCategoryModel.toString());
-                                    } else {
-                                        Log.d("Adding imagecategories by AI's API", "Failed");
-                                    }
-                                }
-                            });
-                        }
+                    public void onProgress(String requestId, long bytes, long totalBytes) {
+                        Log.d(TAG, "Upload progress for request: " + requestId + " - " + bytes + "/" + totalBytes);
                     }
-                }, this);
-//                imageViewModel.uploadImagesFirebaseStorage(uriList, new UploadImageListener() {
-//                    @Override
-//                    public void onSuccessUploadingImages(ImageModel imageModel) {
-//                        imageAdapter.addImageFirst(imageModel);
-//                        binding.rvImages.scrollToPosition(0);
-//                    }
-//
-//                    @Override
-//                    public void onSuccessGetAICategoriesSuggestion(List<ImageCategoryModel> imageCategoryModels) {
-//                        for (ImageCategoryModel imageCategoryModel : imageCategoryModels) {
-//                            imageCategoryViewModel.addImageCategoryFirebase(imageCategoryModel, new OnCompleteListener<Void>() {
-//                                @Override
-//                                public void onComplete(@NonNull Task<Void> task) {
-//                                    if (task.isSuccessful()) {
-//                                        Log.d("Adding imagecategories by AI's API", imageCategoryModel.toString());
-//                                    } else {
-//                                        Log.d("Adding imagecategories by AI's API", "Failed");
-//                                    }
-//                                }
-//                            });
-//                        }
-//                    }
-//                });
+
+                    @Override
+                    public void onSuccess(String requestId, Map resultData) {
+                        String imageUrl = (String) resultData.get("secure_url");
+                        Log.d(TAG, "Upload successful. Image URL: " + imageUrl);
+
+                        ImageModel imageModel = new ImageModel();
+                        String extractedPublicId = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
+                        imageModel.iId = extractedPublicId;
+                        imageModel.imageName = (String) resultData.get("public_id");
+                        imageModel.userId = myUserId;
+                        imageModel.imageURL = imageUrl;
+                        imageModel = imageViewModel.addImageFirebase(imageModel);
+                        Log.d("Upload cloudinary", "Upload images successful. Download URL: " + imageModel.toString() + " \n" +  imageUrl.toString());
+
+                        imageViewModel.addImageFirst(imageModel);
+                        imageAdapter.addImageFirst(imageModel);
+                        binding.rvImages.scrollToPosition(0);
+
+                        String url = MediaManager.get().url()
+                                .generate(imageModel.imageName);
+                        ImageModel finalImageModel = imageModel;
+                        Glide.with(MainActivity.this).asBitmap().load(url)
+                                .into(new CustomTarget<Bitmap>() {
+                                    @Override
+                                    public void onResourceReady(@NonNull Bitmap bitmap, @Nullable Transition<? super Bitmap> transition) {
+                                        imageCategoryViewModel.getAICategoriesSuggestions(bitmap, finalImageModel, 0);
+                                        Log.d("Image size before giving to Gemini", String.valueOf(bitmap.getAllocationByteCount()));
+                                    }
+
+                                    @Override
+                                    public void onLoadCleared(@Nullable Drawable placeholder) {
+
+                                    }
+                                });
+
+
+                    }
+
+                    @Override
+                    public void onError(String requestId, ErrorInfo error) {
+
+                    }
+
+                    @Override
+                    public void onReschedule(String requestId, ErrorInfo error) {
+
+                    }
+                });
             }
         }
     }

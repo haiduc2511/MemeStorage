@@ -1,11 +1,13 @@
 package com.example.memestorage.viewmodels;
 
 import android.app.Application;
+import android.graphics.Bitmap;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 
+import com.example.memestorage.activities.MainActivity;
 import com.example.memestorage.models.ImageCategoryModel;
 import com.example.memestorage.models.ImageModel;
 import com.example.memestorage.repositories.ImageCategoryRepo;
@@ -59,10 +61,16 @@ public class ImageCategoryViewModel extends AndroidViewModel {
     public void deleteImageCategoryFirebase(String id, OnCompleteListener<Void> onCompleteListener) {
         imageCategoryRepo.deleteImageCategoryFirebase(id, onCompleteListener);
     }
+
     public void deleteImageCategoryByCategoryIdFirebase(String categoryId) {
         imageCategoryRepo.deleteImageCategoryByCategoryIdFirebase(categoryId);
     }
+
     public void deleteImageCategoryByImageIdFirebase(String imageId) {
         imageCategoryRepo.deleteImageCategoryByImageIdFirebase(imageId);
+    }
+
+    public void getAICategoriesSuggestions(Bitmap bitmap, ImageModel imageModel, int retryCount) {
+        imageCategoryRepo.getAICategoriesSuggestions(bitmap, imageModel, retryCount);
     }
 }
