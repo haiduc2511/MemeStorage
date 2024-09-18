@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.ablanco.zoomy.Zoomy;
 import com.bumptech.glide.Glide;
 import com.example.memestorage.R;
 import com.example.memestorage.adapters.CategoryAdapter;
@@ -127,6 +128,8 @@ public class ImageFragment extends Fragment {
     }
 
     private void setImage() {
+        Zoomy.Builder builder = new Zoomy.Builder(requireActivity()).target(binding.ivImage).enableImmersiveMode(false);
+        builder.register();
         binding.setImageModel(imageModel);
         Glide.with(this).load(imageModel.imageURL).placeholder(new BitmapDrawable(getResources(), imageBitmapPreload)).into(binding.ivImage);
 
