@@ -341,7 +341,10 @@ public class ImageRepo {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-        }).subscribe(new CompletableObserver() {
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new CompletableObserver() {
             @Override
             public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
 

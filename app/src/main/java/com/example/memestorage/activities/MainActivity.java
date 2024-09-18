@@ -376,6 +376,7 @@ public class MainActivity extends AppCompatActivity {
         binding.btChooseImage.setOnClickListener(v -> openFileChooser());
 
         binding.tvSeeMore.setOnClickListener(v -> {
+            Log.d("Kiem tra HashMap", notificationMap.toString());
             ViewGroup.LayoutParams params = binding.rvCategories.getLayoutParams();
 
             if (isHeightWrapContent) {
