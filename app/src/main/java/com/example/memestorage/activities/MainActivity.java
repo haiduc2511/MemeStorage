@@ -3,7 +3,10 @@ package com.example.memestorage.activities;
 import static android.content.ContentValues.TAG;
 
 import android.Manifest;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -13,9 +16,11 @@ import android.graphics.drawable.Drawable;
 import android.media.Image;
 import android.net.ConnectivityManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.util.Pair;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +31,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -83,6 +89,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
@@ -136,7 +143,9 @@ public class MainActivity extends AppCompatActivity {
     Observable<Long> networkObservable;
     DocumentSnapshot lastVisible;
     String myUserId = Objects.requireNonNull(FirebaseHelper.getInstance().getAuth().getCurrentUser()).getUid();
-
+    private Map<String, Pair<Integer, NotificationCompat.Builder>> notificationMap = new HashMap<>();
+//    NotificationCompat.Builder notificationBuilder;
+    NotificationManager notificationManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -149,6 +158,7 @@ public class MainActivity extends AppCompatActivity {
         initUI();
         initCloudinary();
 //        initInternetBroadcastReceiver();
+        createNotificationChannel();
     }
     private void initCloudinary() {
         if (!MediaManagerState.isInitialized()) {
@@ -600,13 +610,19 @@ public class MainActivity extends AppCompatActivity {
                 imageViewModel.uploadImagesCloudinary(uriList, new UploadCallback() {
                     @Override
                     public void onStart(String requestId) {
-                        Log.d(TAG, "Upload started for request: " + requestId);
+                        int notificationId = (int) System.currentTimeMillis() + (new Random().nextInt(50));
+                        initializeNotification(notificationId, "Uploading Image " + notificationId, requestId);
+                        Log.d(TAG, "Upload started for request: " + requestId + " " + notificationId);
 
                     }
-
+                    // Notification hay bi "Upload progress for request" trong khi da upload success roi, day chi la cach tam thoi (neu onProgress de trong thi khong van de gi ca)
                     @Override
                     public void onProgress(String requestId, long bytes, long totalBytes) {
+                        int progress = (int) ((bytes * 100) / totalBytes);
                         Log.d(TAG, "Upload progress for request: " + requestId + " - " + bytes + "/" + totalBytes);
+                        if (progress % 30 == 0) {
+                            updateNotification(requestId, progress);
+                        }
                     }
 
                     @Override
@@ -643,12 +659,18 @@ public class MainActivity extends AppCompatActivity {
 
                                     }
                                 });
+                        successNotification(requestId, "Upload Complete " + requestId);
 
-
+                        notificationMap.remove(requestId);
                     }
 
                     @Override
                     public void onError(String requestId, ErrorInfo error) {
+                        // Handle failure: update the notification to show error
+                        errorNotification(requestId, "Upload Failed: " + error.getDescription());
+
+                        // Remove the entry from the map
+                        notificationMap.remove(requestId);
 
                     }
 
@@ -658,6 +680,92 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
             }
+        }
+    }
+    private void initializeNotification(int notificationId, String title, String requestId) {
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, "upload_channel")
+                .setContentTitle(title)
+                .setContentText("Upload in progress")
+                .setSmallIcon(R.drawable.ic_upload)
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setOngoing(true)
+                .setProgress(100, 0, false);
+
+        notificationManager.notify(notificationId, notificationBuilder.build());
+        notificationMap.put(requestId, new Pair<>(notificationId, notificationBuilder));  // Store requestId and notificationId
+    }
+    private void updateNotification(String requestId, int progress) {
+        Log.d("Upload notification update", progress + " " + requestId);
+        Pair<Integer, NotificationCompat.Builder> notificationData = notificationMap.get(requestId);
+        if (notificationData != null) {
+            int notificationId = notificationData.first;
+            NotificationCompat.Builder builder = notificationData.second;
+
+            // Update progress on the same builder
+            builder.setProgress(100, progress, false);
+            if (progress < 90) {
+                notificationManager.notify(notificationId, builder.build());
+            }
+
+            // Notify the system to update the notification
+        }
+
+    }
+    private void successNotification(String requestId, String title) {
+        Log.d("Upload notification success", title + " " + requestId);
+        Log.d("HashMap Notification", notificationMap.toString());
+
+        Pair<Integer, NotificationCompat.Builder> notificationData = notificationMap.get(requestId);
+        if (notificationData != null) {
+            int notificationId = notificationData.first;
+            NotificationCompat.Builder builder = notificationData.second;
+            notificationMap.remove(requestId);
+
+            builder.setContentTitle(title)
+                    .setContentText("Upload Complete")
+                    .setProgress(0, 0, false)
+                    .setOngoing(false)
+                    .setAutoCancel(true);
+
+            notificationManager.notify(notificationId, builder.build());
+
+            // Remove the requestId from the map
+        }
+
+    }
+    private static final String CHANNEL_ID = "upload_channel";
+
+    private void createNotificationChannel() {
+        notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            String channelName = "Upload Progress";
+            String channelDescription = "Notification for tracking file uploads";
+            int importance = NotificationManager.IMPORTANCE_LOW;
+
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, channelName, importance);
+            channel.setDescription(channelDescription);
+
+            // Register the channel with the system
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
+    private void errorNotification(String requestId, String errorMessage) {
+        Pair<Integer, NotificationCompat.Builder> notificationData = notificationMap.get(requestId);
+        if (notificationData != null) {
+            int notificationId = notificationData.first;
+            NotificationCompat.Builder builder = notificationData.second;
+
+            builder.setContentTitle("Upload Failed")
+                    .setContentText(errorMessage)
+                    .setProgress(0, 0, false)
+                    .setOngoing(false);
+
+            notificationManager.notify(notificationId, builder.build());
+
+            // Remove the requestId from the map
+            notificationMap.remove(requestId);
         }
     }
 
