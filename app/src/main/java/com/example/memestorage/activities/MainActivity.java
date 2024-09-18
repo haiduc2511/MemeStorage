@@ -667,7 +667,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onError(String requestId, ErrorInfo error) {
                         // Handle failure: update the notification to show error
-                        errorNotification(requestId, "Upload Failed: " + error.getDescription());
+                        errorNotification(requestId, "Upload Failed: " + error.getDescription() + ", please don't exit app while uploading");
 
                         // Remove the entry from the map
                         notificationMap.remove(requestId);
