@@ -17,6 +17,8 @@ import android.widget.Toast;
 
 import com.ablanco.zoomy.Zoomy;
 import com.bumptech.glide.Glide;
+import com.cloudinary.Transformation;
+import com.cloudinary.android.MediaManager;
 import com.example.memestorage.R;
 import com.example.memestorage.adapters.CategoryAdapter;
 import com.example.memestorage.adapters.MainCategoryAdapter;
@@ -131,7 +133,11 @@ public class ImageFragment extends Fragment {
         Zoomy.Builder builder = new Zoomy.Builder(requireActivity()).target(binding.ivImage).enableImmersiveMode(false);
         builder.register();
         binding.setImageModel(imageModel);
-        Glide.with(this).load(imageModel.imageURL).placeholder(new BitmapDrawable(getResources(), imageBitmapPreload)).into(binding.ivImage);
+        String url = MediaManager.get().url()
+                .transformation(new Transformation().quality("auto").chain().fetchFormat("auto"))
+                .generate(imageModel.imageName);
+        Log.d("Fetch Full Image in Fragment", url);
+        Glide.with(this).load(url).placeholder(new BitmapDrawable(getResources(), imageBitmapPreload)).into(binding.ivImage);
 
         DisplayMetrics displayMetrics = requireActivity().getApplicationContext().getResources().getDisplayMetrics();
         int screenHeight = displayMetrics.heightPixels;
