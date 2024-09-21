@@ -151,11 +151,13 @@ public class ImageCategoryRepo {
 
         GenerativeModelFutures model = GenerativeModelFutures.from(generativeModel);
         String categoryNames = CategoryViewModel.getStringListOfCategoryNames();
+        String text = "i want to categorize this picture, 1 picture can have many categories," +
+                " only choose the categories below, if not, leave it blank, and give me no duplicates\n" +
+                categoryNames + "\n" +
+                "with each category separated by a comma";
+        Log.d("Gemini Text Sent", text);
         Content content = new Content.Builder()
-                .addText("i want to categorize this picture, 1 picture can have many categories," +
-                        " only choose the categories below, if not, leave it blank, and give me no duplicates\n" +
-                        categoryNames + "\n" +
-                        "with each category separated by a comma")
+                .addText(text)
                 .addImage(bitmap)
                 .build();
         ListenableFuture<GenerateContentResponse> response = model.generateContent(content);
