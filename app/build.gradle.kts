@@ -82,5 +82,6 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     implementation ("io.github.imablanco:zoomy:1.0.0")
+    implementation ("io.github.ParkSangGwon:tedimagepicker:1.6.1")
 
 }

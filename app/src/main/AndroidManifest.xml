@@ -57,9 +57,10 @@
         
         <provider
             android:authorities="com.example.memestorage.fileprovider"
-            android:name="androidx.core.content.FileProvider"
+            android:name=".contentprovider.MyContentProvider"
             android:exported="false"
-            android:grantUriPermissions="true">
+            android:grantUriPermissions="true"
+            tools:replace="android:authorities">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths"/>
