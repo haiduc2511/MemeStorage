@@ -165,7 +165,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
             if (imageModel.iId.length() > 36) {
                  url = MediaManager.get().url()
                         .transformation(new Transformation()
-                                .quality("70")
+                                .quality("auto")
                                 .width(Integer.parseInt(sharedPrefManager.getFetchQuality())))
                         .generate(imageModel.imageName);
                  Log.d("URL CLOUDINARY", url);

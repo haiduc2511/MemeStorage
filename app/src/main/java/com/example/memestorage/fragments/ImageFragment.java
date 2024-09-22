@@ -133,21 +133,30 @@ public class ImageFragment extends Fragment {
         Zoomy.Builder builder = new Zoomy.Builder(requireActivity()).target(binding.ivImage).enableImmersiveMode(false);
         builder.register();
         binding.setImageModel(imageModel);
-        String url = MediaManager.get().url()
-                .transformation(new Transformation().quality("auto").chain().fetchFormat("auto"))
-                .generate(imageModel.imageName);
-        Log.d("Fetch Full Image in Fragment", url);
-        Glide.with(this).load(url).placeholder(new BitmapDrawable(getResources(), imageBitmapPreload)).into(binding.ivImage);
-
-        DisplayMetrics displayMetrics = requireActivity().getApplicationContext().getResources().getDisplayMetrics();
-        int screenHeight = displayMetrics.heightPixels;
-        int imageHeight = screenHeight / 8; // 1/6 of the screen height
-
-        ViewGroup.LayoutParams layoutParams = binding.ivImage.getLayoutParams();
-        if (layoutParams.height > screenHeight / 4) {
-            layoutParams.height = imageHeight;
-            binding.ivImage.setLayoutParams(layoutParams);
+        String url = "";
+        if (imageModel.iId.length() > 36) {
+            url = MediaManager.get().url()
+                    .transformation(new Transformation().quality("auto").chain().fetchFormat("auto"))
+                    .generate(imageModel.imageName);
+            Log.d("URL CLOUDINARY", url);
+        } else {
+            url = imageModel.imageURL;
+            Log.d("URL FireStore", url);
         }
+        Log.d("Fetch Full Image in Fragment", url);
+        Glide.with(this).load(url)
+                .placeholder(new BitmapDrawable(getResources(), imageBitmapPreload))
+                .into(binding.ivImage);
+
+//        DisplayMetrics displayMetrics = requireActivity().getApplicationContext().getResources().getDisplayMetrics();
+//        int screenHeight = displayMetrics.heightPixels;
+//        int imageHeight = screenHeight / 8; // 1/6 of the screen height
+//
+//        ViewGroup.LayoutParams layoutParams = binding.ivImage.getLayoutParams();
+//        if (layoutParams.height > screenHeight / 4) {
+//            layoutParams.height = imageHeight;
+//            binding.ivImage.setLayoutParams(layoutParams);
+//        }
 
     }
 
