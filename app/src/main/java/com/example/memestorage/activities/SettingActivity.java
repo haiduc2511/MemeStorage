@@ -1,27 +1,42 @@
 package com.example.memestorage.activities;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.NumberPicker;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.cloudinary.Transformation;
+import com.cloudinary.android.MediaManager;
 import com.example.memestorage.R;
 import com.example.memestorage.authentication.StartActivity;
 import com.example.memestorage.databinding.ActivitySettingBinding;
+import com.example.memestorage.models.CategoryModel;
+import com.example.memestorage.models.ImageModel;
 import com.example.memestorage.utils.FirebaseHelper;
 import com.example.memestorage.utils.SharedPrefManager;
 import com.example.memestorage.viewmodels.CategoryViewModel;
+import com.example.memestorage.viewmodels.ImageCategoryViewModel;
+import com.example.memestorage.viewmodels.ImageViewModel;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class SettingActivity extends AppCompatActivity {
     ActivitySettingBinding binding;
@@ -120,16 +135,41 @@ public class SettingActivity extends AppCompatActivity {
             logOut();
         });
 
+        binding.btDeleteAccount.setOnClickListener(v -> {
+            showConfirmDeleteAccountDialog();
+        });
+
         binding.fabBack.setOnClickListener(v -> {
             getOnBackPressedDispatcher().onBackPressed();
         });
     }
+//
+//    @Override
+//    protected void onDestroy() {
+////        saveSettings();
+//        super.onDestroy();
+//    }
 
-    @Override
-    protected void onDestroy() {
-//        saveSettings();
-        super.onDestroy();
+    private void showConfirmDeleteAccountDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Delete Account");
+        builder.setMessage("Are you sure you want to delete this account ?");
+        builder.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                deleteAccount();
+            }
+        });
+        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
+
 
     private void initPowerModeToggleGroup() {
         if (sharedPrefManager.getPowerMode().equals("low")) {
@@ -186,27 +226,64 @@ public class SettingActivity extends AppCompatActivity {
         startActivity(intent);
         finish();
     }
+    private void deleteAccount() {
+        ImageCategoryViewModel imageCategoryViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()).create(ImageCategoryViewModel.class);
 
-    private void saveNumberOfImage(String numberOfImage) {
-        if (numberOfImage.equals("")) {
-            return;
-        }
-        if (isNumberLessThan500(numberOfImage)) {
-            sharedPrefManager.saveNumberOfImages(numberOfImage);
-        } else {
-            Toast.makeText(this, "Number of images not appropriate", Toast.LENGTH_SHORT).show();
-        }
+        ImageViewModel imageViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()).create(ImageViewModel.class);
+        imageViewModel.getMyImagesFirebase(1000, new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                List<ImageModel> allImageModels = task.getResult().toObjects(ImageModel.class);
+                Log.d("Delete all imageModels", allImageModels.toString());
+                for (ImageModel imageModel : allImageModels) {
+                    imageViewModel.deleteImageFirebase(imageModel.iId, new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (imageModel.iId.length() > 36) {
+                                imageViewModel.deleteImageCloudinary(imageModel);
+                                Log.d("Delete imageModel CLOUDINARY", imageModel.toString());
+                            } else {
+                                imageViewModel.deleteImageFirebaseStorage(imageModel.imageURL);
+                                Log.d("Delete imageModel FireStorage", imageModel.toString());
+                            }
+                            imageCategoryViewModel.deleteImageCategoryByImageIdFirebase(imageModel.iId);
+                        }
+                    });
+                }
+
+            }
+        });
+        CategoryViewModel.newInstance().getCategoriesFirebase(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                List<CategoryModel> allCategoryModels = task.getResult().toObjects(CategoryModel.class);
+                for (CategoryModel categoryModel : allCategoryModels) {
+                    CategoryViewModel.newInstance().deleteCategoryFirebase(categoryModel.cId);
+                }
+            }
+        });
     }
-    private void saveNumberOfColumn(String numberOfColumn) {
-        if (numberOfColumn.equals("")) {
-            return;
-        }
-        if (isNumberLessThan20(numberOfColumn)) {
-            sharedPrefManager.saveNumberOfColumn(numberOfColumn);
-        } else {
-            Toast.makeText(this, "Number of column not appropriate", Toast.LENGTH_SHORT).show();
-        }
-    }
+//
+//    private void saveNumberOfImage(String numberOfImage) {
+//        if (numberOfImage.equals("")) {
+//            return;
+//        }
+//        if (isNumberLessThan500(numberOfImage)) {
+//            sharedPrefManager.saveNumberOfImages(numberOfImage);
+//        } else {
+//            Toast.makeText(this, "Number of images not appropriate", Toast.LENGTH_SHORT).show();
+//        }
+//    }
+//    private void saveNumberOfColumn(String numberOfColumn) {
+//        if (numberOfColumn.equals("")) {
+//            return;
+//        }
+//        if (isNumberLessThan20(numberOfColumn)) {
+//            sharedPrefManager.saveNumberOfColumn(numberOfColumn);
+//        } else {
+//            Toast.makeText(this, "Number of column not appropriate", Toast.LENGTH_SHORT).show();
+//        }
+//    }
 
     private boolean isNumberLessThan20(String str) {
         try {
