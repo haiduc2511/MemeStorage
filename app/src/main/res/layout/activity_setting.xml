@@ -158,17 +158,27 @@
         app:layout_constraintTop_toBottomOf="@+id/textView2" />
 
     <Button
-        android:id="@+id/bt_log_out"
+        android:id="@+id/bt_delete_account"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="48dp"
         android:backgroundTint="@color/red"
+        android:text="Delete account"
         android:textColor="@color/white"
-        android:text="Log out"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/bt_fetch_quality" />
+        app:layout_constraintTop_toBottomOf="@+id/bt_log_out" />
 
+    <Button
+        android:id="@+id/bt_log_out"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/red"
+        android:text="Log out"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toTopOf="@+id/bt_delete_account"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/bt_fetch_quality" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
