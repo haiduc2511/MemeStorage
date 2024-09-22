@@ -32,12 +32,14 @@ import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.cloudinary.Transformation;
 import com.cloudinary.android.MediaManager;
+import com.cloudinary.utils.ObjectUtils;
 import com.example.memestorage.R;
 import com.example.memestorage.adapters.CategoryAdapter;
 import com.example.memestorage.adapters.MainCategoryAdapter;
 import com.example.memestorage.databinding.FragmentImageBinding;
 import com.example.memestorage.models.ImageCategoryModel;
 import com.example.memestorage.models.ImageModel;
+import com.example.memestorage.utils.CloudinaryHelper;
 import com.example.memestorage.viewmodels.CategoryViewModel;
 import com.example.memestorage.viewmodels.ImageCategoryViewModel;
 import com.example.memestorage.viewmodels.ImageViewModel;
@@ -55,7 +57,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.CompletableObserver;
+import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.core.SingleObserver;
+import io.reactivex.rxjava3.core.SingleOnSubscribe;
+import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -153,7 +165,17 @@ public class ImageFragment extends Fragment {
 
         binding.ivShareImage.setOnClickListener(v -> {
             binding.ivShareImage.setImageResource(R.drawable.ic_loading3);
-            Glide.with(requireContext()).asBitmap().load(imageModel.imageURL)
+            String url = "";
+            if (imageModel.iId.length() > 36) {
+                url = MediaManager.get().url()
+                        .transformation(new Transformation().quality("auto").chain().fetchFormat("auto"))
+                        .generate(imageModel.imageName);
+                Log.d("ivShareImage URL CLOUDINARY", url);
+            } else {
+                url = imageModel.imageURL;
+                Log.d("ivShareImage URL FireStore", url);
+            }
+            Glide.with(requireContext()).asBitmap().load(url)
                 .into(new CustomTarget<Bitmap>() {
                     @Override
                     public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
@@ -264,14 +286,34 @@ public class ImageFragment extends Fragment {
         }
     }
     private void shareImageToOtherApps(Bitmap bitmap) {
-        Uri imageUri = saveImageToCache(bitmap);
+        Single.<Uri>create(emitter -> {
+                    Uri imageUri = saveImageToCache(bitmap);
+                    emitter.onSuccess(imageUri);
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new SingleObserver<Uri>() {
+                    @Override
+                    public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
 
-        Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.setType("image/*");
-        shareIntent.putExtra(Intent.EXTRA_STREAM, imageUri);
-        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    }
 
-        requireActivity().startActivity(Intent.createChooser(shareIntent, "Share Image via"));
+                    @Override
+                    public void onSuccess(@io.reactivex.rxjava3.annotations.NonNull Uri imageUri) {
+                        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                        shareIntent.setType("image/*");
+                        shareIntent.putExtra(Intent.EXTRA_STREAM, imageUri);
+                        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+                        requireActivity().startActivity(Intent.createChooser(shareIntent, "Share Image via"));
+
+                    }
+
+                    @Override
+                    public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
+
+                    }
+                });
     }
 
     private Uri saveImageToCache(Bitmap bitmap) {
