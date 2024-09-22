@@ -83,5 +83,5 @@ dependencies {
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     implementation ("io.github.imablanco:zoomy:1.0.0")
     implementation ("io.github.ParkSangGwon:tedimagepicker:1.6.1")
-
+    implementation ("com.github.yalantis:ucrop:2.2.8-native")
 }

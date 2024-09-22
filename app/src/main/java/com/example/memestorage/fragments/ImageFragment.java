@@ -1,13 +1,24 @@
 package com.example.memestorage.fragments;
 
+import android.app.Activity;
+import android.app.DownloadManager;
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Environment;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,6 +28,8 @@ import android.widget.Toast;
 
 import com.ablanco.zoomy.Zoomy;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.cloudinary.Transformation;
 import com.cloudinary.android.MediaManager;
 import com.example.memestorage.R;
@@ -33,7 +46,13 @@ import com.google.android.flexbox.FlexboxLayoutManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.yalantis.ucrop.UCrop;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -108,7 +127,13 @@ public class ImageFragment extends Fragment {
         binding.cvInside.setOnClickListener(v -> {
 
         });
+        initButtons();
+        initCategories();
 
+        imageViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()).create(ImageViewModel.class);
+        setImage();
+    }
+    private void initCategories() {
         FlexboxLayoutManager layoutManager = new FlexboxLayoutManager(requireContext().getApplicationContext());
         layoutManager.setFlexDirection(FlexDirection.ROW);
         binding.rvCategories.setLayoutManager(layoutManager);
@@ -117,10 +142,45 @@ public class ImageFragment extends Fragment {
         binding.rvCategories.setAdapter(categoryAdapter);
         categoryViewModel.addCategoryObserver(categoryAdapter);
 
-        imageViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()).create(ImageViewModel.class);
-        setImage();
     }
 
+
+    private void initButtons() {
+        binding.ivDownloadImage.setOnClickListener(v -> {
+            downloadImageLikeTinCoder(imageModel.imageURL, imageModel.iId);
+            binding.ivDownloadImage.setImageResource(R.drawable.ic_download_done);
+        });
+
+        binding.ivShareImage.setOnClickListener(v -> {
+            binding.ivShareImage.setImageResource(R.drawable.ic_loading3);
+            Glide.with(requireContext()).asBitmap().load(imageModel.imageURL)
+                .into(new CustomTarget<Bitmap>() {
+                    @Override
+                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                        binding.ivShareImage.setImageResource(R.drawable.ic_download_done);
+                        shareImageToOtherApps(resource);
+                    }
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
+
+                    }
+                });
+        });
+    }
+
+    private Uri bitmapToFileUri(Bitmap bitmap) {
+        try {
+            File file = new File(requireActivity().getCacheDir(), "temp_image.jpg"); // Use your desired file name
+            FileOutputStream out = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out); // Compress bitmap to file
+            out.flush();
+            out.close();
+            return Uri.fromFile(file); // Return the Uri of the saved file
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
     @Override
     public void onPause() {
 
@@ -130,6 +190,7 @@ public class ImageFragment extends Fragment {
     }
 
     private void setImage() {
+        binding.ivImage.setImageBitmap(imageBitmapPreload);
         Zoomy.Builder builder = new Zoomy.Builder(requireActivity()).target(binding.ivImage).enableImmersiveMode(false);
         builder.register();
         binding.setImageModel(imageModel);
@@ -144,9 +205,34 @@ public class ImageFragment extends Fragment {
             Log.d("URL FireStore", url);
         }
         Log.d("Fetch Full Image in Fragment", url);
-        Glide.with(this).load(url)
-                .placeholder(new BitmapDrawable(getResources(), imageBitmapPreload))
-                .into(binding.ivImage);
+        Glide.with(this).asBitmap().load(url)
+//                .placeholder(new BitmapDrawable(getResources(), imageBitmapPreload)).into(binding.ivImage);
+                .into(new CustomTarget<Bitmap>() {
+                    @Override
+                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                        binding.ivImage.setImageBitmap(resource);
+                        binding.ivEditImage.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Toast.makeText(requireContext(), "dumaaaa", Toast.LENGTH_SHORT).show();
+                                Uri sourceUri = bitmapToFileUri(resource);
+                                Uri destinationUri = Uri.fromFile(new File(requireActivity().getCacheDir(), "cropped_image.jpg"));
+
+                                UCrop.of(sourceUri, destinationUri)
+//                                        .withAspectRatio(1, 1)  // Optional: set crop aspect ratio
+//                                        .withMaxResultSize(1000, 1000)  // Optional: set max cropped image size
+                                        .start(requireActivity(), ImageFragment.this);  // 'this' refers to Activity or Fragment
+
+                            }
+                        });
+
+                    }
+
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
+
+                    }
+                });
 
 //        DisplayMetrics displayMetrics = requireActivity().getApplicationContext().getResources().getDisplayMetrics();
 //        int screenHeight = displayMetrics.heightPixels;
@@ -160,6 +246,57 @@ public class ImageFragment extends Fragment {
 
     }
 
+    private void downloadImageLikeTinCoder(String imageUrl, String iId) {
+        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(imageUrl));
+        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE | DownloadManager.Request.NETWORK_WIFI);
+        request.setTitle("Download from meme storage");
+        request.setDescription("Downloading...");
+
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        String directoryPath = Environment.DIRECTORY_PICTURES;
+        String filePath =   "MemeStorage/" + System.currentTimeMillis() + "and" + iId + ".jpg";
+
+        request.setDestinationInExternalPublicDir(directoryPath, filePath);
+
+        DownloadManager downloadManager = (DownloadManager) requireContext().getSystemService(Context.DOWNLOAD_SERVICE);
+        if (downloadManager != null) {
+            downloadManager.enqueue(request);
+        }
+    }
+    private void shareImageToOtherApps(Bitmap bitmap) {
+        Uri imageUri = saveImageToCache(bitmap);
+
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("image/*");
+        shareIntent.putExtra(Intent.EXTRA_STREAM, imageUri);
+        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+        requireActivity().startActivity(Intent.createChooser(shareIntent, "Share Image via"));
+    }
+
+    private Uri saveImageToCache(Bitmap bitmap) {
+        File cachePath = new File(requireContext().getCacheDir(), "images");
+        cachePath.mkdirs(); // Create directory if needed
+        File file = new File(cachePath, "image.png");
+        try (FileOutputStream stream = new FileOutputStream(file)) {
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return FileProvider.getUriForFile(requireContext(), requireContext().getPackageName() + ".fileprovider", file);
+    }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == Activity.RESULT_OK && requestCode == UCrop.REQUEST_CROP) {
+            Uri resultUri = UCrop.getOutput(data);  // Get the cropped image URI
+            binding.ivImage.setImageURI(resultUri);
+        } else if (resultCode == UCrop.RESULT_ERROR) {
+            Throwable cropError = UCrop.getError(data);
+            cropError.printStackTrace();
+        }
+    }
     private void updateImageCategories(Set<String> selectedCategories, List<ImageCategoryModel> imageCategoryModels) {
         List<String> unTouchedImageCategories = new ArrayList<>();
         for (ImageCategoryModel imageCategoryModel : imageCategoryModels) {
@@ -195,4 +332,5 @@ public class ImageFragment extends Fragment {
         }
 
     }
+
 }

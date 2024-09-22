@@ -149,7 +149,6 @@ public class MainActivity extends AppCompatActivity {
     DocumentSnapshot lastVisible;
     String myUserId = Objects.requireNonNull(FirebaseHelper.getInstance().getAuth().getCurrentUser()).getUid();
     private Map<String, Pair<Integer, NotificationCompat.Builder>> notificationMap = new HashMap<>();
-//    NotificationCompat.Builder notificationBuilder;
     NotificationManager notificationManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -162,7 +161,6 @@ public class MainActivity extends AppCompatActivity {
         initViewModel();
         initUI();
         initCloudinary();
-//        initInternetBroadcastReceiver();
         createNotificationChannel();
     }
     private void initCloudinary() {
@@ -342,7 +340,6 @@ public class MainActivity extends AppCompatActivity {
 
         initImages();
 
-//        retrieveImages();
 //        hideSystemUI();
     }
     private void initSwipeLayout() {

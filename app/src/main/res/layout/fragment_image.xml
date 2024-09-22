@@ -26,6 +26,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/gray">
+
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -42,17 +43,59 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
+                    <ImageButton
+                        android:id="@+id/iv_share_image"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:background="@drawable/round_button"
+                        android:backgroundTint="@color/black"
+                        android:padding="10dp"
+                        app:layout_constraintEnd_toStartOf="@id/iv_edit_image"
+                        app:layout_constraintStart_toEndOf="@+id/iv_download_image"
+                        app:layout_constraintTop_toBottomOf="@id/iv_image"
+                        app:srcCompat="@drawable/ic_share" />
+
+                    <ImageButton
+                        android:id="@+id/iv_download_image"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:background="@drawable/round_button"
+                        android:backgroundTint="@color/black"
+                        android:padding="10dp"
+                        app:layout_constraintEnd_toStartOf="@id/iv_share_image"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/iv_image"
+                        app:srcCompat="@drawable/ic_download" />
+
+                    <ImageButton
+                        android:id="@+id/iv_edit_image"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:background="@drawable/round_button"
+                        android:backgroundTint="@color/black"
+                        android:padding="10dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/iv_share_image"
+                        app:layout_constraintTop_toBottomOf="@id/iv_image"
+                        app:srcCompat="@drawable/baseline_edit_24" />
+
+
+
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rv_categories"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
-                        android:layout_marginBottom="24dp"
+                        android:layout_marginTop="8dp"
                         android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="24dp"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/iv_image" />
+                        app:layout_constraintTop_toBottomOf="@+id/iv_download_image" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </ScrollView>
