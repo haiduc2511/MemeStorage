@@ -32,6 +32,7 @@ import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -47,6 +48,7 @@ import com.example.memestorage.R;
 import com.example.memestorage.adapters.MainCategoryAdapter;
 import com.example.memestorage.broadcastreceiver.InternetBroadcastReceiver;
 import com.example.memestorage.broadcastreceiver.NetworkStatusManager;
+import com.example.memestorage.customview.SafeFlexboxLayoutManager;
 import com.example.memestorage.models.CategoryModel;
 import com.example.memestorage.models.ImageCategoryModel;
 import com.example.memestorage.utils.ImageItemTouchHelper;
@@ -60,7 +62,9 @@ import com.example.memestorage.viewmodels.ImageCategoryViewModel;
 import com.example.memestorage.viewmodels.ImageViewModel;
 import com.example.memestorage.databinding.ActivityMainBinding;
 import com.google.android.flexbox.FlexDirection;
+import com.google.android.flexbox.FlexWrap;
 import com.google.android.flexbox.FlexboxLayoutManager;
+import com.google.android.flexbox.JustifyContent;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -159,9 +163,7 @@ public class MainActivity extends AppCompatActivity {
         imageCategoryViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()).create(ImageCategoryViewModel.class);
     }
     private void initBottomNavigation() {
-        binding.customBottomBar.inflateMenu(R.menu.bottom_menu);
-        binding.customBottomBar.setBottomBarColor(getResources().getColor(R.color.black_gray));
-        binding.customBottomBar.setCurveRadius(150);
+
     }
     private void initInternetBroadcastReceiver() {
         internetBroadcastReceiver = new InternetBroadcastReceiver(new InternetBroadcastReceiver.NetworkChangeListener() {
@@ -340,6 +342,8 @@ public class MainActivity extends AppCompatActivity {
         binding.rvImages.setLayoutManager(new GridLayoutManager(this, Integer.parseInt(sharedPrefManager.getNumberOfColumn())));
         imageAdapter = new ImageAdapter(MainActivity.this, getSupportFragmentManager(), Integer.parseInt(sharedPrefManager.getNumberOfColumn()));
         binding.rvImages.setAdapter(imageAdapter);
+        binding.rvImages.setFadingEdgeLength(100);
+        binding.rvImages.setHorizontalFadingEdgeEnabled(true);
         ImageItemTouchHelper imageItemTouchHelper = new ImageItemTouchHelper(imageAdapter, imageViewModel, imageCategoryViewModel);
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(imageItemTouchHelper);
         itemTouchHelper.attachToRecyclerView(binding.rvImages);
@@ -360,17 +364,68 @@ public class MainActivity extends AppCompatActivity {
 //        binding.btChooseImage.setOnClickListener(v -> openFileChooser());
         binding.btChooseImage.setOnClickListener(v -> chooseImageFromGalleryWithTedImagePicker());
 
+//        binding.tvSeeMore.setOnClickListener(v -> {
+//            Log.d("Kiem tra HashMap", notificationMap.toString());
+//            ViewGroup.LayoutParams params = binding.rvCategories.getLayoutParams();
+//
+//            if (isHeightWrapContent) {
+//                params.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 80, getResources().getDisplayMetrics());
+//            } else {
+//                params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+//            }
+//
+//            binding.rvCategories.setLayoutParams(params);
+//            isHeightWrapContent = !isHeightWrapContent;
+//
+//            if (binding.tvSeeMore.getText().equals("See more")) {
+//                binding.tvSeeMore.setText("See less");
+//            } else {
+//                binding.tvSeeMore.setText("See more");
+//            }
+//        });
+
+//        binding.btSetting.setOnClickListener(v -> {
+//            Intent intent = new Intent(this, SettingActivity.class);
+//            startActivity(intent);
+//        });
+//
+//        binding.btGoToAddCategory.setOnClickListener(v -> {
+//            Intent intent = new Intent(this, AddCategoryActivity.class);
+//            startActivity(intent);
+//        });
+
+//        binding.btBrowseMemes.setOnClickListener(v -> {
+//            Intent intent = new Intent(this, BrowseMemeActivity.class);
+//            startActivity(intent);
+//        });
+    }
+
+    private void initCategories() {
+        LinearLayoutManager firstLayoutManager = new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false);
+        binding.rvCategories.setLayoutManager(firstLayoutManager);
+        categoryAdapter = new MainCategoryAdapter(onCategorySearchChosen);
+
+        binding.rvCategories.setAdapter(categoryAdapter);
+        categoryViewModel.addCategoryObserver(categoryAdapter);
+
         binding.tvSeeMore.setOnClickListener(v -> {
-            Log.d("Kiem tra HashMap", notificationMap.toString());
-            ViewGroup.LayoutParams params = binding.rvCategories.getLayoutParams();
+//            ViewGroup.LayoutParams params = binding.rvCategories.getLayoutParams();
 
             if (isHeightWrapContent) {
-                params.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 80, getResources().getDisplayMetrics());
+                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false);
+                binding.rvCategories.setLayoutManager(linearLayoutManager);
+//                categoryAdapter.notifyDataSetChanged();
+//                params.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 80, getResources().getDisplayMetrics());
             } else {
-                params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                SafeFlexboxLayoutManager flexboxLayoutManager = new SafeFlexboxLayoutManager(getApplicationContext(), FlexDirection.ROW);
+//                flexboxLayoutManager.setFlexWrap(FlexWrap.NOWRAP);
+                binding.rvCategories.setLayoutManager(flexboxLayoutManager);
+//                categoryAdapter.notifyDataSetChanged();
+//                params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
             }
+            binding.rvCategories.setAdapter(categoryAdapter);
 
-            binding.rvCategories.setLayoutParams(params);
+//            binding.rvCategories.setLayoutParams(params);
             isHeightWrapContent = !isHeightWrapContent;
 
             if (binding.tvSeeMore.getText().equals("See more")) {
@@ -380,29 +435,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        binding.btSetting.setOnClickListener(v -> {
-            Intent intent = new Intent(this, SettingActivity.class);
-            startActivity(intent);
-        });
-
-        binding.btGoToAddCategory.setOnClickListener(v -> {
-            Intent intent = new Intent(this, AddCategoryActivity.class);
-            startActivity(intent);
-        });
-
-//        binding.btBrowseMemes.setOnClickListener(v -> {
-//            Intent intent = new Intent(this, BrowseMemeActivity.class);
-//            startActivity(intent);
-//        });
-    }
-
-    private void initCategories() {
-        FlexboxLayoutManager layoutManager = new FlexboxLayoutManager(getApplicationContext());
-        layoutManager.setFlexDirection(FlexDirection.ROW);
-        binding.rvCategories.setLayoutManager(layoutManager);
-        categoryAdapter = new MainCategoryAdapter(new ArrayList<>(), onCategorySearchChosen);
-        binding.rvCategories.setAdapter(categoryAdapter);
-        categoryViewModel.addCategoryObserver(categoryAdapter);
         categoryViewModel.getCategoriesFirebase(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {

@@ -14,6 +14,7 @@ import com.example.memestorage.models.CategoryModel;
 import com.example.memestorage.models.ImageCategoryModel;
 import com.example.memestorage.utils.CategoryObserver;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,8 +24,8 @@ public class MainCategoryAdapter extends RecyclerView.Adapter<MainCategoryAdapte
     private Set<String> selectedCategories = new HashSet<>();
     private MainActivity.CategorySearchListener onCategorySearchChosen;
 
-    public MainCategoryAdapter(List<CategoryModel> categoryModels, MainActivity.CategorySearchListener onCategorySearchChosen) {
-        this.categoryModels = categoryModels;
+    public MainCategoryAdapter(MainActivity.CategorySearchListener onCategorySearchChosen) {
+        this.categoryModels = new ArrayList<>();
         this.onCategorySearchChosen = onCategorySearchChosen;
     }
     public void setCategoryModels(List<CategoryModel> categoryModels) {

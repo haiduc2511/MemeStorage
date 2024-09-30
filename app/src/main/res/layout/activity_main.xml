@@ -1,71 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
     tools:context=".activities.MainActivity"
-    android:background="@drawable/background">
+    android:layout_height="match_parent"
+    android:background="@drawable/background"
+    android:fitsSystemWindows="true">
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/bt_choose_image"
-        android:layout_width="wrap_content"
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_categories"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp"
-        android:clickable="true"
-
-        app:backgroundTint="@color/black"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="@id/customBottomBar"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/ic_add"
-        app:tint="@color/white" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout">
 
-<!--    <com.google.android.material.floatingactionbutton.FloatingActionButton-->
-<!--        android:id="@+id/bt_browse_memes"-->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_categories"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fadingEdgeLength="100dp"
+            android:requiresFadingEdge="horizontal|vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageButton
+            android:id="@+id/bt_expand"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:background="@android:color/transparent"
+            app:srcCompat="@drawable/ic_expand_big" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+<!--    <ImageButton-->
+<!--        android:id="@+id/bt_setting"-->
 <!--        android:layout_width="wrap_content"-->
 <!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginEnd="16dp"-->
-<!--        android:layout_marginBottom="16dp"-->
-<!--        android:clickable="true"-->
-<!--        app:backgroundTint="@color/black"-->
-<!--        app:layout_constraintBottom_toTopOf="@+id/bt_choose_image"-->
+<!--        android:padding="5dp"-->
 <!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:srcCompat="@drawable/ic_search"-->
-<!--        app:tint="@color/white" />-->
+<!--        app:layout_constraintStart_toEndOf="@+id/cl_categories"-->
+<!--        app:layout_constraintTop_toTopOf="@+id/cl_categories"-->
+<!--        app:srcCompat="@drawable/ic_setting"-->
+<!--        android:background="@drawable/round_button"/>-->
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_categories"
-        android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:layout_marginEnd="60dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
-
-    <ImageButton
-        android:id="@+id/bt_setting"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="5dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/rv_categories"
-        app:layout_constraintTop_toTopOf="@+id/rv_categories"
-        app:srcCompat="@drawable/ic_setting"
-        android:background="@drawable/round_button"/>
-
-    <ImageButton
-        android:id="@+id/bt_go_to_add_category"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="5dp"
-        app:layout_constraintBottom_toBottomOf="@+id/rv_categories"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/rv_categories"
-        app:layout_constraintTop_toBottomOf="@+id/bt_setting"
-        android:background="@drawable/round_button"
-        app:srcCompat="@drawable/baseline_edit_24" />
+<!--    <ImageButton-->
+<!--        android:id="@+id/bt_go_to_add_category"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:padding="5dp"-->
+<!--        android:layout_marginTop="5dp"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toEndOf="@+id/cl_categories"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/bt_setting"-->
+<!--        android:background="@drawable/round_button"-->
+<!--        app:srcCompat="@drawable/baseline_edit_24" />-->
 
     <TextView
         android:id="@+id/tv_see_more"
@@ -73,20 +71,19 @@
         android:layout_height="wrap_content"
         android:text="See more"
         android:textColor="@color/white"
-        app:layout_constraintEnd_toEndOf="@+id/rv_categories"
-        app:layout_constraintTop_toBottomOf="@+id/rv_categories" />
+        app:layout_constraintEnd_toEndOf="@+id/cl_categories"
+        app:layout_constraintTop_toBottomOf="@+id/cl_categories" />
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/sl_rv_images"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bn_main"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_see_more"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="48dp">
+        android:layout_marginTop="16dp">
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_images"
             android:layout_width="match_parent"
@@ -99,7 +96,6 @@
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
         android:orientation="horizontal"
         android:gravity="center"
         app:layout_constraintEnd_toEndOf="parent"
@@ -125,24 +121,42 @@
         android:elevation="5dp"
         app:layout_constraintBottom_toBottomOf="@+id/sl_rv_images"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0">
+        app:layout_constraintTop_toTopOf="parent">
 
 
     </FrameLayout>
 
-    <com.example.memestorage.customview.CurveBottomBar
-        android:id="@+id/customBottomBar"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:bottomBarColor="@color/black_gray"
-        app:curveRadius="10dp"
-        app:itemIconTint="@color/gray"
-        android:fitsSystemWindows="true"
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bn_main"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_gravity="bottom"
+        android:background="@color/gray"
+        app:itemIconTint="@color/white"
+        app:itemPaddingBottom="0dp"
+        app:itemPaddingTop="0dp"
+        app:labelVisibilityMode="unlabeled"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:menu="@menu/bottom_menu" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/bt_choose_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:layout_marginBottom="16dp"
+        app:backgroundTint="@color/black"
+        app:layout_anchor="@id/bn_main"
+        app:layout_anchorGravity="center"
+        app:layout_constraintBottom_toBottomOf="@id/bn_main"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/ic_add"
+        app:tint="@color/white" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+
