@@ -96,7 +96,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 public class MainActivity extends AppCompatActivity {
     ActivityMainBinding binding;
     static final int PICK_IMAGES_REQUEST = 1;
-    static boolean isHeightWrapContent = false;
+    static boolean showingAllCategories = false;
     private static final int REQUEST_CODE = 1;
     ImageViewModel imageViewModel;
     CategoryViewModel categoryViewModel;
@@ -408,31 +408,29 @@ public class MainActivity extends AppCompatActivity {
         binding.rvCategories.setAdapter(categoryAdapter);
         categoryViewModel.addCategoryObserver(categoryAdapter);
 
-        binding.tvSeeMore.setOnClickListener(v -> {
+        binding.btExpand.setOnClickListener(v -> {
 //            ViewGroup.LayoutParams params = binding.rvCategories.getLayoutParams();
 
-            if (isHeightWrapContent) {
+            if (showingAllCategories) {
                 LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false);
                 binding.rvCategories.setLayoutManager(linearLayoutManager);
-//                categoryAdapter.notifyDataSetChanged();
-//                params.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 80, getResources().getDisplayMetrics());
+                binding.rvCategories.setPadding(0, 0, 50, 0);
+                binding.btExpand.setBackgroundResource(R.drawable.ic_expand_big);
             } else {
                 SafeFlexboxLayoutManager flexboxLayoutManager = new SafeFlexboxLayoutManager(getApplicationContext(), FlexDirection.ROW);
-//                flexboxLayoutManager.setFlexWrap(FlexWrap.NOWRAP);
                 binding.rvCategories.setLayoutManager(flexboxLayoutManager);
-//                categoryAdapter.notifyDataSetChanged();
-//                params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                binding.rvCategories.setPadding(0, 0, 0, 0);
+                binding.btExpand.setBackgroundResource(R.drawable.ic_compact_big);
             }
             binding.rvCategories.setAdapter(categoryAdapter);
 
-//            binding.rvCategories.setLayoutParams(params);
-            isHeightWrapContent = !isHeightWrapContent;
-
-            if (binding.tvSeeMore.getText().equals("See more")) {
-                binding.tvSeeMore.setText("See less");
-            } else {
-                binding.tvSeeMore.setText("See more");
-            }
+            showingAllCategories = !showingAllCategories;
+//
+//            if (binding.tvSeeMore.getText().equals("See more")) {
+//                binding.tvSeeMore.setText("See less");
+//            } else {
+//                binding.tvSeeMore.setText("See more");
+//            }
         });
 
         categoryViewModel.getCategoriesFirebase(new OnCompleteListener<QuerySnapshot>() {
