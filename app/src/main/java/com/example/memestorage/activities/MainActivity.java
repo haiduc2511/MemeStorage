@@ -170,6 +170,7 @@ public class MainActivity extends AppCompatActivity {
         imageCategoryViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()).create(ImageCategoryViewModel.class);
     }
     private void initBottomNavigation() {
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, MainFragment.newInstance()).commit();
         binding.bnMain.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
@@ -183,6 +184,10 @@ public class MainActivity extends AppCompatActivity {
                 }
                 if (R.id.nav_home == id) {
                     selectedFragment = MainFragment.newInstance();
+                }
+                if (R.id.nav_search == id) {
+                    Toast.makeText(MainActivity.this, "Chưa phát triển tính năng này hêh", Toast.LENGTH_SHORT).show();
+                    return false;
                 }
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
                 return true;
