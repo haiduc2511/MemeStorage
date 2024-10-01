@@ -52,6 +52,7 @@ import com.example.memestorage.broadcastreceiver.InternetBroadcastReceiver;
 import com.example.memestorage.broadcastreceiver.NetworkStatusManager;
 import com.example.memestorage.customview.SafeFlexboxLayoutManager;
 import com.example.memestorage.fragments.AccountFragment;
+import com.example.memestorage.fragments.MainFragment;
 import com.example.memestorage.fragments.ManageCategoryFragment;
 import com.example.memestorage.models.CategoryModel;
 import com.example.memestorage.models.ImageCategoryModel;
@@ -179,6 +180,9 @@ public class MainActivity extends AppCompatActivity {
                 }
                 if (R.id.nav_profile == id) {
                     selectedFragment = AccountFragment.newInstance();
+                }
+                if (R.id.nav_home == id) {
+                    selectedFragment = MainFragment.newInstance();
                 }
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
                 return true;

@@ -54,6 +54,20 @@ public class ManageCategoryFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
         }
+        categoryViewModel = CategoryViewModel.newInstance();
+        imageCategoryViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()).create(ImageCategoryViewModel.class);
+
+        categoryViewModel.getCategoriesFirebase(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    if (task.getResult().toObjects(CategoryModel.class).isEmpty()) {
+                        openCategorySuggestFragment();
+                    }
+                }
+            }
+        });
+
     }
 
     @Override
@@ -61,8 +75,6 @@ public class ManageCategoryFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = FragmentManageCategoryBinding.inflate(getLayoutInflater(), container, false);
-        categoryViewModel = CategoryViewModel.newInstance();
-        imageCategoryViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()).create(ImageCategoryViewModel.class);
         initUI();
 
         return binding.getRoot();
@@ -102,16 +114,6 @@ public class ManageCategoryFragment extends Fragment {
         categoryViewModel.addCategoryObserver(categoryAdapter);
 
         categoryAdapter.setCategoryModels(categoryViewModel.getCategories());
-        categoryViewModel.getCategoriesFirebase(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    if (task.getResult().toObjects(CategoryModel.class).isEmpty()) {
-                        openCategorySuggestFragment();
-                    }
-                }
-            }
-        });
 
     }
     private void openCategorySuggestFragment() {
