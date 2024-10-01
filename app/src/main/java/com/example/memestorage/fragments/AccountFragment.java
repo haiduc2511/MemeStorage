@@ -57,12 +57,14 @@ public class AccountFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
         }
+        sharedPrefManager = new SharedPrefManager(requireContext());
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = FragmentAccountBinding.inflate(getLayoutInflater(), container, false);
+        initUI();
         return binding.getRoot();
     }
 
