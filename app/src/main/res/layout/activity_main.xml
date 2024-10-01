@@ -98,8 +98,6 @@
         android:id="@+id/fragment_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="24dp"
-        android:layout_marginBottom="48dp"
         android:elevation="5dp"
         app:layout_constraintBottom_toTopOf="@+id/bn_main"
         app:layout_constraintEnd_toEndOf="parent"

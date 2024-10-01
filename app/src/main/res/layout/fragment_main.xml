@@ -8,7 +8,6 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/main"
         android:layout_width="match_parent"
-        tools:context=".activities.MainActivity"
         android:layout_height="match_parent"
         android:background="@drawable/background"
         android:fitsSystemWindows="true">
@@ -58,19 +57,22 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp" />
 
-            <FrameLayout
-                android:id="@+id/fragment_image"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginBottom="16dp"
-                android:elevation="5dp">
-
-
-            </FrameLayout>
 
 
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
+        <FrameLayout
+            android:id="@+id/fragment_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:elevation="5dp"
+            app:layout_constraintBottom_toBottomOf="@+id/sl_rv_images"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+
+        </FrameLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
