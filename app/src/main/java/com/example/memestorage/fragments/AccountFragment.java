@@ -70,8 +70,8 @@ public class AccountFragment extends Fragment {
 
     private void initUI() {
         initPowerModeToggleGroup();
-        binding.tvSettingActivityName.setText(mAuth.getUid().toString());
-        binding.tvSettingActivityName.setTextSize(10);
+//        binding.tvSettingActivityName.setText(mAuth.getUid().toString());
+//        binding.tvSettingActivityName.setTextSize(10);
         binding.btNumberOfImages.setText(sharedPrefManager.getNumberOfImages());
         binding.btNumberOfColumn.setText(sharedPrefManager.getNumberOfColumn());
         binding.btFetchQuality.setText(sharedPrefManager.getFetchQuality());
@@ -154,9 +154,9 @@ public class AccountFragment extends Fragment {
             showConfirmDeleteAccountDialog();
         });
 
-        binding.fabBack.setOnClickListener(v -> {
+//        binding.fabBack.setOnClickListener(v -> {
 //            getOnBackPressedDispatcher().onBackPressed();
-        });
+//        });
     }
     private void showConfirmDeleteAccountDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());

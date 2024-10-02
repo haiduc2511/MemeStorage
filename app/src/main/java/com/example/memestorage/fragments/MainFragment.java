@@ -28,6 +28,7 @@ import com.example.memestorage.models.CategoryModel;
 import com.example.memestorage.models.ImageCategoryModel;
 import com.example.memestorage.models.ImageModel;
 import com.example.memestorage.utils.ImageItemTouchHelper;
+import com.example.memestorage.utils.ImageUploadListener;
 import com.example.memestorage.utils.SharedPrefManager;
 import com.example.memestorage.viewmodels.CategoryViewModel;
 import com.example.memestorage.viewmodels.ImageCategoryViewModel;
@@ -48,7 +49,7 @@ import io.reactivex.rxjava3.core.SingleObserver;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
-public class MainFragment extends Fragment {
+public class MainFragment extends Fragment implements ImageUploadListener {
     FragmentMainBinding binding;
     ImageViewModel imageViewModel;
     CategoryViewModel categoryViewModel;
@@ -93,6 +94,7 @@ public class MainFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
         }
+        getRetainInstance();
         initViewModel();
     }
 
@@ -111,14 +113,22 @@ public class MainFragment extends Fragment {
         imageCategoryViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()).create(ImageCategoryViewModel.class);
     }
 
-//    private void resetIfNumberOfColumnChanges() {
-//        int numberOfColumn = Integer.parseInt(sharedPrefManager.getNumberOfColumn());
-//        if (numberOfColumn != imageAdapter.getNumberOfColumn()) {
-//            binding.rvImages.setLayoutManager(new GridLayoutManager(requireContext(), numberOfColumn));
-//            imageAdapter.setNumberOfColumn(numberOfColumn);
-//            imageAdapter.notifyDataSetChanged();
-//        }
-//    }
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        if (!hidden) {
+            resetIfNumberOfColumnChanges();
+        }
+    }
+
+    private void resetIfNumberOfColumnChanges() {
+        int numberOfColumn = Integer.parseInt(sharedPrefManager.getNumberOfColumn());
+        if (numberOfColumn != imageAdapter.getNumberOfColumn()) {
+            binding.rvImages.setLayoutManager(new GridLayoutManager(requireContext(), numberOfColumn));
+            imageAdapter.setNumberOfColumn(numberOfColumn);
+            imageAdapter.notifyDataSetChanged();
+        }
+    }
     private void getImageCategoriesByCategoryIdList(List<String> categoryIdList) {
         imageCategoryViewModel.getImageCategoriesByCategoryIdFirebase(categoryIdList.get(0), new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -230,6 +240,12 @@ public class MainFragment extends Fragment {
 
     }
 
+    @Override
+    public void onSuccessUploadingImages(ImageModel imageModel) {
+        imageViewModel.addImageFirst(imageModel);
+        imageAdapter.addImageFirst(imageModel);
+        binding.rvImages.scrollToPosition(0);
+    }
 
     private void filterImageWithOtherCategories(ImageModel imageModel, List<String> categories, int thisSeachNumber) {
         if (categories.isEmpty()) {

@@ -12,6 +12,19 @@
 
 
     <FrameLayout
+        android:id="@+id/fragment_container_main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="56dp"
+        android:elevation="2dp"
+        app:layout_constraintBottom_toTopOf="@id/bn_main"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/linearLayout">
+
+    </FrameLayout>
+    <FrameLayout
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -24,7 +37,6 @@
         app:layout_constraintTop_toBottomOf="@id/linearLayout">
 
     </FrameLayout>
-
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
@@ -45,67 +57,67 @@
             android:textSize="10sp" />
     </LinearLayout>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/cl_categories"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout">
+<!--    <androidx.constraintlayout.widget.ConstraintLayout-->
+<!--        android:id="@+id/cl_categories"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/linearLayout">-->
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_categories"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fadingEdgeLength="100dp"
-            android:paddingRight="50dp"
-            android:requiresFadingEdge="horizontal|vertical"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+<!--        <androidx.recyclerview.widget.RecyclerView-->
+<!--            android:id="@+id/rv_categories"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:fadingEdgeLength="100dp"-->
+<!--            android:paddingRight="50dp"-->
+<!--            android:requiresFadingEdge="horizontal|vertical"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toTopOf="parent" />-->
 
-        <ImageButton
-            android:id="@+id/bt_expand"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:background="@drawable/ic_expand_big"/>
+<!--        <ImageButton-->
+<!--            android:id="@+id/bt_expand"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="match_parent"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            android:background="@drawable/ic_expand_big"/>-->
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+<!--    </androidx.constraintlayout.widget.ConstraintLayout>-->
 
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/sl_rv_images"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@id/bn_main"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cl_categories"
-        android:layout_marginTop="16dp">
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_images"
-            android:layout_width="match_parent"
-            android:layout_height="0dp" />
-
-
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+<!--    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout-->
+<!--        android:id="@+id/sl_rv_images"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="0dp"-->
+<!--        app:layout_constraintBottom_toTopOf="@id/bn_main"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintHorizontal_bias="1.0"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/cl_categories"-->
+<!--        android:layout_marginTop="16dp">-->
+<!--        <androidx.recyclerview.widget.RecyclerView-->
+<!--            android:id="@+id/rv_images"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="0dp" />-->
 
 
-    <FrameLayout
-        android:id="@+id/fragment_image"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:elevation="5dp"
-        app:layout_constraintBottom_toTopOf="@+id/bn_main"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+<!--    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>-->
 
 
-    </FrameLayout>
+<!--    <FrameLayout-->
+<!--        android:id="@+id/fragment_image"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:elevation="5dp"-->
+<!--        app:layout_constraintBottom_toTopOf="@+id/bn_main"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toTopOf="parent">-->
+
+
+<!--    </FrameLayout>-->
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bn_main"

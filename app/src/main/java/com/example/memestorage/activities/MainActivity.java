@@ -31,6 +31,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -60,6 +61,7 @@ import com.example.memestorage.utils.ImageItemTouchHelper;
 import com.example.memestorage.utils.FirebaseHelper;
 import com.example.memestorage.adapters.ImageAdapter;
 import com.example.memestorage.models.ImageModel;
+import com.example.memestorage.utils.ImageUploadListener;
 import com.example.memestorage.utils.MediaManagerState;
 import com.example.memestorage.utils.SharedPrefManager;
 import com.example.memestorage.viewmodels.CategoryViewModel;
@@ -103,41 +105,20 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 public class MainActivity extends AppCompatActivity {
     ActivityMainBinding binding;
     static final int PICK_IMAGES_REQUEST = 1;
-    static boolean showingAllCategories = false;
     private static final int REQUEST_CODE = 1;
     ImageViewModel imageViewModel;
-    CategoryViewModel categoryViewModel;
     ImageCategoryViewModel imageCategoryViewModel;
-    MainCategoryAdapter categoryAdapter;
     ImageAdapter imageAdapter;
-    int numberOfTimesSearched = 0;
     boolean isFirstInternetConnectionCheck = true;
-    boolean searchingByCategory = false; //for lazy loading (retrieveMoreImages..)
     NetworkStatusManager networkStatusManager = NetworkStatusManager.getInstance();
-    CategorySearchListener onCategorySearchChosen = new CategorySearchListener() {
-        @Override
-        public void onCategorySearchChosen(Set<String> categoryIdSet) {
-            numberOfTimesSearched++;
-            List<String> categoryIdList = new ArrayList<>(categoryIdSet);
-            imageAdapter.setImageModels(new ArrayList<>());
-            if (!categoryIdSet.isEmpty()) {
-                getImageCategoriesByCategoryIdList(categoryIdList);
-                searchingByCategory = true;
-            } else {
-                imageAdapter.setImageModels(new ArrayList<>());
-                retrieveImagesByRxJava();
-                searchingByCategory = false;
-            }
-        }
-    };
     InternetBroadcastReceiver internetBroadcastReceiver;
     SharedPrefManager sharedPrefManager;
     CompositeDisposable compositeDisposable = new CompositeDisposable();
     Observable<Long> networkObservable;
-    DocumentSnapshot lastVisible;
     String myUserId = Objects.requireNonNull(FirebaseHelper.getInstance().getAuth().getCurrentUser()).getUid();
     private Map<String, Pair<Integer, NotificationCompat.Builder>> notificationMap = new HashMap<>();
     NotificationManager notificationManager;
+    private ImageUploadListener imageUploadListener;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -166,30 +147,43 @@ public class MainActivity extends AppCompatActivity {
     }
     private void initViewModel() {
         imageViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()).create(ImageViewModel.class);
-        categoryViewModel = CategoryViewModel.newInstance();
         imageCategoryViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()).create(ImageCategoryViewModel.class);
     }
     private void initBottomNavigation() {
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, MainFragment.newInstance()).commit();
+        MainFragment mainFragment = MainFragment.newInstance();
+        imageUploadListener = mainFragment;
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container_main, mainFragment).commit();
         binding.bnMain.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 int id = menuItem.getItemId();
-                Fragment selectedFragment = null;
+                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
                 if (R.id.nav_category == id) {
-                    selectedFragment = ManageCategoryFragment.newInstance();
+                    fragmentTransaction
+                            .hide(mainFragment)
+                            .replace(R.id.fragment_container, ManageCategoryFragment.newInstance())
+                            .commit();
                 }
                 if (R.id.nav_profile == id) {
-                    selectedFragment = AccountFragment.newInstance();
+                    fragmentTransaction
+                            .hide(mainFragment)
+                            .replace(R.id.fragment_container, AccountFragment.newInstance())
+                            .commit();
                 }
                 if (R.id.nav_home == id) {
-                    selectedFragment = MainFragment.newInstance();
+                    Fragment otherFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+                    if (otherFragment != null) {
+                        fragmentTransaction
+                                .remove(otherFragment);
+                    }
+                    fragmentTransaction
+                            .show(mainFragment)
+                            .commit();
                 }
                 if (R.id.nav_search == id) {
                     Toast.makeText(MainActivity.this, "Chưa phát triển tính năng này hêh", Toast.LENGTH_SHORT).show();
                     return false;
                 }
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
                 return true;
             }
 
@@ -257,20 +251,19 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
     }
-
-    private void resetIfNumberOfColumnChanges() {
-        int numberOfColumn = Integer.parseInt(sharedPrefManager.getNumberOfColumn());
-        if (numberOfColumn != imageAdapter.getNumberOfColumn()) {
-            binding.rvImages.setLayoutManager(new GridLayoutManager(this, numberOfColumn));
-            imageAdapter.setNumberOfColumn(numberOfColumn);
-            imageAdapter.notifyDataSetChanged();
-        }
-    }
+//
+//    private void resetIfNumberOfColumnChanges() {
+//        int numberOfColumn = Integer.parseInt(sharedPrefManager.getNumberOfColumn());
+//        if (numberOfColumn != imageAdapter.getNumberOfColumn()) {
+//            binding.rvImages.setLayoutManager(new GridLayoutManager(this, numberOfColumn));
+//            imageAdapter.setNumberOfColumn(numberOfColumn);
+//            imageAdapter.notifyDataSetChanged();
+//        }
+//    }
 
     @Override
     protected void onResume() {
         super.onResume();
-        resetIfNumberOfColumnChanges();
         IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
         registerReceiver(internetBroadcastReceiver, filter);
     }
@@ -301,315 +294,16 @@ public class MainActivity extends AppCompatActivity {
         initInternetBroadcastReceiver();
     }
 
-    //    private void hideSystemUI() {
-//        View decorView = getWindow().getDecorView();
-//        int uiOptions = View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-//                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-//                | View.SYSTEM_UI_FLAG_FULLSCREEN;
-//        decorView.setSystemUiVisibility(uiOptions);
-//    }
-//
-//    @Override
-//    public void onWindowFocusChanged(boolean hasFocus) {
-//        super.onWindowFocusChanged(hasFocus);
-//        if (hasFocus) {
-//            hideSystemUI();
-//        }
-//    }
-    private void getImageCategoriesByCategoryIdList(List<String> categoryIdList) {
-        imageCategoryViewModel.getImageCategoriesByCategoryIdFirebase(categoryIdList.get(0), new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                categoryIdList.remove(0);
-//                Log.d("Get ImageCategoryModel", task.getResult().toObjects(ImageCategoryModel.class).toString());
-                getImagesByImageCategoryList(task.getResult().toObjects(ImageCategoryModel.class), categoryIdList);
-            }
-        });
-    }
-    private void getImagesByImageCategoryList(List<ImageCategoryModel> imageCategoryList, List<String> categoryIdList) {
-        imageViewModel.getMyImagesByListImageCategoryFirebase(imageCategoryList, new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        int thisSearchNumber = numberOfTimesSearched;
-                        filterImageWithOtherCategories(document.toObject(ImageModel.class), new ArrayList<>(categoryIdList), thisSearchNumber);
-                    } else {
-                        Log.d("Firestore", "No such document");
-                    }
-                } else {
-                    Log.d("Firestore", "get failed with ", task.getException());
-                }
-            }
-        });
-    }
 
     private void initUI() {
         initButtons();
-
-        initCategories();
-
-        initSwipeLayout();
-
-        initImages();
-
-//        hideSystemUI();
-    }
-    private void initSwipeLayout() {
-        binding.slRvImages.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                onCategorySearchChosen.onCategorySearchChosen(categoryAdapter.getSelectedCategories());
-                if(binding.slRvImages.isRefreshing()) {
-                    binding.slRvImages.setRefreshing(false);
-                }
-            }
-        });
     }
 
-    private void initImages() {
-        binding.rvImages.setLayoutManager(new GridLayoutManager(this, Integer.parseInt(sharedPrefManager.getNumberOfColumn())));
-        imageAdapter = new ImageAdapter(MainActivity.this, getSupportFragmentManager(), Integer.parseInt(sharedPrefManager.getNumberOfColumn()));
-        binding.rvImages.setAdapter(imageAdapter);
-        binding.rvImages.setFadingEdgeLength(100);
-        binding.rvImages.setHorizontalFadingEdgeEnabled(true);
-        ImageItemTouchHelper imageItemTouchHelper = new ImageItemTouchHelper(imageAdapter, imageViewModel, imageCategoryViewModel);
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(imageItemTouchHelper);
-        itemTouchHelper.attachToRecyclerView(binding.rvImages);
-        binding.rvImages.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-
-                if (!recyclerView.canScrollVertically(1)) {
-                    retrieveMoreImagesByRxJava();
-                }
-            }
-        });
-        retrieveImagesByRxJava();
-    }
 
     private void initButtons() {
-//        binding.btChooseImage.setOnClickListener(v -> openFileChooser());
         binding.btChooseImage.setOnClickListener(v -> chooseImageFromGalleryWithTedImagePicker());
-
-//        binding.tvSeeMore.setOnClickListener(v -> {
-//            Log.d("Kiem tra HashMap", notificationMap.toString());
-//            ViewGroup.LayoutParams params = binding.rvCategories.getLayoutParams();
-//
-//            if (isHeightWrapContent) {
-//                params.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 80, getResources().getDisplayMetrics());
-//            } else {
-//                params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-//            }
-//
-//            binding.rvCategories.setLayoutParams(params);
-//            isHeightWrapContent = !isHeightWrapContent;
-//
-//            if (binding.tvSeeMore.getText().equals("See more")) {
-//                binding.tvSeeMore.setText("See less");
-//            } else {
-//                binding.tvSeeMore.setText("See more");
-//            }
-//        });
-
-//        binding.btSetting.setOnClickListener(v -> {
-//            Intent intent = new Intent(this, SettingActivity.class);
-//            startActivity(intent);
-//        });
-//
-//        binding.btGoToAddCategory.setOnClickListener(v -> {
-//            Intent intent = new Intent(this, AddCategoryActivity.class);
-//            startActivity(intent);
-//        });
-
-//        binding.btBrowseMemes.setOnClickListener(v -> {
-//            Intent intent = new Intent(this, BrowseMemeActivity.class);
-//            startActivity(intent);
-//        });
     }
 
-    private void initCategories() {
-        LinearLayoutManager firstLayoutManager = new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false);
-        binding.rvCategories.setLayoutManager(firstLayoutManager);
-        categoryAdapter = new MainCategoryAdapter(onCategorySearchChosen);
-
-        binding.rvCategories.setAdapter(categoryAdapter);
-        categoryViewModel.addCategoryObserver(categoryAdapter);
-
-        binding.btExpand.setOnClickListener(v -> {
-//            ViewGroup.LayoutParams params = binding.rvCategories.getLayoutParams();
-
-            if (showingAllCategories) {
-                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false);
-                binding.rvCategories.setLayoutManager(linearLayoutManager);
-                binding.rvCategories.setPadding(0, 0, 50, 0);
-                binding.btExpand.setBackgroundResource(R.drawable.ic_expand_big);
-            } else {
-                SafeFlexboxLayoutManager flexboxLayoutManager = new SafeFlexboxLayoutManager(getApplicationContext(), FlexDirection.ROW);
-                binding.rvCategories.setLayoutManager(flexboxLayoutManager);
-                binding.rvCategories.setPadding(0, 0, 0, 0);
-                binding.btExpand.setBackgroundResource(R.drawable.ic_compact_big);
-            }
-            binding.rvCategories.setAdapter(categoryAdapter);
-
-            showingAllCategories = !showingAllCategories;
-//
-//            if (binding.tvSeeMore.getText().equals("See more")) {
-//                binding.tvSeeMore.setText("See less");
-//            } else {
-//                binding.tvSeeMore.setText("See more");
-//            }
-        });
-
-        categoryViewModel.getCategoriesFirebase(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                categoryViewModel.setCategories(task.getResult().toObjects(CategoryModel.class));
-            }
-        });
-
-    }
-
-
-    private void filterImageWithOtherCategories(ImageModel imageModel, List<String> categories, int thisSeachNumber) {
-        if (categories.isEmpty()) {
-            if (thisSeachNumber == numberOfTimesSearched) {
-                imageAdapter.addImage(imageModel);
-            }
-        } else {
-            Log.d("Filtering", imageModel.iId + "\n" + categories.get(0));
-            imageCategoryViewModel.getImageCategoriesByImageIdAndCategoryIdFirebase(imageModel.iId, categories.get(0), new OnCompleteListener<QuerySnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                    if (task.isSuccessful()) {
-                        if (!task.getResult().toObjects(ImageCategoryModel.class).isEmpty()) {
-                            categories.remove(0);
-                            filterImageWithOtherCategories(imageModel, categories, thisSeachNumber);
-                        }
-                    }
-
-                }
-            });
-        }
-    }
-
-    private void retrieveImagesByRxJava() {
-        String numberOfImages;
-        final int thisSearchNumber = numberOfTimesSearched;
-        if (sharedPrefManager.contains("Number of images")) {
-            numberOfImages = sharedPrefManager.getData("Number of images");
-        } else {
-            numberOfImages = "100";
-        }
-
-
-        Single<List<ImageModel>> observable = Single.<List<ImageModel>>create(emitter -> {
-                    imageViewModel.getMyImagesFirebase(Integer.parseInt(numberOfImages), new OnCompleteListener<QuerySnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                            if (task.isSuccessful()) {
-                                List<ImageModel> images = task.getResult().toObjects(ImageModel.class);
-                                imageViewModel.setImages(images);
-                                emitter.onSuccess(images);
-                                if (!images.isEmpty()) {
-                                    lastVisible = task.getResult().getDocuments().get(task.getResult().size() - 1);
-                                }
-                            } else {
-                                emitter.onError(task.getException());
-                            }
-                        }
-                    });
-                })
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
-
-        observable.subscribe(new SingleObserver<List<ImageModel>>() {
-            @Override
-            public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
-
-            }
-
-            @Override
-            public void onSuccess(@io.reactivex.rxjava3.annotations.NonNull List<ImageModel> imageModels) {
-                if (imageModels.isEmpty()) {
-                    binding.getRoot().setBackgroundResource(R.drawable.background3);
-                } else {
-                    binding.getRoot().setBackgroundResource(R.drawable.background);
-                }
-                for (ImageModel imageModel : imageModels) {
-                    Log.d("receiving Images", imageModel.imageURL);
-                    if (thisSearchNumber == numberOfTimesSearched) {
-                        imageAdapter.addImage(imageModel);
-                    }
-                }
-            }
-
-            @Override
-            public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
-                Log.d("error rxjava", e.getMessage());
-                Log.w(TAG, "Error getting my imageModel", e);
-            }
-        });
-    }
-
-    private void retrieveMoreImagesByRxJava() {
-        if (searchingByCategory) {
-            return;
-        }
-        String numberOfImages;
-        if (sharedPrefManager.contains("Number of images")) {
-            numberOfImages = sharedPrefManager.getData("Number of images");
-        } else {
-            numberOfImages = "40";
-        }
-        Single<List<ImageModel>> observable = Single.<List<ImageModel>>create(emitter -> {
-
-                    if (lastVisible != null) {
-                        imageViewModel.getMoreMyImagesFirebase(Integer.parseInt(numberOfImages), lastVisible, new OnCompleteListener<QuerySnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                if (task.isSuccessful()) {
-                                    List<ImageModel> images = task.getResult().toObjects(ImageModel.class);
-                                    imageViewModel.addImages(images);
-                                    emitter.onSuccess(images);
-                                    if (!images.isEmpty()) {
-                                        lastVisible = task.getResult().getDocuments().get(task.getResult().size() - 1);
-                                    }
-                                } else {
-                                    emitter.onError(task.getException());
-                                }
-
-                            }
-                        });
-                    }
-
-                })
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
-
-        observable.subscribe(new SingleObserver<List<ImageModel>>() {
-            @Override
-            public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
-
-            }
-
-            @Override
-            public void onSuccess(@io.reactivex.rxjava3.annotations.NonNull List<ImageModel> imageModels) {
-                for (ImageModel imageModel : imageModels) {
-                    Log.d("receiving Images", imageModel.imageURL);
-                    imageAdapter.addImage(imageModel);
-                }
-            }
-
-            @Override
-            public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
-                Log.d("error rxjava", e.getMessage());
-                Log.w(TAG, "Error getting my imageModel", e);
-            }
-        });
-    }
 
     private void checkPermissions() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -700,9 +394,7 @@ public class MainActivity extends AppCompatActivity {
                 imageModel = imageViewModel.addImageFirebase(imageModel);
                 Log.d("Upload cloudinary", "Upload images successful. Download URL: " + imageModel.toString() + " \n" +  imageUrl.toString());
 
-                imageViewModel.addImageFirst(imageModel);
-                imageAdapter.addImageFirst(imageModel);
-                binding.rvImages.scrollToPosition(0);
+                imageUploadListener.onSuccessUploadingImages(imageModel);
 
                 String url = MediaManager.get().url()
                         .transformation(new Transformation().quality("auto").chain().fetchFormat("auto"))
@@ -828,13 +520,6 @@ public class MainActivity extends AppCompatActivity {
             notificationMap.remove(requestId);
         }
     }
-
-
-    public interface UploadImageListener {
-        public void onSuccessUploadingImages(ImageModel imageModel);
-        public void onSuccessGetAICategoriesSuggestion(List<ImageCategoryModel> imageCategoryModels);
-    }
-
     public interface CategorySearchListener {
         public void onCategorySearchChosen(Set<String> categories);
     }
