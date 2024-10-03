@@ -63,6 +63,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -254,6 +255,48 @@ public class ImageRepo {
         } else {
             Log.d(TAG, "No files selected");
         }
+    }
+
+    public void uploadReplaceImageCloudinary(Uri imageUri, ImageModel imageModel) {
+        // Set upload options
+        Map<String, Object> options = new HashMap<>();
+//        options.put("folder", "meme_storage/images");
+        options.put("public_id", imageModel.imageName);  // Name of the image
+        options.put("overwrite", true);    // Overwrite if image exists
+
+        MediaManager.get().upload(imageUri)
+                .unsigned("your_unsigned_preset")
+                .options(options)
+                .callback(new UploadCallback() {
+                    @Override
+                    public void onStart(String requestId) {
+
+                    }
+
+                    @Override
+                    public void onProgress(String requestId, long bytes, long totalBytes) {
+                        Log.d(TAG, "Replace progress: " + requestId + " - " + bytes + "/" + totalBytes);
+                    }
+
+                    @Override
+                    public void onSuccess(String requestId, Map resultData) {
+                        Log.d(TAG, "Replace progress successful");
+
+                    }
+
+                    @Override
+                    public void onError(String requestId, ErrorInfo error) {
+                        Log.d(TAG, "Replace progress failed");
+
+                    }
+
+                    @Override
+                    public void onReschedule(String requestId, ErrorInfo error) {
+
+                    }
+                })
+                .dispatch();
+
     }
 
 //    public void getAICategoriesSuggestions(Bitmap bitmap, ImageModel imageModel, MainActivity.UploadImageListener uploadImageListener, int retryCount){

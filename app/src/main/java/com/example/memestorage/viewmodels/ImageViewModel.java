@@ -4,6 +4,7 @@ import static android.content.ContentValues.TAG;
 
 import android.app.Application;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.util.Log;
 
@@ -22,6 +23,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -87,6 +89,10 @@ public class ImageViewModel extends AndroidViewModel {
 //    }
     public void uploadImagesCloudinary(List<Uri> imageUris, UploadCallback uploadCallback) {
         imageRepo.uploadImagesCloudinary(imageUris, getApplication().getContentResolver(), uploadCallback);
+    }
+
+    public void uploadReplaceImageCloudinary(Uri imageUri, ImageModel imageModel) {
+        imageRepo.uploadReplaceImageCloudinary(imageUri, imageModel);
     }
 
     public void deleteImageFirebaseStorage(String url) {

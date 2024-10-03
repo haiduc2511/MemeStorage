@@ -32,6 +32,7 @@ import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.cloudinary.Transformation;
 import com.cloudinary.android.MediaManager;
+import com.cloudinary.android.callback.UploadCallback;
 import com.cloudinary.utils.ObjectUtils;
 import com.example.memestorage.R;
 import com.example.memestorage.adapters.CategoryAdapter;
@@ -332,8 +333,9 @@ public class ImageFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode == Activity.RESULT_OK && requestCode == UCrop.REQUEST_CROP) {
-            Uri resultUri = UCrop.getOutput(data);  // Get the cropped image URI
+            Uri resultUri = UCrop.getOutput(data);
             binding.ivImage.setImageURI(resultUri);
+            imageViewModel.uploadReplaceImageCloudinary(resultUri, imageModel);
         } else if (resultCode == UCrop.RESULT_ERROR) {
             Throwable cropError = UCrop.getError(data);
             cropError.printStackTrace();
