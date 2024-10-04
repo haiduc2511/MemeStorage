@@ -9,7 +9,8 @@
     <uses-permission
         android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -21,6 +22,12 @@
         android:theme="@style/Theme.MemeStorage"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
+        <activity
+            android:name=".activities.TestDeleteLaterActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.UCropHelperActivity"
+            android:exported="false" />
         <activity
             android:name=".activities.BrowseMemeActivity"
             android:exported="false" />
@@ -54,21 +61,21 @@
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
         <receiver
             android:name=".broadcastreceiver.InternetBroadcastReceiver"
             android:exported="false" />
-        
+
         <provider
-            android:authorities="com.example.memestorage.fileprovider"
             android:name=".contentprovider.MyContentProvider"
+            android:authorities="com.example.memestorage.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true"
             tools:replace="android:authorities">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths"/>
+                android:resource="@xml/file_paths" />
         </provider>
     </application>
 

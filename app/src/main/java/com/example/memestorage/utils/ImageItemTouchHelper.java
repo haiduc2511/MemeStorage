@@ -78,7 +78,7 @@ public class ImageItemTouchHelper extends ItemTouchHelper.SimpleCallback {
         builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                adapter.notifyItemChanged(viewHolder.getAdapterPosition());
+//                adapter.notifyItemChanged(viewHolder.getAdapterPosition());
             }
         });
         AlertDialog dialog = builder.create();

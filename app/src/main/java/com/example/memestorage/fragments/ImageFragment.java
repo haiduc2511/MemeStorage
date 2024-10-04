@@ -13,6 +13,8 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
@@ -38,6 +40,8 @@ import com.cloudinary.android.MediaManager;
 import com.cloudinary.android.callback.UploadCallback;
 import com.cloudinary.utils.ObjectUtils;
 import com.example.memestorage.R;
+import com.example.memestorage.activities.TestDeleteLaterActivity;
+import com.example.memestorage.activities.UCropHelperActivity;
 import com.example.memestorage.adapters.CategoryAdapter;
 import com.example.memestorage.adapters.MainCategoryAdapter;
 import com.example.memestorage.databinding.FragmentImageBinding;
@@ -92,6 +96,7 @@ public class ImageFragment extends Fragment {
     CategoryViewModel categoryViewModel;
     CategoryAdapter categoryAdapter;
     ImageCategoryViewModel imageCategoryViewModel;
+    private ActivityResultLauncher<Intent> activityResultLauncher;
 
     public static ImageFragment newInstance(ImageModel imageModel, Bitmap imageBitmapPreload) {
         ImageFragment fragment = new ImageFragment();
@@ -109,6 +114,7 @@ public class ImageFragment extends Fragment {
             imageModel = getArguments().getParcelable(ARG_IMAGE);
             imageBitmapPreload = getArguments().getParcelable(ARG_PRELOADED_IMAGE);
         }
+        initActivityResult();
     }
 
     @Override
@@ -134,6 +140,46 @@ public class ImageFragment extends Fragment {
         });
 
     }
+
+    private void initActivityResult() {
+        activityResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                        // Get the returned URI from the Intent
+                        Uri returnedUri = result.getData().getParcelableExtra("returnedUri");
+                        // Use the returned URI here
+                    }
+                }
+        );
+    }
+    private void openActivityWithUri() {
+        Intent intent = new Intent(getContext(), TestDeleteLaterActivity.class);
+        startActivity(intent);
+//        Log.d("Check size URI", uri.toString());
+        intent.putExtra("initialUri", "uri.toString()");
+//        activityResultLauncher.launch(intent);
+    }
+
+//    @Override
+//    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//
+//        if (resultCode == Activity.RESULT_OK && requestCode == UCrop.REQUEST_CROP) {
+//            Uri resultUri = UCrop.getOutput(data);
+//            binding.ivImage.setImageURI(resultUri);
+//            binding.btSaveImageAfterEditing.setVisibility(View.VISIBLE);
+//            applyDarkenEffect();
+//            binding.btSaveImageAfterEditing.setOnClickListener(v -> {
+//                imageViewModel.uploadReplaceImageCloudinary(resultUri, imageModel);
+//                removeDarkenEffect();
+//                binding.btSaveImageAfterEditing.setVisibility(View.GONE);
+//            });
+//        } else if (resultCode == UCrop.RESULT_ERROR) {
+//            Throwable cropError = UCrop.getError(data);
+//            cropError.printStackTrace();
+//        }
+//    }
 
     private void initUI() {
 
@@ -208,17 +254,19 @@ public class ImageFragment extends Fragment {
         });
     }
 
-    private Uri bitmapToFileUri(Bitmap bitmap) {
+    private void bitmapToFileUri(Bitmap bitmap) {
+
         try {
-            File file = new File(requireActivity().getCacheDir(), "temp_image.jpg"); // Use your desired file name
+            File file = new File(requireActivity().getCacheDir(), "temp_image2.jpg"); // Use your desired file name
             FileOutputStream out = new FileOutputStream(file);
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out); // Compress bitmap to file
             out.flush();
             out.close();
-            return Uri.fromFile(file); // Return the Uri of the saved file
+//            openActivityWithUri(Uri.fromFile(file));
+//            return Uri.fromFile(file); // Return the Uri of the saved file
         } catch (IOException e) {
             e.printStackTrace();
-            return null;
+//            return null;
         }
     }
     @Override
@@ -237,7 +285,7 @@ public class ImageFragment extends Fragment {
         String url = "";
         if (imageModel.iId.length() > 36) {
             url = MediaManager.get().url()
-                    .transformation(new Transformation().quality("2").chain().fetchFormat("auto"))
+                    .transformation(new Transformation().quality("auto").chain().fetchFormat("auto"))
                     .generate(imageModel.imageName);
             Log.d("URL CLOUDINARY", url);
         } else {
@@ -254,19 +302,22 @@ public class ImageFragment extends Fragment {
                         binding.ivEditImage.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                Uri sourceUri = bitmapToFileUri(resource);
-                                Uri destinationUri = Uri.fromFile(new File(requireActivity().getCacheDir(), "cropped_image.jpg"));
+//                                Uri sourceUri = bitmapToFileUri(resource);
+                                openActivityWithUri();
 
-                                UCrop.of(sourceUri, destinationUri)
-                                        .start(requireActivity(), ImageFragment.this);  // 'this' refers to Activity or Fragment
+
+//                                Uri destinationUri = Uri.fromFile(new File(requireActivity().getCacheDir(), "cropped_image.jpg" + System.currentTimeMillis()));
+//                                UCrop.of(sourceUri, destinationUri)
+//                                        .start(getContext(), ImageFragment.this);  // 'this' refers to Activity or Fragment
 
                             }
                         });
-//                        binding.ivDownloadImage.setOnClickListener(v -> {
-//                            downloadImageLikeBuiQuangHuy(resource, imageModel.iId);
-//                            binding.ivDownloadImage.setImageResource(R.drawable.ic_download_done);
-//                        });
-
+                        binding.ivEditImage.setOnLongClickListener(new View.OnLongClickListener() {
+                            @Override
+                            public boolean onLongClick(View v) {
+                                return false;
+                            }
+                        });
                     }
 
                     @Override
@@ -286,6 +337,22 @@ public class ImageFragment extends Fragment {
 //        }
 
     }
+
+    public Bitmap cropCenterBitmap(Bitmap srcBitmap) {
+        // Get the original width and height of the bitmap
+        int width = srcBitmap.getWidth();  // 200
+        int height = srcBitmap.getHeight();  // 1500
+        int newHeight = height;
+        // Ensure the new height is not larger than the original height
+        if (width * 4 < height * 3) {
+            newHeight = width;
+            int yOffset = (height - newHeight) / 2;
+            return Bitmap.createBitmap(srcBitmap, 0, yOffset, width, newHeight);
+        } else {
+            return srcBitmap;
+        }
+    }
+
 
     private void downloadImageLikeTinCoder(ImageModel imageModel) {
         String imageUrl = imageModel.imageURL;
@@ -386,25 +453,7 @@ public class ImageFragment extends Fragment {
         }
         return FileProvider.getUriForFile(requireContext(), requireContext().getPackageName() + ".fileprovider", file);
     }
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
 
-        if (resultCode == Activity.RESULT_OK && requestCode == UCrop.REQUEST_CROP) {
-            Uri resultUri = UCrop.getOutput(data);
-            binding.ivImage.setImageURI(resultUri);
-            binding.btSaveImageAfterEditing.setVisibility(View.VISIBLE);
-            applyDarkenEffect();
-            binding.btSaveImageAfterEditing.setOnClickListener(v -> {
-                imageViewModel.uploadReplaceImageCloudinary(resultUri, imageModel);
-                removeDarkenEffect();
-                binding.btSaveImageAfterEditing.setVisibility(View.GONE);
-            });
-        } else if (resultCode == UCrop.RESULT_ERROR) {
-            Throwable cropError = UCrop.getError(data);
-            cropError.printStackTrace();
-        }
-    }
     private void applyDarkenEffect() {
         ColorMatrix colorMatrix = new ColorMatrix();
         colorMatrix.setSaturation(0); // Make it grayscale

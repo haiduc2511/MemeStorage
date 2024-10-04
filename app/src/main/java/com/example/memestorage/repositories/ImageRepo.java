@@ -264,9 +264,11 @@ public class ImageRepo {
 
         deleteImageCloudinary(imageModel);
 
+        String imageId = System.currentTimeMillis() + myUserId;
         imageModel.imageName = imageModel.imageName + "1";
         options.put("format", "jpg");
-        options.put("public_id", imageModel.imageName);  // Name of the image
+        options.put("folder", "meme_storage/images");
+        options.put("public_id", imageId);  // Name of the image
 
         MediaManager.get().upload(imageUri)
                 .unsigned("your_unsigned_preset")
