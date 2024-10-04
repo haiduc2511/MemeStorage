@@ -173,6 +173,13 @@ public class ImageFragment extends Fragment {
 //            binding.ivDownloadImage.setImageResource(R.drawable.ic_download_done);
 //        });
 
+        binding.ivDownloadImage.setOnClickListener(v -> {
+//            downloadImageLikeBuiQuangHuy(imageBitmapPreload, imageModel.iId);
+            downloadImageLikeTinCoder(imageModel);
+            binding.ivDownloadImage.setImageResource(R.drawable.ic_download_done);
+        });
+
+
         binding.ivShareImage.setOnClickListener(v -> {
             binding.ivShareImage.setImageResource(R.drawable.ic_loading3);
             String url = "";
@@ -230,7 +237,7 @@ public class ImageFragment extends Fragment {
         String url = "";
         if (imageModel.iId.length() > 36) {
             url = MediaManager.get().url()
-                    .transformation(new Transformation().quality("auto").chain().fetchFormat("auto"))
+                    .transformation(new Transformation().quality("2").chain().fetchFormat("auto"))
                     .generate(imageModel.imageName);
             Log.d("URL CLOUDINARY", url);
         } else {
@@ -247,21 +254,18 @@ public class ImageFragment extends Fragment {
                         binding.ivEditImage.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                Toast.makeText(requireContext(), "dumaaaa", Toast.LENGTH_SHORT).show();
                                 Uri sourceUri = bitmapToFileUri(resource);
                                 Uri destinationUri = Uri.fromFile(new File(requireActivity().getCacheDir(), "cropped_image.jpg"));
 
                                 UCrop.of(sourceUri, destinationUri)
-//                                        .withAspectRatio(1, 1)  // Optional: set crop aspect ratio
-//                                        .withMaxResultSize(1000, 1000)  // Optional: set max cropped image size
                                         .start(requireActivity(), ImageFragment.this);  // 'this' refers to Activity or Fragment
 
                             }
                         });
-                        binding.ivDownloadImage.setOnClickListener(v -> {
-                            downloadImageLikeBuiQuangHuy(resource, imageModel.iId);
-                            binding.ivDownloadImage.setImageResource(R.drawable.ic_download_done);
-                        });
+//                        binding.ivDownloadImage.setOnClickListener(v -> {
+//                            downloadImageLikeBuiQuangHuy(resource, imageModel.iId);
+//                            binding.ivDownloadImage.setImageResource(R.drawable.ic_download_done);
+//                        });
 
                     }
 
@@ -283,7 +287,9 @@ public class ImageFragment extends Fragment {
 
     }
 
-    private void downloadImageLikeTinCoder(String imageUrl, String iId) {
+    private void downloadImageLikeTinCoder(ImageModel imageModel) {
+        String imageUrl = imageModel.imageURL;
+        String iId = imageModel.iId;
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(imageUrl));
         request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE | DownloadManager.Request.NETWORK_WIFI);
         request.setTitle("Download from meme storage");
@@ -291,7 +297,7 @@ public class ImageFragment extends Fragment {
 
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
         String directoryPath = Environment.DIRECTORY_PICTURES;
-        String filePath =   "MemeStorage/" + System.currentTimeMillis() + "and" + iId + ".jpg";
+        String filePath = "MemeStorage/" + System.currentTimeMillis() + "and" + iId + ".jpg";
 
         request.setDestinationInExternalPublicDir(directoryPath, filePath);
 
@@ -304,7 +310,7 @@ public class ImageFragment extends Fragment {
     private void downloadImageLikeBuiQuangHuy(Bitmap finalBitmap, String iId) {
         String root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString();
 
-        File myDir = new File(root, "MemeStorage");
+        File myDir = new File(Environment.DIRECTORY_PICTURES, "MemeStorage");
 
         if (!myDir.exists()) {
             if (!myDir.mkdirs()) {
@@ -313,7 +319,7 @@ public class ImageFragment extends Fragment {
             }
         }
 
-        String fileName = "MemeStorage_" + System.currentTimeMillis() + "_and_" + iId + ".jpg";
+        String fileName = "Meme_" + System.currentTimeMillis() + "_and_" + iId + ".jpg";
         File file = new File(myDir, fileName);
 
         if (file.exists()) file.delete();
