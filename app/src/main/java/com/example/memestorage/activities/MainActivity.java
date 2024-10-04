@@ -375,9 +375,9 @@ public class MainActivity extends AppCompatActivity {
             public void onProgress(String requestId, long bytes, long totalBytes) {
                 int progress = (int) ((bytes * 100) / totalBytes);
                 Log.d(TAG, "Upload progress for request: " + requestId + " - " + bytes + "/" + totalBytes);
-                if (progress % 30 == 0) {
-                    updateNotification(requestId, progress);
-                }
+//                if (progress % 30 == 0) {
+//                    updateNotification(requestId, progress);
+//                }
             }
 
             @Override

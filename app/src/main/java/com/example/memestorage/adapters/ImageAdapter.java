@@ -47,7 +47,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
     private List<ImageModel> imageModels = new ArrayList<>();
     private Context context;
     private FragmentManager fragmentManager;
-    private Set<ImageModel> imageModelsDownloaded = new HashSet<>();
+//    private Set<ImageModel> imageModelsDownloaded = new HashSet<>(); //Forgot to add ImageModelsShared
     private int numberOfColumn;
     private SharedPrefManager sharedPrefManager;
 
@@ -100,14 +100,26 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
     @Override
     public void onBindViewHolder(@NonNull ImageViewHolder holder, int position) {
         ImageModel data = imageModels.get(position);
+        holder.binding.ivImage.setImageResource(R.drawable.ic_loading2);
 
-        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-        int screenHeight = displayMetrics.heightPixels;
-        int imageHeight = screenHeight / numberOfColumn / 2; // 1/6 of the screen height
+//        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+//        int screenHeight = displayMetrics.heightPixels;
+//        int imageHeight = screenHeight / numberOfColumn / 2; // 1/6 of the screen height
+//
+//        ViewGroup.LayoutParams layoutParams = holder.binding.ivImage.getLayoutParams();
+//        layoutParams.height = imageHeight;
+//        holder.binding.ivImage.setLayoutParams(layoutParams);
 
+        int columnCount = numberOfColumn; // Số cột (3 hoặc 4 tùy bạn)
+        int screenWidth = holder.itemView.getContext().getResources().getDisplayMetrics().widthPixels;
+        int itemWidth = screenWidth / columnCount;
+
+        // Đặt chiều rộng cho item
         ViewGroup.LayoutParams layoutParams = holder.binding.ivImage.getLayoutParams();
-        layoutParams.height = imageHeight;
+        layoutParams.width = itemWidth;
+        layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
         holder.binding.ivImage.setLayoutParams(layoutParams);
+
 
         holder.incrementTimeBound();
         holder.bind(data);
@@ -126,33 +138,33 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
             super(binding.getRoot());
             this.binding = binding;
 
-            binding.ivDownload.setOnClickListener(v -> {
-                int position = getAdapterPosition();
-                if (position != RecyclerView.NO_POSITION) {
-                    ImageModel image = imageModels.get(position);
-                    downloadImageLikeTinCoder(image.imageURL, image.iId);
-                    binding.ivDownload.setImageResource(R.drawable.ic_download_done);
-                    imageModelsDownloaded.add(image);
-                }
-            });
-
-            binding.ivShare.setOnClickListener(v -> {
-                int position = getAdapterPosition();
-                binding.ivShare.setImageResource(R.drawable.ic_loading3);
-                Glide.with(context).asBitmap().load(imageModels.get(position).imageURL)
-                        .into(new CustomTarget<Bitmap>() {
-                            @Override
-                            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                                binding.ivShare.setImageResource(R.drawable.ic_download_done);
-                                shareImageToOtherApps(resource);
-                            }
-
-                            @Override
-                            public void onLoadCleared(@Nullable Drawable placeholder) {
-
-                            }
-                        });
-            });
+//            binding.ivDownload.setOnClickListener(v -> {
+//                int position = getAdapterPosition();
+//                if (position != RecyclerView.NO_POSITION) {
+//                    ImageModel image = imageModels.get(position);
+//                    downloadImageLikeTinCoder(image.imageURL, image.iId);
+//                    binding.ivDownload.setImageResource(R.drawable.ic_download_done);
+//                    imageModelsDownloaded.add(image);
+//                }
+//            });
+//
+//            binding.ivShare.setOnClickListener(v -> {
+//                int position = getAdapterPosition();
+//                binding.ivShare.setImageResource(R.drawable.ic_loading3);
+//                Glide.with(context).asBitmap().load(imageModels.get(position).imageURL)
+//                        .into(new CustomTarget<Bitmap>() {
+//                            @Override
+//                            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+//                                binding.ivShare.setImageResource(R.drawable.ic_download_done);
+//                                shareImageToOtherApps(resource);
+//                            }
+//
+//                            @Override
+//                            public void onLoadCleared(@Nullable Drawable placeholder) {
+//
+//                            }
+//                        });
+//            });
         }
 
         public void incrementTimeBound() {
@@ -177,11 +189,11 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
             loadImageWithGlide(url);
 
             binding.setImageModel(imageModel);
-            if (imageModelsDownloaded.contains(imageModel)) {
-                binding.ivDownload.setImageResource(R.drawable.ic_download_done);
-            } else {
-                binding.ivDownload.setImageResource(R.drawable.ic_download);
-            }
+//            if (imageModelsDownloaded.contains(imageModel)) {
+//                binding.ivDownload.setImageResource(R.drawable.ic_download_done);
+//            } else {
+//                binding.ivDownload.setImageResource(R.drawable.ic_download);
+//            }
         }
 
         public void loadImageWithGlide(String url) {
@@ -197,9 +209,6 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
 
                                 @Override
                                 public void onClick(View v) {
-//                                    imageBitmapPreloaded = ((BitmapDrawable) binding.ivImage.getDrawable()).getBitmap();
-
-//                                    Glide.with(context).load(imageModel.imageURL).preload();
                                     int position = getAdapterPosition();
                                     if (position != RecyclerView.NO_POSITION) {
                                         ImageModel image = imageModels.get(position);

@@ -159,10 +159,16 @@ public class ImageFragment extends Fragment {
 
 
     private void initButtons() {
-        binding.ivDownloadImage.setOnClickListener(v -> {
-            downloadImageLikeTinCoder(imageModel.imageURL, imageModel.iId);
-            binding.ivDownloadImage.setImageResource(R.drawable.ic_download_done);
-        });
+//        binding.ivDownloadImage.setOnClickListener(v -> {
+//            downloadImageLikeTinCoder(imageModel.imageURL, imageModel.iId);
+//            binding.ivDownloadImage.setImageResource(R.drawable.ic_download_done);
+//        });
+//        Toast.makeText(requireContext(), "ready to tai anh", Toast.LENGTH_SHORT).show();
+//        binding.ivDownloadImage.setOnClickListener(v -> {
+//            Toast.makeText(requireContext(), "hello tai anh ", Toast.LENGTH_SHORT).show();
+//            downloadImageLikeBuiQuangHuy(resource, imageModel.iId);
+//            binding.ivDownloadImage.setImageResource(R.drawable.ic_download_done);
+//        });
 
         binding.ivShareImage.setOnClickListener(v -> {
             binding.ivShareImage.setImageResource(R.drawable.ic_loading3);
@@ -182,6 +188,7 @@ public class ImageFragment extends Fragment {
                     public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
                         binding.ivShareImage.setImageResource(R.drawable.ic_download_done);
                         shareImageToOtherApps(resource);
+
                     }
                     @Override
                     public void onLoadCleared(@Nullable Drawable placeholder) {
@@ -248,6 +255,12 @@ public class ImageFragment extends Fragment {
 
                             }
                         });
+                        Toast.makeText(requireContext(), "ready to tai anh", Toast.LENGTH_SHORT).show();
+                        binding.ivDownloadImage.setOnClickListener(v -> {
+                            Toast.makeText(requireContext(), "hello tai anh ", Toast.LENGTH_SHORT).show();
+                            downloadImageLikeBuiQuangHuy(resource, imageModel.iId);
+                            binding.ivDownloadImage.setImageResource(R.drawable.ic_download_done);
+                        });
 
                     }
 
@@ -286,6 +299,44 @@ public class ImageFragment extends Fragment {
             downloadManager.enqueue(request);
         }
     }
+
+    private void downloadImageLikeBuiQuangHuy(Bitmap finalBitmap, String iId) {
+        String root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString();
+
+        File myDir = new File(root, "MemeStorage");
+
+        if (!myDir.exists()) {
+            if (!myDir.mkdirs()) {
+                Log.e("Path Download folder", "Failed to create MemeStorage directory.");
+                return;
+            }
+        }
+
+        String fileName = "MemeStorage_" + System.currentTimeMillis() + "_and_" + iId + ".jpg";
+        File file = new File(myDir, fileName);
+
+        if (file.exists()) file.delete();
+
+        Log.i("Path Download image", file.getAbsolutePath());
+
+        try {
+            FileOutputStream out = new FileOutputStream(file);
+            finalBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            out.flush();
+            out.close();
+
+            Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+            Uri contentUri = Uri.fromFile(file);
+            mediaScanIntent.setData(contentUri);
+            requireContext().sendBroadcast(mediaScanIntent);
+
+            Toast.makeText(requireContext(), "Image saved to Pictures/MemeStorage", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e("Path Download image", "Error saving image: " + e.getMessage());
+        }
+    }
+
     private void shareImageToOtherApps(Bitmap bitmap) {
         Single.<Uri>create(emitter -> {
                     Uri imageUri = saveImageToCache(bitmap);

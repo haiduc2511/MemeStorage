@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.util.Log;
@@ -34,6 +35,9 @@ import com.example.memestorage.viewmodels.CategoryViewModel;
 import com.example.memestorage.viewmodels.ImageCategoryViewModel;
 import com.example.memestorage.viewmodels.ImageViewModel;
 import com.google.android.flexbox.FlexDirection;
+import com.google.android.flexbox.FlexWrap;
+import com.google.android.flexbox.FlexboxLayoutManager;
+import com.google.android.flexbox.JustifyContent;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -124,7 +128,7 @@ public class MainFragment extends Fragment implements ImageUploadListener {
     private void resetIfNumberOfColumnChanges() {
         int numberOfColumn = Integer.parseInt(sharedPrefManager.getNumberOfColumn());
         if (numberOfColumn != imageAdapter.getNumberOfColumn()) {
-            binding.rvImages.setLayoutManager(new GridLayoutManager(requireContext(), numberOfColumn));
+            binding.rvImages.setLayoutManager(new StaggeredGridLayoutManager(numberOfColumn, StaggeredGridLayoutManager.VERTICAL));
             imageAdapter.setNumberOfColumn(numberOfColumn);
             imageAdapter.notifyDataSetChanged();
         }
@@ -177,11 +181,11 @@ public class MainFragment extends Fragment implements ImageUploadListener {
     }
 
     private void initImages() {
-        binding.rvImages.setLayoutManager(new GridLayoutManager(requireContext(), Integer.parseInt(sharedPrefManager.getNumberOfColumn())));
+        binding.rvImages.setLayoutManager(new StaggeredGridLayoutManager(Integer.parseInt(sharedPrefManager.getNumberOfColumn()), StaggeredGridLayoutManager.VERTICAL));
+
         imageAdapter = new ImageAdapter(requireContext(), requireActivity().getSupportFragmentManager(), Integer.parseInt(sharedPrefManager.getNumberOfColumn()));
         binding.rvImages.setAdapter(imageAdapter);
-        binding.rvImages.setFadingEdgeLength(100);
-        binding.rvImages.setHorizontalFadingEdgeEnabled(true);
+
         ImageItemTouchHelper imageItemTouchHelper = new ImageItemTouchHelper(imageAdapter, imageViewModel, imageCategoryViewModel);
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(imageItemTouchHelper);
         itemTouchHelper.attachToRecyclerView(binding.rvImages);
@@ -310,7 +314,7 @@ public class MainFragment extends Fragment implements ImageUploadListener {
                 if (imageModels.isEmpty()) {
                     binding.getRoot().setBackgroundResource(R.drawable.background3);
                 } else {
-                    binding.getRoot().setBackgroundResource(R.drawable.background);
+//                    binding.getRoot().setBackgroundResource(R.drawable.background);
                 }
                 for (ImageModel imageModel : imageModels) {
                     Log.d("receiving Images", imageModel.imageURL);
