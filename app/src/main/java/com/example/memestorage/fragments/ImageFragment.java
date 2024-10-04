@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -24,6 +26,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.ablanco.zoomy.Zoomy;
@@ -255,9 +258,7 @@ public class ImageFragment extends Fragment {
 
                             }
                         });
-                        Toast.makeText(requireContext(), "ready to tai anh", Toast.LENGTH_SHORT).show();
                         binding.ivDownloadImage.setOnClickListener(v -> {
-                            Toast.makeText(requireContext(), "hello tai anh ", Toast.LENGTH_SHORT).show();
                             downloadImageLikeBuiQuangHuy(resource, imageModel.iId);
                             binding.ivDownloadImage.setImageResource(R.drawable.ic_download_done);
                         });
@@ -386,12 +387,31 @@ public class ImageFragment extends Fragment {
         if (resultCode == Activity.RESULT_OK && requestCode == UCrop.REQUEST_CROP) {
             Uri resultUri = UCrop.getOutput(data);
             binding.ivImage.setImageURI(resultUri);
-            imageViewModel.uploadReplaceImageCloudinary(resultUri, imageModel);
+            binding.btSaveImageAfterEditing.setVisibility(View.VISIBLE);
+            applyDarkenEffect();
+            binding.btSaveImageAfterEditing.setOnClickListener(v -> {
+                imageViewModel.uploadReplaceImageCloudinary(resultUri, imageModel);
+                removeDarkenEffect();
+                binding.btSaveImageAfterEditing.setVisibility(View.GONE);
+            });
         } else if (resultCode == UCrop.RESULT_ERROR) {
             Throwable cropError = UCrop.getError(data);
             cropError.printStackTrace();
         }
     }
+    private void applyDarkenEffect() {
+        ColorMatrix colorMatrix = new ColorMatrix();
+        colorMatrix.setSaturation(0); // Make it grayscale
+        colorMatrix.setScale(0.5f, 0.5f, 0.5f, 1.0f); // Reduce brightness
+
+        binding.ivImage.setColorFilter(new ColorMatrixColorFilter(colorMatrix));
+    }
+
+    // Remove the darkening effect from the ImageView
+    private void removeDarkenEffect() {
+        binding.ivImage.clearColorFilter();
+    }
+
     private void updateImageCategories(Set<String> selectedCategories, List<ImageCategoryModel> imageCategoryModels) {
         List<String> unTouchedImageCategories = new ArrayList<>();
         for (ImageCategoryModel imageCategoryModel : imageCategoryModels) {

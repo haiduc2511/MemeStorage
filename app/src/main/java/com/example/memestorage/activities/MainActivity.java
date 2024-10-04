@@ -387,7 +387,8 @@ public class MainActivity extends AppCompatActivity {
 
                 ImageModel imageModel = new ImageModel();
                 String extractedPublicId = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
-                imageModel.iId = extractedPublicId;
+                String extractedPublicIdWithoutExtension = extractedPublicId.substring(0, extractedPublicId.lastIndexOf("."));
+                imageModel.iId = extractedPublicIdWithoutExtension;
                 imageModel.imageName = (String) resultData.get("public_id");
                 imageModel.userId = myUserId;
                 imageModel.imageURL = imageUrl;

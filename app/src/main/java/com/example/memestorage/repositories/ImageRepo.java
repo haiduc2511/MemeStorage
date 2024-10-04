@@ -50,6 +50,7 @@ import com.google.ai.client.generativeai.type.SafetySetting;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -260,9 +261,12 @@ public class ImageRepo {
     public void uploadReplaceImageCloudinary(Uri imageUri, ImageModel imageModel) {
         // Set upload options
         Map<String, Object> options = new HashMap<>();
-//        options.put("folder", "meme_storage/images");
+
+        deleteImageCloudinary(imageModel);
+
+        imageModel.imageName = imageModel.imageName + "1";
+        options.put("format", "jpg");
         options.put("public_id", imageModel.imageName);  // Name of the image
-        options.put("overwrite", true);    // Overwrite if image exists
 
         MediaManager.get().upload(imageUri)
                 .unsigned("your_unsigned_preset")
@@ -282,6 +286,17 @@ public class ImageRepo {
                     public void onSuccess(String requestId, Map resultData) {
                         Log.d(TAG, "Replace progress successful");
 
+
+                        String imageUrl = (String) resultData.get("secure_url");
+                        String imageName = (String) resultData.get("public_id");
+                        imageModel.imageURL = imageUrl;
+                        imageModel.imageName = imageName;
+                        updateImageFirebase(imageModel.iId, imageModel, new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                Log.d("Edit image", "Success editing " + imageModel.toString());
+                            }
+                        });
                     }
 
                     @Override

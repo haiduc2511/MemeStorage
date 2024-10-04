@@ -84,4 +84,8 @@ dependencies {
     implementation ("io.github.imablanco:zoomy:1.0.0")
     implementation ("io.github.ParkSangGwon:tedimagepicker:1.6.1")
     implementation ("com.github.yalantis:ucrop:2.2.8-native")
+
+    implementation("com.google.android.gms:play-services-auth:21.2.0")
+    implementation(platform("com.google.firebase:firebase-bom:33.2.0"))
+
 }
