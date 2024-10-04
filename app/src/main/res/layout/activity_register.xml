@@ -122,14 +122,26 @@
             app:layout_constraintTop_toBottomOf="@+id/et_password_confirm" />
 
         <TextView
+            android:id="@+id/textView6"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:textColor="@color/black"
             android:text="Or Login with"
+            android:textColor="@color/black"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/bt_register" />
+
+        <ImageButton
+            android:id="@+id/ib_register_google"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:scaleType="fitCenter"
+            android:layout_marginTop="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView6"
+            app:srcCompat="@drawable/ic_google_2" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

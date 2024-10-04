@@ -63,6 +63,10 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
 
+        binding.ibRegisterGoogle.setOnClickListener(v -> {
+
+        });
+
     }
     public void createUser() {
         FirebaseUser firebaseUser = auth.getCurrentUser();
