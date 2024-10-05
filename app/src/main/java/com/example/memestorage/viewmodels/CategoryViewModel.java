@@ -77,7 +77,7 @@ public class CategoryViewModel {
     public static String getStringListOfCategoryNames() {
         List<String> stringListOfCategoryNames = new ArrayList<>();
         for (CategoryModel categoryModel : categories) {
-            stringListOfCategoryNames.add(categoryModel.categoryName);
+            stringListOfCategoryNames.add("'" + categoryModel.categoryName + "'");
         }
         return String.join(", ", stringListOfCategoryNames);
     }

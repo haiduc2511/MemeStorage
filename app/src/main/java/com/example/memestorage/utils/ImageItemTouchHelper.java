@@ -60,7 +60,7 @@ public class ImageItemTouchHelper extends ItemTouchHelper.SimpleCallback {
             showEditFragment(position, viewHolder);
         }
 
-        adapter.notifyItemChanged(viewHolder.getBindingAdapterPosition());
+        adapter.notifyItemRangeChanged(position, 1);
     }
 
     private void showDeleteDialog(int position) {

@@ -145,7 +145,7 @@ public class ImageCategoryRepo {
         SafetySetting harassmentSafety = new SafetySetting(HarmCategory.HARASSMENT, BlockThreshold.NONE);
         SafetySetting hateSpeechSafety  = new SafetySetting(HarmCategory.HATE_SPEECH, BlockThreshold.NONE);
         GenerativeModel generativeModel = new GenerativeModel("gemini-1.5-flash",
-                "AIzaSyA1nRy25ETbj9swvGC83kdchtB-9rG3Fks",
+                "AIzaSyBTLd3CSEZFQ41oTviQVIPGlAoc6JojAFQ",
                 null,
                 Arrays.asList(harassmentSafety, hateSpeechSafety));
 
@@ -179,6 +179,7 @@ public class ImageCategoryRepo {
             public void onFailure(Throwable t) {
                 if (t.getMessage().contains("RESOURCE_EXHAUSTED")
                         || t.getMessage().contains("SAFETY")
+                        || t.getMessage().contains("Quota")
                         || t.getMessage().contains("UNAVAILABLE")) {
                     // Exponential backoff retry mechanism
                     long delay = (long) (BASE_DELAY_MS * Math.pow(2, retryCount)); // Exponential backoff
