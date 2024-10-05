@@ -5,6 +5,8 @@ import static android.content.ContentValues.TAG;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -157,6 +159,18 @@ public class EditImageFragment extends Fragment {
             return null;
         }
     }
+    private void applyDarkenEffect() {
+        ColorMatrix colorMatrix = new ColorMatrix();
+        colorMatrix.setSaturation(0); // Make it grayscale
+        colorMatrix.setScale(0.5f, 0.5f, 0.5f, 1.0f); // Reduce brightness
+
+        binding.ivImage.setColorFilter(new ColorMatrixColorFilter(colorMatrix));
+    }
+
+    // Remove the darkening effect from the ImageView
+    private void removeDarkenEffect() {
+        binding.ivImage.clearColorFilter();
+    }
 
         @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -166,21 +180,24 @@ public class EditImageFragment extends Fragment {
             Uri resultUri = UCrop.getOutput(data);
             binding.ivImage.setImageURI(resultUri);
             binding.btReplaceOldImageAfterEditing.setOnClickListener(v -> {
-                imageViewModel.uploadReplaceImageCloudinary(resultUri, imageModel, new UploadCallback() {
+                imageViewModel.uploadReplaceImageCloudinary(resultUri, getActivity().getContentResolver(), imageModel, new UploadCallback() {
                     @Override
                     public void onStart(String requestId) {
-
+                        Log.d("Replace progress", "Replace progress starts");
+                        binding.pbImageEditLoading.setVisibility(View.VISIBLE);
                     }
 
                     @Override
                     public void onProgress(String requestId, long bytes, long totalBytes) {
-                        Log.d(TAG, "Replace progress: " + requestId + " - " + bytes + "/" + totalBytes);
+                        Log.d("Replace progress", "Replace progress: " + requestId + " - " + bytes + "/" + totalBytes);
+                        int progress = (int) ((bytes * 100) / totalBytes);
+                        binding.pbImageEditLoading.setProgress(progress, true);
                     }
 
                     @Override
                     public void onSuccess(String requestId, Map resultData) {
-                        Log.d(TAG, "Replace progress successful");
-
+                        Log.d("Replace progress", "Replace progress successful");
+                        binding.pbImageEditLoading.setProgress(100);
 
                         String imageUrl = (String) resultData.get("secure_url");
                         String imageName = (String) resultData.get("public_id");
@@ -190,16 +207,18 @@ public class EditImageFragment extends Fragment {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 Log.d("Edit image", "Success editing " + imageModel.toString());
+                                binding.pbImageEditLoading.setVisibility(View.GONE);
                             }
                         });
                         imageEditListener.onImageEdited();
-                        getActivity().getSupportFragmentManager().popBackStack();
+//                        getActivity().getSupportFragmentManager().popBackStack();
 
                     }
 
                     @Override
                     public void onError(String requestId, ErrorInfo error) {
-                        Log.d(TAG, "Replace progress failed");
+                        Log.d("Replace progress", "Replace progress failed");
+                        binding.pbImageEditLoading.setVisibility(View.GONE);
 
                     }
 
@@ -211,6 +230,7 @@ public class EditImageFragment extends Fragment {
             });
 
             binding.btAddNewImageAfterEditing.setOnClickListener(v -> {
+                binding.pbImageEditLoading.setProgress(binding.pbImageEditLoading.getProgress() + 9, true);
 
             });
         } else if (resultCode == UCrop.RESULT_ERROR) {

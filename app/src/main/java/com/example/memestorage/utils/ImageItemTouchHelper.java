@@ -57,7 +57,6 @@ public class ImageItemTouchHelper extends ItemTouchHelper.SimpleCallback {
             showEditFragment(position, viewHolder);
         }
 
-
         adapter.notifyItemChanged(viewHolder.getBindingAdapterPosition());
     }
 
@@ -70,7 +69,7 @@ public class ImageItemTouchHelper extends ItemTouchHelper.SimpleCallback {
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        String imageId = imageViewModel.getImages().get(position).iId;
+                        String imageId = adapter.getImageAt(position).iId;
                         imageCategoryViewModel.deleteImageCategoryByImageIdFirebase(imageId);
                         imageViewModel.deleteImageFirebase(imageId, new OnCompleteListener<Void>() {
                             @Override
@@ -105,7 +104,7 @@ public class ImageItemTouchHelper extends ItemTouchHelper.SimpleCallback {
         public void onImageEdited();
     }
     private void showEditFragment(int position, RecyclerView.ViewHolder viewHolder) {
-        EditImageFragment fragment = EditImageFragment.newInstance(imageViewModel.getImages().get(position));
+        EditImageFragment fragment = EditImageFragment.newInstance(adapter.getImageAt(position));
         fragment.setImageEditListener(new ImageEditListener() {
             @Override
             public void onImageEdited() {

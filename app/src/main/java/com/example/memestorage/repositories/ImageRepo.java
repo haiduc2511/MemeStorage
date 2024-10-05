@@ -258,19 +258,33 @@ public class ImageRepo {
         }
     }
 
-    public void uploadReplaceImageCloudinary(Uri imageUri, ImageModel imageModel, UploadCallback uploadCallback) {
+    public void uploadReplaceImageCloudinary(Uri imageUri, ContentResolver contentResolver, ImageModel imageModel, UploadCallback uploadCallback) {
         // Set upload options
-        Map<String, Object> options = new HashMap<>();
 
         deleteImageCloudinary(imageModel);
 
+        Bitmap bitmap = null;
+        try {
+            bitmap = MediaStore.Images.Media.getBitmap(contentResolver, imageUri);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 99, baos);
+
+        byte[] data = baos.toByteArray();
+
+
         String imageId = System.currentTimeMillis() + myUserId;
 //        imageModel.imageName = imageModel.imageName + "1";
+        Map<String, Object> options = new HashMap<>();
         options.put("format", "jpg");
         options.put("folder", "meme_storage/images");
         options.put("public_id", imageId);  // Name of the image
 
-        MediaManager.get().upload(imageUri)
+        MediaManager.get().upload(data)
                 .unsigned("your_unsigned_preset")
                 .options(options)
                 .callback(uploadCallback)

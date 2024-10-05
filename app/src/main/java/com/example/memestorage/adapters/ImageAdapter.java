@@ -51,6 +51,9 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
         this.fragmentManager = fragmentManager;
         this.sharedPrefManager = new SharedPrefManager(context);
     }
+    public ImageModel getImageAt(int position) {
+        return imageModels.get(position);
+    }
 
     public int getNumberOfColumn() {
         return numberOfColumn;
