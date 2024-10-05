@@ -50,7 +50,7 @@ public class ImageItemTouchHelper extends ItemTouchHelper.SimpleCallback {
 
     @Override
     public void onSwiped(@NonNull final RecyclerView.ViewHolder viewHolder, int direction) {
-        final int position = viewHolder.getAdapterPosition();
+        final int position = viewHolder.getBindingAdapterPosition();
         if (direction == ItemTouchHelper.LEFT) {
             showDeleteDialog(position);
         } else {
@@ -58,7 +58,7 @@ public class ImageItemTouchHelper extends ItemTouchHelper.SimpleCallback {
         }
 
 
-        adapter.notifyItemChanged(viewHolder.getAdapterPosition());
+        adapter.notifyItemChanged(viewHolder.getBindingAdapterPosition());
     }
 
     private void showDeleteDialog(int position) {
@@ -104,11 +104,13 @@ public class ImageItemTouchHelper extends ItemTouchHelper.SimpleCallback {
     public interface ImageEditListener {
         public void onImageEdited();
     }
-    private void  showEditFragment(int position, RecyclerView.ViewHolder viewHolder) {
-        EditImageFragment fragment = EditImageFragment.newInstance(imageViewModel.getImages().get(position), new ImageEditListener() {
+    private void showEditFragment(int position, RecyclerView.ViewHolder viewHolder) {
+        EditImageFragment fragment = EditImageFragment.newInstance(imageViewModel.getImages().get(position));
+        fragment.setImageEditListener(new ImageEditListener() {
             @Override
             public void onImageEdited() {
-                adapter.notifyItemChanged(viewHolder.getAdapterPosition());
+                adapter.notifyItemChanged(position);
+//                adapter.notifyDataSetChanged();
             }
         });
         fragmentManager.beginTransaction()

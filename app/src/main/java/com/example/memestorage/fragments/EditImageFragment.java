@@ -3,9 +3,11 @@ package com.example.memestorage.fragments;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -15,6 +17,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.cloudinary.Transformation;
 import com.cloudinary.android.MediaManager;
 import com.example.memestorage.R;
@@ -48,9 +53,8 @@ public class EditImageFragment extends Fragment {
 
 
     // TODO: Rename and change types and number of parameters
-    public static EditImageFragment newInstance(ImageModel imageModel, ImageItemTouchHelper.ImageEditListener imageEditListener) {
+    public static EditImageFragment newInstance(ImageModel imageModel) {
         EditImageFragment fragment = new EditImageFragment();
-        fragment.setImageEditListener(imageEditListener);
         Bundle args = new Bundle();
         args.putParcelable(ARG_IMAGE, imageModel);
         fragment.setArguments(args);
@@ -71,29 +75,6 @@ public class EditImageFragment extends Fragment {
         binding = FragmentEditImageBinding.inflate(getLayoutInflater(), container, false);
         imageViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()).create(ImageViewModel.class);
 
-        initUI();
-
-        openUCrop();
-
-        return binding.getRoot();
-    }
-
-    private void initUI() {
-        binding.flOutside.setOnClickListener(v -> {
-            getActivity().getSupportFragmentManager().popBackStack();
-        });
-        binding.cvInside.setOnClickListener(v -> {
-
-        });
-
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-    }
-
-    private void openUCrop() {
         String url = "";
         if (imageModel.iId.length() > 36) {
             url = MediaManager.get().url()
@@ -105,6 +86,46 @@ public class EditImageFragment extends Fragment {
             Log.d("URL FireStore", url);
         }
 
+
+        initUI();
+        setImage(url);
+        openUCrop(url);
+
+        return binding.getRoot();
+    }
+
+    private void initUI() {
+        binding.flOutside.setOnClickListener(v -> {
+            getActivity().getSupportFragmentManager().popBackStack();
+        });
+        binding.cvInside.setOnClickListener(v -> {
+
+        });
+    }
+
+    private void setImage(String url) {
+        Glide.with(this).asBitmap().load(url)
+//                .placeholder(new BitmapDrawable(getResources(), imageBitmapPreload)).into(binding.ivImage);
+                .into(new CustomTarget<Bitmap>() {
+                    @Override
+                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                        binding.ivImage.setImageBitmap(resource);
+                    }
+
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
+
+                    }
+                });
+
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+    }
+
+    private void openUCrop(String url) {
         Uri sourceUri = Uri.parse(url);
 
         Uri destinationUri = Uri.fromFile(new File(requireActivity().getCacheDir(), "cropped_image.jpg" + System.currentTimeMillis()));
@@ -140,11 +161,16 @@ public class EditImageFragment extends Fragment {
             binding.btReplaceOldImageAfterEditing.setOnClickListener(v -> {
                 imageViewModel.uploadReplaceImageCloudinary(resultUri, imageModel);
                 imageEditListener.onImageEdited();
+                getActivity().getSupportFragmentManager().popBackStack();
             });
-            getActivity().getSupportFragmentManager().popBackStack();
+
+            binding.btAddNewImageAfterEditing.setOnClickListener(v -> {
+
+            });
         } else if (resultCode == UCrop.RESULT_ERROR) {
             Throwable cropError = UCrop.getError(data);
             cropError.printStackTrace();
+            getActivity().getSupportFragmentManager().popBackStack();
         }
     }
 
