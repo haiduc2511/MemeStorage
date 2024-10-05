@@ -258,7 +258,7 @@ public class ImageRepo {
         }
     }
 
-    public void uploadReplaceImageCloudinary(Uri imageUri, ImageModel imageModel) {
+    public void uploadReplaceImageCloudinary(Uri imageUri, ImageModel imageModel, UploadCallback uploadCallback) {
         // Set upload options
         Map<String, Object> options = new HashMap<>();
 

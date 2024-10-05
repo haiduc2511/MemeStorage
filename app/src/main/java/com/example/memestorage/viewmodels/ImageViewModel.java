@@ -91,8 +91,8 @@ public class ImageViewModel extends AndroidViewModel {
         imageRepo.uploadImagesCloudinary(imageUris, getApplication().getContentResolver(), uploadCallback);
     }
 
-    public void uploadReplaceImageCloudinary(Uri imageUri, ImageModel imageModel) {
-        imageRepo.uploadReplaceImageCloudinary(imageUri, imageModel);
+    public void uploadReplaceImageCloudinary(Uri imageUri, ImageModel imageModel, UploadCallback uploadCallback) {
+        imageRepo.uploadReplaceImageCloudinary(imageUri, imageModel, uploadCallback);
     }
 
     public void deleteImageFirebaseStorage(String url) {
