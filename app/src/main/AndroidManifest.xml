@@ -23,12 +23,6 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
-            android:name=".activities.TestDeleteLaterActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activities.UCropHelperActivity"
-            android:exported="false" />
-        <activity
             android:name=".activities.BrowseMemeActivity"
             android:exported="false" />
         <activity

@@ -14,11 +14,14 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.memestorage.R;
 import com.example.memestorage.adapters.ImageAdapter;
+import com.example.memestorage.fragments.EditImageFragment;
+import com.example.memestorage.fragments.ImageFragment;
 import com.example.memestorage.viewmodels.ImageCategoryViewModel;
 import com.example.memestorage.viewmodels.ImageViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -30,12 +33,14 @@ public class ImageItemTouchHelper extends ItemTouchHelper.SimpleCallback {
     private ImageAdapter adapter;
     private ImageViewModel imageViewModel;
     private ImageCategoryViewModel imageCategoryViewModel;
+    private FragmentManager fragmentManager;
 
-    public ImageItemTouchHelper(ImageAdapter adapter, ImageViewModel imageViewModel, ImageCategoryViewModel imageCategoryViewModel) {
+    public ImageItemTouchHelper(ImageAdapter adapter, ImageViewModel imageViewModel, ImageCategoryViewModel imageCategoryViewModel, FragmentManager fragmentManager) {
         super(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
         this.adapter = adapter;
         this.imageViewModel = imageViewModel;
         this.imageCategoryViewModel = imageCategoryViewModel;
+        this.fragmentManager = fragmentManager;
     }
 
     @Override
@@ -46,10 +51,21 @@ public class ImageItemTouchHelper extends ItemTouchHelper.SimpleCallback {
     @Override
     public void onSwiped(@NonNull final RecyclerView.ViewHolder viewHolder, int direction) {
         final int position = viewHolder.getAdapterPosition();
+        if (direction == ItemTouchHelper.LEFT) {
+            showDeleteDialog(position);
+        } else {
+            showEditFragment(position, viewHolder);
+        }
+
+
+        adapter.notifyItemChanged(viewHolder.getAdapterPosition());
+    }
+
+    private void showDeleteDialog(int position) {
         AlertDialog.Builder builder = new AlertDialog.Builder(adapter.getContext());
         builder.setTitle("Delete Image");
         builder.setMessage("Are you sure you want to delete " +
-                 " ?");
+                " ?");
         builder.setPositiveButton("Confirm",
                 new DialogInterface.OnClickListener() {
                     @Override
@@ -78,13 +94,28 @@ public class ImageItemTouchHelper extends ItemTouchHelper.SimpleCallback {
         builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-//                adapter.notifyItemChanged(viewHolder.getAdapterPosition());
+
             }
         });
         AlertDialog dialog = builder.create();
         dialog.show();
 
-        adapter.notifyItemChanged(viewHolder.getAdapterPosition());
+    }
+    public interface ImageEditListener {
+        public void onImageEdited();
+    }
+    private void  showEditFragment(int position, RecyclerView.ViewHolder viewHolder) {
+        EditImageFragment fragment = EditImageFragment.newInstance(imageViewModel.getImages().get(position), new ImageEditListener() {
+            @Override
+            public void onImageEdited() {
+                adapter.notifyItemChanged(viewHolder.getAdapterPosition());
+            }
+        });
+        fragmentManager.beginTransaction()
+                .replace(R.id.fragment_image, fragment)
+                .addToBackStack(null)
+                .commit();
+
     }
 
     @Override
@@ -105,7 +136,7 @@ public class ImageItemTouchHelper extends ItemTouchHelper.SimpleCallback {
             icon = ContextCompat.getDrawable(adapter.getContext(), R.drawable.ic_baseline_delete);
 //            background = new ColorDrawable(ContextCompat.getColor(adapter.getContext(), R.color.green));
         } else {
-            icon = ContextCompat.getDrawable(adapter.getContext(), R.drawable.ic_baseline_delete);
+            icon = ContextCompat.getDrawable(adapter.getContext(), R.drawable.ic_baseline_edit);
 //            background = new ColorDrawable(Color.RED);
         }
 
@@ -119,10 +150,10 @@ public class ImageItemTouchHelper extends ItemTouchHelper.SimpleCallback {
         if (dX < -maxSwipeDistance) dX = -maxSwipeDistance;
 
         if (dX > 0) { // Swiping to the right
-            icon = ContextCompat.getDrawable(adapter.getContext(), R.drawable.ic_baseline_delete);
+            icon = ContextCompat.getDrawable(adapter.getContext(), R.drawable.ic_baseline_edit);
             background = new GradientDrawable();
             background.setCornerRadius(40); // Set corner radius in dp
-            background.setColor(Color.RED);
+            background.setColor(Color.GREEN);
         } else if (dX < 0) { // Swiping to the left
             icon = ContextCompat.getDrawable(adapter.getContext(), R.drawable.ic_baseline_delete);
             background = new GradientDrawable();
@@ -134,15 +165,15 @@ public class ImageItemTouchHelper extends ItemTouchHelper.SimpleCallback {
         }
 
         if (dX > 0) { // Swiping to the right
-            int iconLeft = itemView.getLeft() + iconMargin;
-            int iconRight = itemView.getLeft() + iconMargin + icon.getIntrinsicWidth();
+            int iconLeft = itemView.getLeft() ;
+            int iconRight = itemView.getLeft()  + icon.getIntrinsicWidth();
             icon.setBounds(iconLeft, iconTop, iconRight, iconBottom);
 
             background.setBounds(itemView.getLeft(), itemView.getTop(),
                     itemView.getLeft() + ((int) dX) + backgroundCornerOffset, itemView.getBottom());
         } else if (dX < 0) { // Swiping to the left
-            int iconLeft = itemView.getRight() - iconMargin - icon.getIntrinsicWidth();
-            int iconRight = itemView.getRight() - iconMargin;
+            int iconLeft = itemView.getRight() - icon.getIntrinsicWidth();
+            int iconRight = itemView.getRight() ;
             icon.setBounds(iconLeft, iconTop, iconRight, iconBottom);
 
             background.setBounds(itemView.getRight() + ((int) dX) - backgroundCornerOffset,

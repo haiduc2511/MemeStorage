@@ -9,5 +9,14 @@
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
     </style>
 
-    <style name="Theme.MemeStorage" parent="Base.Theme.MemeStorage" />
+    <style name="Theme.MemeStorage" parent="Base.Theme.MemeStorage" >
+
+    </style>
+
+    <style name="DarkButtonStyle" parent="Widget.AppCompat.Button">
+        <item name="android:backgroundTint">@color/black</item> <!-- Background tint -->
+        <item name="android:textColor">@color/white</item>      <!-- Text color -->
+        <item name="android:textSize">20sp</item>              <!-- Text size -->
+    </style>
+
 </resources>

@@ -33,7 +33,6 @@ import com.bumptech.glide.request.transition.Transition;
 import com.cloudinary.Transformation;
 import com.cloudinary.android.MediaManager;
 import com.example.memestorage.R;
-import com.example.memestorage.activities.TestDeleteLaterActivity;
 import com.example.memestorage.adapters.CategoryAdapter;
 import com.example.memestorage.databinding.FragmentImageBinding;
 import com.example.memestorage.models.ImageCategoryModel;
@@ -136,33 +135,6 @@ public class ImageFragment extends Fragment {
                 }
         );
     }
-    private void openActivityWithUri() {
-        Intent intent = new Intent(getContext(), TestDeleteLaterActivity.class);
-        startActivity(intent);
-//        Log.d("Check size URI", uri.toString());
-        intent.putExtra("initialUri", "uri.toString()");
-//        activityResultLauncher.launch(intent);
-    }
-
-//    @Override
-//    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//
-//        if (resultCode == Activity.RESULT_OK && requestCode == UCrop.REQUEST_CROP) {
-//            Uri resultUri = UCrop.getOutput(data);
-//            binding.ivImage.setImageURI(resultUri);
-//            binding.btSaveImageAfterEditing.setVisibility(View.VISIBLE);
-//            applyDarkenEffect();
-//            binding.btSaveImageAfterEditing.setOnClickListener(v -> {
-//                imageViewModel.uploadReplaceImageCloudinary(resultUri, imageModel);
-//                removeDarkenEffect();
-//                binding.btSaveImageAfterEditing.setVisibility(View.GONE);
-//            });
-//        } else if (resultCode == UCrop.RESULT_ERROR) {
-//            Throwable cropError = UCrop.getError(data);
-//            cropError.printStackTrace();
-//        }
-//    }
 
     private void initUI() {
 //        binding.ivImage.setImageBitmap(BitmapPlaceholderUtil.getBitmap());
@@ -288,8 +260,6 @@ public class ImageFragment extends Fragment {
                             @Override
                             public void onClick(View v) {
 //                                Uri sourceUri = bitmapToFileUri(resource);
-                                openActivityWithUri();
-
 
 //                                Uri destinationUri = Uri.fromFile(new File(requireActivity().getCacheDir(), "cropped_image.jpg" + System.currentTimeMillis()));
 //                                UCrop.of(sourceUri, destinationUri)
