@@ -22,6 +22,7 @@ import com.example.memestorage.R;
 import com.example.memestorage.adapters.ImageAdapter;
 import com.example.memestorage.fragments.EditImageFragment;
 import com.example.memestorage.fragments.ImageFragment;
+import com.example.memestorage.fragments.MainFragment;
 import com.example.memestorage.viewmodels.ImageCategoryViewModel;
 import com.example.memestorage.viewmodels.ImageViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -34,13 +35,15 @@ public class ImageItemTouchHelper extends ItemTouchHelper.SimpleCallback {
     private ImageViewModel imageViewModel;
     private ImageCategoryViewModel imageCategoryViewModel;
     private FragmentManager fragmentManager;
+    private MainFragment mainFragment;
 
-    public ImageItemTouchHelper(ImageAdapter adapter, ImageViewModel imageViewModel, ImageCategoryViewModel imageCategoryViewModel, FragmentManager fragmentManager) {
+    public ImageItemTouchHelper(ImageAdapter adapter, ImageViewModel imageViewModel, ImageCategoryViewModel imageCategoryViewModel, FragmentManager fragmentManager, MainFragment mainFragment) {
         super(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
         this.adapter = adapter;
         this.imageViewModel = imageViewModel;
         this.imageCategoryViewModel = imageCategoryViewModel;
         this.fragmentManager = fragmentManager;
+        this.mainFragment = mainFragment;
     }
 
     @Override
@@ -112,6 +115,7 @@ public class ImageItemTouchHelper extends ItemTouchHelper.SimpleCallback {
 //                adapter.notifyDataSetChanged();
             }
         });
+        fragment.setImageUploadListener(mainFragment);
         fragmentManager.beginTransaction()
                 .replace(R.id.fragment_image, fragment)
                 .addToBackStack(null)

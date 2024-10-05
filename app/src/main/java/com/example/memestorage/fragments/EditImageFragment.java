@@ -29,10 +29,13 @@ import com.cloudinary.android.MediaManager;
 import com.cloudinary.android.callback.ErrorInfo;
 import com.cloudinary.android.callback.UploadCallback;
 import com.example.memestorage.R;
+import com.example.memestorage.activities.MainActivity;
 import com.example.memestorage.adapters.ImageAdapter;
 import com.example.memestorage.databinding.FragmentEditImageBinding;
 import com.example.memestorage.models.ImageModel;
+import com.example.memestorage.utils.FirebaseHelper;
 import com.example.memestorage.utils.ImageItemTouchHelper;
+import com.example.memestorage.utils.ImageUploadListener;
 import com.example.memestorage.viewmodels.ImageCategoryViewModel;
 import com.example.memestorage.viewmodels.ImageViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -43,14 +46,25 @@ import com.yalantis.ucrop.UCropActivity;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class EditImageFragment extends Fragment {
     FragmentEditImageBinding binding;
     ImageViewModel imageViewModel;
+    ImageCategoryViewModel imageCategoryViewModel;
     private static final String ARG_IMAGE = "image";
     ImageItemTouchHelper.ImageEditListener imageEditListener;
+    ImageUploadListener imageUploadListener;
     private ImageModel imageModel;
+    String myUserId = Objects.requireNonNull(FirebaseHelper.getInstance().getAuth().getCurrentUser()).getUid();
+
+
+    public void setImageUploadListener(ImageUploadListener imageUploadListener) {
+        this.imageUploadListener = imageUploadListener;
+    }
 
     public void setImageEditListener(ImageItemTouchHelper.ImageEditListener imageEditListener) {
         this.imageEditListener = imageEditListener;
@@ -83,6 +97,7 @@ public class EditImageFragment extends Fragment {
                              Bundle savedInstanceState) {
         binding = FragmentEditImageBinding.inflate(getLayoutInflater(), container, false);
         imageViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()).create(ImageViewModel.class);
+        imageCategoryViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()).create(ImageCategoryViewModel.class);
 
         String url = "";
         if (imageModel.iId.length() > 36) {
@@ -98,7 +113,7 @@ public class EditImageFragment extends Fragment {
 
         initUI();
         setImage(url);
-        openUCrop(url);
+//        openUCrop(url);
 
         return binding.getRoot();
     }
@@ -113,19 +128,20 @@ public class EditImageFragment extends Fragment {
     }
 
     private void setImage(String url) {
-//        Glide.with(this).asBitmap().load(url)
-////                .placeholder(new BitmapDrawable(getResources(), imageBitmapPreload)).into(binding.ivImage);
-//                .into(new CustomTarget<Bitmap>() {
-//                    @Override
-//                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-//                        binding.ivImage.setImageBitmap(resource);
-//                    }
-//
-//                    @Override
-//                    public void onLoadCleared(@Nullable Drawable placeholder) {
-//
-//                    }
-//                });
+        Glide.with(this).asBitmap().load(url)
+//                .placeholder(new BitmapDrawable(getResources(), imageBitmapPreload)).into(binding.ivImage);
+                .into(new CustomTarget<Bitmap>() {
+                    @Override
+                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                        binding.ivImage.setImageBitmap(resource);
+                        openUCrop(bitmapToFileUri(resource));
+                    }
+
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
+
+                    }
+                });
 
     }
 
@@ -134,9 +150,8 @@ public class EditImageFragment extends Fragment {
         super.onStop();
     }
 
-    private void openUCrop(String url) {
-        Uri sourceUri = Uri.parse(url);
-
+    private void openUCrop(Uri uri) {
+        Uri sourceUri = uri;
         Uri destinationUri = Uri.fromFile(new File(requireActivity().getCacheDir(), "cropped_image.jpg" + System.currentTimeMillis()));
         UCrop.of(sourceUri, destinationUri)
                 .start(getContext(), EditImageFragment.this);  // 'this' refers to Activity or Fragment
@@ -185,6 +200,7 @@ public class EditImageFragment extends Fragment {
                     public void onStart(String requestId) {
                         Log.d("Replace progress", "Replace progress starts");
                         binding.pbImageEditLoading.setVisibility(View.VISIBLE);
+                        applyDarkenEffect();
                     }
 
                     @Override
@@ -198,6 +214,7 @@ public class EditImageFragment extends Fragment {
                     public void onSuccess(String requestId, Map resultData) {
                         Log.d("Replace progress", "Replace progress successful");
                         binding.pbImageEditLoading.setProgress(100);
+                        removeDarkenEffect();
 
                         String imageUrl = (String) resultData.get("secure_url");
                         String imageName = (String) resultData.get("public_id");
@@ -219,6 +236,7 @@ public class EditImageFragment extends Fragment {
                     public void onError(String requestId, ErrorInfo error) {
                         Log.d("Replace progress", "Replace progress failed");
                         binding.pbImageEditLoading.setVisibility(View.GONE);
+                        removeDarkenEffect();
 
                     }
 
@@ -230,8 +248,85 @@ public class EditImageFragment extends Fragment {
             });
 
             binding.btAddNewImageAfterEditing.setOnClickListener(v -> {
-                binding.pbImageEditLoading.setProgress(binding.pbImageEditLoading.getProgress() + 9, true);
+                List<Uri> uriList = new ArrayList<>();
+                uriList.add(resultUri);
+                imageViewModel.uploadImagesCloudinary(uriList, new UploadCallback() {
+                    @Override
+                    public void onStart(String requestId) {
 
+                        Log.d("Add new image progress", "Add new image progress starts");
+                        binding.pbImageEditLoading.setVisibility(View.VISIBLE);
+                        applyDarkenEffect();
+                        binding.flOutside.setOnClickListener(v -> {
+                        });
+
+                    }
+
+                    @Override
+                    public void onProgress(String requestId, long bytes, long totalBytes) {
+                        Log.d("Add new image progress", "Add new image progress: " + requestId + " - " + bytes + "/" + totalBytes);
+                        int progress = (int) ((bytes * 100) / totalBytes);
+                        binding.pbImageEditLoading.setProgress(progress, true);
+
+                    }
+
+                    @Override
+                    public void onSuccess(String requestId, Map resultData) {
+                        String imageUrl = (String) resultData.get("secure_url");
+                        Log.d("Add new image progress", "Add new image progress successfull Image URL: " + imageUrl);
+                        binding.pbImageEditLoading.setProgress(100);
+                        removeDarkenEffect();
+
+
+
+                        ImageModel imageModel = new ImageModel();
+                        String extractedPublicId = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
+                        String extractedPublicIdWithoutExtension = extractedPublicId.substring(0, extractedPublicId.lastIndexOf("."));
+                        imageModel.iId = extractedPublicIdWithoutExtension;
+                        imageModel.imageName = (String) resultData.get("public_id");
+                        imageModel.userId = myUserId;
+                        imageModel.imageURL = imageUrl;
+                        imageModel = imageViewModel.addImageFirebase(imageModel);
+                        Log.d("Upload cloudinary", "Upload images successful. Download URL: " + imageModel.toString() + " \n" +  imageUrl.toString());
+
+
+                        imageUploadListener.onSuccessUploadingImages(imageModel);
+
+                        String url = MediaManager.get().url()
+                                .transformation(new Transformation().quality("auto").chain().fetchFormat("auto"))
+                                .generate(imageModel.imageName);
+                        ImageModel finalImageModel = imageModel;
+                        Glide.with(EditImageFragment.this).asBitmap().load(url)
+                                .into(new CustomTarget<Bitmap>() {
+                                    @Override
+                                    public void onResourceReady(@NonNull Bitmap bitmap, @Nullable Transition<? super Bitmap> transition) {
+                                        imageCategoryViewModel.getAICategoriesSuggestions(bitmap, finalImageModel, 0);
+                                        Log.d("Image size before giving to Gemini", String.valueOf(bitmap.getAllocationByteCount()));
+                                        binding.flOutside.setOnClickListener(v -> {
+                                            getActivity().getSupportFragmentManager().popBackStack();
+                                        });
+                                    }
+
+                                    @Override
+                                    public void onLoadCleared(@Nullable Drawable placeholder) {
+
+                                    }
+                                });
+                    }
+
+                    @Override
+                    public void onError(String requestId, ErrorInfo error) {
+                        Log.d("Replace progress", "Replace progress failed");
+                        binding.pbImageEditLoading.setVisibility(View.GONE);
+                        removeDarkenEffect();
+
+                    }
+
+                    @Override
+                    public void onReschedule(String requestId, ErrorInfo error) {
+
+                    }
+                });
             });
         } else if (resultCode == UCrop.RESULT_ERROR) {
             Throwable cropError = UCrop.getError(data);

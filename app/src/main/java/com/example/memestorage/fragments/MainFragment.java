@@ -186,7 +186,7 @@ public class MainFragment extends Fragment implements ImageUploadListener {
         imageAdapter = new ImageAdapter(requireContext(), requireActivity().getSupportFragmentManager(), Integer.parseInt(sharedPrefManager.getNumberOfColumn()));
         binding.rvImages.setAdapter(imageAdapter);
 
-        ImageItemTouchHelper imageItemTouchHelper = new ImageItemTouchHelper(imageAdapter, imageViewModel, imageCategoryViewModel, getActivity().getSupportFragmentManager());
+        ImageItemTouchHelper imageItemTouchHelper = new ImageItemTouchHelper(imageAdapter, imageViewModel, imageCategoryViewModel, getActivity().getSupportFragmentManager(), this);
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(imageItemTouchHelper);
         itemTouchHelper.attachToRecyclerView(binding.rvImages);
         binding.rvImages.addOnScrollListener(new RecyclerView.OnScrollListener() {
