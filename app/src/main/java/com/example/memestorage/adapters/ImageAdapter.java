@@ -4,12 +4,9 @@ import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Environment;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,7 +25,6 @@ import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.cloudinary.Transformation;
 import com.cloudinary.android.MediaManager;
-import com.cloudinary.transformation.TextLayer;
 import com.example.memestorage.fragments.ImageFragment;
 import com.example.memestorage.R;
 import com.example.memestorage.databinding.ItemImageBinding;
@@ -39,9 +35,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHolder> {
     private List<ImageModel> imageModels = new ArrayList<>();
@@ -200,6 +194,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
             int thisTimeBound = timeBound;
             binding.ivImage.setImageResource(R.drawable.ic_loading2);
             Glide.with(context).asBitmap().load(url)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .error(Glide.with(context).asBitmap().load(url))
                     .into(new CustomTarget<Bitmap>() {
                         @Override
