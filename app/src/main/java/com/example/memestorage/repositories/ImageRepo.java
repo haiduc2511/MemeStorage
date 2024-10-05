@@ -265,7 +265,7 @@ public class ImageRepo {
         deleteImageCloudinary(imageModel);
 
         String imageId = System.currentTimeMillis() + myUserId;
-        imageModel.imageName = imageModel.imageName + "1";
+//        imageModel.imageName = imageModel.imageName + "1";
         options.put("format", "jpg");
         options.put("folder", "meme_storage/images");
         options.put("public_id", imageId);  // Name of the image
@@ -273,45 +273,7 @@ public class ImageRepo {
         MediaManager.get().upload(imageUri)
                 .unsigned("your_unsigned_preset")
                 .options(options)
-                .callback(new UploadCallback() {
-                    @Override
-                    public void onStart(String requestId) {
-
-                    }
-
-                    @Override
-                    public void onProgress(String requestId, long bytes, long totalBytes) {
-                        Log.d(TAG, "Replace progress: " + requestId + " - " + bytes + "/" + totalBytes);
-                    }
-
-                    @Override
-                    public void onSuccess(String requestId, Map resultData) {
-                        Log.d(TAG, "Replace progress successful");
-
-
-                        String imageUrl = (String) resultData.get("secure_url");
-                        String imageName = (String) resultData.get("public_id");
-                        imageModel.imageURL = imageUrl;
-                        imageModel.imageName = imageName;
-                        updateImageFirebase(imageModel.iId, imageModel, new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                Log.d("Edit image", "Success editing " + imageModel.toString());
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void onError(String requestId, ErrorInfo error) {
-                        Log.d(TAG, "Replace progress failed");
-
-                    }
-
-                    @Override
-                    public void onReschedule(String requestId, ErrorInfo error) {
-
-                    }
-                })
+                .callback(uploadCallback)
                 .dispatch();
 
     }

@@ -1,5 +1,7 @@
 package com.example.memestorage.fragments;
 
+import static android.content.ContentValues.TAG;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -22,6 +24,8 @@ import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.cloudinary.Transformation;
 import com.cloudinary.android.MediaManager;
+import com.cloudinary.android.callback.ErrorInfo;
+import com.cloudinary.android.callback.UploadCallback;
 import com.example.memestorage.R;
 import com.example.memestorage.adapters.ImageAdapter;
 import com.example.memestorage.databinding.FragmentEditImageBinding;
@@ -29,12 +33,15 @@ import com.example.memestorage.models.ImageModel;
 import com.example.memestorage.utils.ImageItemTouchHelper;
 import com.example.memestorage.viewmodels.ImageCategoryViewModel;
 import com.example.memestorage.viewmodels.ImageViewModel;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.yalantis.ucrop.UCrop;
 import com.yalantis.ucrop.UCropActivity;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Map;
 
 public class EditImageFragment extends Fragment {
     FragmentEditImageBinding binding;
@@ -104,19 +111,19 @@ public class EditImageFragment extends Fragment {
     }
 
     private void setImage(String url) {
-        Glide.with(this).asBitmap().load(url)
-//                .placeholder(new BitmapDrawable(getResources(), imageBitmapPreload)).into(binding.ivImage);
-                .into(new CustomTarget<Bitmap>() {
-                    @Override
-                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                        binding.ivImage.setImageBitmap(resource);
-                    }
-
-                    @Override
-                    public void onLoadCleared(@Nullable Drawable placeholder) {
-
-                    }
-                });
+//        Glide.with(this).asBitmap().load(url)
+////                .placeholder(new BitmapDrawable(getResources(), imageBitmapPreload)).into(binding.ivImage);
+//                .into(new CustomTarget<Bitmap>() {
+//                    @Override
+//                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+//                        binding.ivImage.setImageBitmap(resource);
+//                    }
+//
+//                    @Override
+//                    public void onLoadCleared(@Nullable Drawable placeholder) {
+//
+//                    }
+//                });
 
     }
 
@@ -159,9 +166,48 @@ public class EditImageFragment extends Fragment {
             Uri resultUri = UCrop.getOutput(data);
             binding.ivImage.setImageURI(resultUri);
             binding.btReplaceOldImageAfterEditing.setOnClickListener(v -> {
-                imageViewModel.uploadReplaceImageCloudinary(resultUri, imageModel);
-                imageEditListener.onImageEdited();
-                getActivity().getSupportFragmentManager().popBackStack();
+                imageViewModel.uploadReplaceImageCloudinary(resultUri, imageModel, new UploadCallback() {
+                    @Override
+                    public void onStart(String requestId) {
+
+                    }
+
+                    @Override
+                    public void onProgress(String requestId, long bytes, long totalBytes) {
+                        Log.d(TAG, "Replace progress: " + requestId + " - " + bytes + "/" + totalBytes);
+                    }
+
+                    @Override
+                    public void onSuccess(String requestId, Map resultData) {
+                        Log.d(TAG, "Replace progress successful");
+
+
+                        String imageUrl = (String) resultData.get("secure_url");
+                        String imageName = (String) resultData.get("public_id");
+                        imageModel.imageURL = imageUrl;
+                        imageModel.imageName = imageName;
+                        imageViewModel.updateImageFirebase(imageModel.iId, imageModel, new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                Log.d("Edit image", "Success editing " + imageModel.toString());
+                            }
+                        });
+                        imageEditListener.onImageEdited();
+                        getActivity().getSupportFragmentManager().popBackStack();
+
+                    }
+
+                    @Override
+                    public void onError(String requestId, ErrorInfo error) {
+                        Log.d(TAG, "Replace progress failed");
+
+                    }
+
+                    @Override
+                    public void onReschedule(String requestId, ErrorInfo error) {
+
+                    }
+                });
             });
 
             binding.btAddNewImageAfterEditing.setOnClickListener(v -> {
