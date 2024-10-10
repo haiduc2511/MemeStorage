@@ -238,6 +238,9 @@ public class MainFragment extends Fragment implements ImageUploadListener {
         categoryViewModel.getCategoriesFirebase(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.getResult().toObjects(CategoryModel.class).isEmpty()) {
+                    openCategorySuggestFragment();
+                }
                 categoryViewModel.setCategories(task.getResult().toObjects(CategoryModel.class));
             }
         });
@@ -388,6 +391,15 @@ public class MainFragment extends Fragment implements ImageUploadListener {
             }
         });
     }
+
+    private void openCategorySuggestFragment() {
+        CategorySuggestFragment fragment = CategorySuggestFragment.newInstance();
+        requireActivity().getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container_add_suggested_category, fragment)
+                .addToBackStack(null)
+                .commit();
+    }
+
 
 
 
