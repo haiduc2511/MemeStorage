@@ -75,6 +75,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Completable;
@@ -202,7 +203,7 @@ public class ImageRepo {
                     .map(new Function<Uri, byte[]>() {
                         @Override
                         public byte[] apply(Uri imageUri) throws Throwable {
-                            Log.d("Check xem den doan mapping rxjava chua", "check");
+                            Log.d("RxJava", "Check xem den doan mapping rxjava chua");
                             try {
                                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(contentResolver, imageUri);
 
@@ -220,6 +221,16 @@ public class ImageRepo {
                             return new byte[0];
                         }
                     })
+                    .buffer(10) // Group items into batches of 10
+                    .concatMap(new Function<List<byte[]>, Observable<byte[]>>() {
+                        @Override
+                        public Observable<byte[]> apply(List<byte[]> byteBatch) throws Throwable {
+                            // Emit the current batch and then wait for 5 seconds
+                            Log.d("RxJava wait 15 seconds", "RxJava wait 15 seconds " + byteBatch.size());
+                            return Observable.fromIterable(byteBatch)
+                                    .concatWith(Observable.timer(15, TimeUnit.SECONDS).flatMap(ignored -> Observable.empty()));
+                        }
+                    })
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new Observer<byte[]>() {
@@ -230,6 +241,7 @@ public class ImageRepo {
 
                         @Override
                         public void onNext(byte @io.reactivex.rxjava3.annotations.NonNull [] data) {
+                            Log.d("RxJava emits item after 5 seconds", "emits item after 5 seconds successful");
                             String imageId = System.currentTimeMillis() + myUserId;
 
                             Map<String, Object> options = new HashMap<>();
