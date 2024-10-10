@@ -28,6 +28,9 @@ import com.example.memestorage.utils.SharedPrefManager;
 import com.example.memestorage.viewmodels.CategoryViewModel;
 import com.example.memestorage.viewmodels.ImageCategoryViewModel;
 import com.example.memestorage.viewmodels.ImageViewModel;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
@@ -41,6 +44,7 @@ import java.util.List;
 public class AccountFragment extends Fragment {
     FragmentAccountBinding binding;
     FirebaseAuth mAuth = FirebaseHelper.getInstance().getAuth();
+    private GoogleSignInClient mGoogleSignInClient;
     SharedPrefManager sharedPrefManager;
     public AccountFragment() {
         // Required empty public constructor
@@ -65,9 +69,39 @@ public class AccountFragment extends Fragment {
                              Bundle savedInstanceState) {
         binding = FragmentAccountBinding.inflate(getLayoutInflater(), container, false);
         initUI();
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))  // Use your web client ID
+                .requestEmail()
+                .build();
+
+        mGoogleSignInClient = GoogleSignIn.getClient(getActivity(), gso);
+
         return binding.getRoot();
     }
-
+    private void logOut() {
+        CategoryViewModel.resetInstance();
+        mAuth.signOut();
+        if (GoogleSignIn.getLastSignedInAccount(getContext()) != null) {
+            mGoogleSignInClient.signOut().addOnCompleteListener(getActivity(), task -> {
+                if (task.isSuccessful()) {
+                    // Successfully signed out
+                    goBackToStartActivity();
+                } else {
+                    // Sign out failed, show error message
+                    Log.e("LogOutActivity", "Sign-out failed", task.getException());
+                    Toast.makeText(getContext(), "Failed to sign out", Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            goBackToStartActivity();
+        }
+    }
+    private void goBackToStartActivity() {
+        Intent intent = new Intent(requireActivity(), StartActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        requireActivity().finish();
+    }
     private void initUI() {
         initPowerModeToggleGroup();
 //        binding.tvSettingActivityName.setText(mAuth.getUid().toString());
@@ -226,14 +260,7 @@ public class AccountFragment extends Fragment {
         button.setBackgroundTintList(ColorStateList.valueOf(selectedColor));
         button.setTextColor(selectedTextColor);
     }
-    private void logOut() {
-        CategoryViewModel.resetInstance();
-        mAuth.signOut();
-        Intent intent = new Intent(requireActivity(), StartActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        requireActivity().finish();
-    }
+
     private void deleteAccount() {
         ImageCategoryViewModel imageCategoryViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()).create(ImageCategoryViewModel.class);
 

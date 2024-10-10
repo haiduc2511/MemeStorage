@@ -12,7 +12,12 @@
           "package_name": "com.example.memestorage"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "884085049072-8tqiet994tfii1re46hp7gp0odo84mag.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyB4-5CDkFMr7U4a9ikyiXuqprLRmlZQIF8"
@@ -20,7 +25,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "884085049072-8tqiet994tfii1re46hp7gp0odo84mag.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

@@ -393,6 +393,7 @@ public class MainActivity extends AppCompatActivity {
                 imageModel.userId = myUserId;
                 imageModel.imageURL = imageUrl;
                 imageModel = imageViewModel.addImageFirebase(imageModel);
+                //TODO: remember to add callback for gemini suggestions
                 Log.d("Upload cloudinary", "Upload images successful. Download URL: " + imageModel.toString() + " \n" +  imageUrl.toString());
 
                 imageUploadListener.onSuccessUploadingImages(imageModel);
@@ -406,6 +407,8 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onResourceReady(@NonNull Bitmap bitmap, @Nullable Transition<? super Bitmap> transition) {
                                 imageCategoryViewModel.getAICategoriesSuggestions(bitmap, finalImageModel, 0);
+                                //TODO: compress before parsing to GEMINI
+                                //TODO: Suggestion advisory by user fragment before adding
                                 Log.d("Image size before giving to Gemini", String.valueOf(bitmap.getAllocationByteCount()));
                             }
 
