@@ -199,6 +199,7 @@ public class EditImageFragment extends Fragment {
                     @Override
                     public void onStart(String requestId) {
                         Log.d("Replace progress", "Replace progress starts");
+                        binding.pbImageEditLoading.setProgress(0);
                         binding.pbImageEditLoading.setVisibility(View.VISIBLE);
                         applyDarkenEffect();
                     }
@@ -254,6 +255,7 @@ public class EditImageFragment extends Fragment {
                     @Override
                     public void onStart(String requestId) {
 
+                        binding.pbImageEditLoading.setProgress(0);
                         Log.d("Add new image progress", "Add new image progress starts");
                         binding.pbImageEditLoading.setVisibility(View.VISIBLE);
                         applyDarkenEffect();
@@ -276,6 +278,7 @@ public class EditImageFragment extends Fragment {
                         Log.d("Add new image progress", "Add new image progress successfull Image URL: " + imageUrl);
                         binding.pbImageEditLoading.setProgress(100);
                         removeDarkenEffect();
+                        binding.pbImageEditLoading.setVisibility(View.GONE);
 
 
 

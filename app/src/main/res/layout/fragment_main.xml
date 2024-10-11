@@ -57,8 +57,30 @@
                 android:layout_height="0dp" />
 
 
-
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+        <TextView
+            android:id="@+id/tv_click_to_upload"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:text="Click here to upload images"
+            app:layout_constraintBottom_toTopOf="@+id/iv_click_to_upload"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <ImageView
+            android:id="@+id/iv_click_to_upload"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_arrow_click_to_upload_image"
+            android:visibility="gone"
+            android:layout_marginBottom="10dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <FrameLayout
             android:id="@+id/fragment_image"

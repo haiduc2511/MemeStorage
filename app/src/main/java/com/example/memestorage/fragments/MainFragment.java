@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.memestorage.R;
 import com.example.memestorage.activities.MainActivity;
@@ -295,7 +296,12 @@ public class MainFragment extends Fragment implements ImageUploadListener {
                                 imageViewModel.setImages(images);
                                 emitter.onSuccess(images);
                                 if (!images.isEmpty()) {
+                                    binding.ivClickToUpload.setVisibility(View.INVISIBLE);
+                                    binding.tvClickToUpload.setVisibility(View.INVISIBLE);
                                     lastVisible = task.getResult().getDocuments().get(task.getResult().size() - 1);
+                                } else {
+                                    binding.ivClickToUpload.setVisibility(View.VISIBLE);
+                                    binding.tvClickToUpload.setVisibility(View.VISIBLE);
                                 }
                             } else {
                                 emitter.onError(task.getException());
