@@ -104,11 +104,60 @@ public class AccountFragment extends Fragment {
     }
     private void initUI() {
         initPowerModeToggleGroup();
+        initButtonFetchQuality();
+        initButtonNumberOfColumn();
+        initButtonDeleteAccount();
+        initButtonLogOut();
+        initButtonNumberOfImages();
 //        binding.tvSettingActivityName.setText(mAuth.getUid().toString());
 //        binding.tvSettingActivityName.setTextSize(10);
-        binding.btNumberOfImages.setText(sharedPrefManager.getNumberOfImages());
+
+
+
+//        binding.fabBack.setOnClickListener(v -> {
+//            getOnBackPressedDispatcher().onBackPressed();
+//        });
+    }
+
+    private void initButtonNumberOfColumn() {
         binding.btNumberOfColumn.setText(sharedPrefManager.getNumberOfColumn());
-        binding.btFetchQuality.setText(sharedPrefManager.getFetchQuality());
+
+        binding.btNumberOfColumn.setOnClickListener(v -> {
+            NumberPicker numberPicker = new NumberPicker(requireContext());
+            numberPicker.setMinValue(1);
+            numberPicker.setMaxValue(20);
+            numberPicker.setValue(Integer.parseInt(sharedPrefManager.getNumberOfColumn()));
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+            builder.setView(numberPicker);
+            builder.setPositiveButton("OK", (dialog, which) -> {
+                String selectedNumber = String.valueOf(numberPicker.getValue());
+                if (isNumberLessThan20(selectedNumber)) {
+                    binding.btNumberOfColumn.setText(selectedNumber);
+                    sharedPrefManager.saveNumberOfColumn(selectedNumber);
+                } else {
+                    Toast.makeText(requireContext(), "Number of columns not appropriate", Toast.LENGTH_SHORT).show();
+                }
+            });
+            builder.setNegativeButton("Cancel", null);
+            builder.show();
+        });
+
+    }
+    private void initButtonLogOut() {
+        binding.btLogOut.setOnClickListener(v -> {
+            logOut();
+        });
+
+    }
+    private void initButtonDeleteAccount() {
+        binding.btDeleteAccount.setOnClickListener(v -> {
+            showConfirmDeleteAccountDialog();
+        });
+
+    }
+    private void initButtonNumberOfImages() {
+        binding.btNumberOfImages.setText(sharedPrefManager.getNumberOfImages());
 
         binding.btNumberOfImages.setOnClickListener(v -> {
             NumberPicker numberPicker = new NumberPicker(requireContext());
@@ -130,6 +179,10 @@ public class AccountFragment extends Fragment {
             builder.setNegativeButton("Cancel", null);
             builder.show();
         });
+
+    }
+    private void initButtonFetchQuality() {
+        binding.btFetchQuality.setText(sharedPrefManager.getFetchQuality());
 
         binding.btFetchQuality.setOnClickListener(v -> {
             NumberPicker numberPicker = new NumberPicker(requireContext());
@@ -159,39 +212,8 @@ public class AccountFragment extends Fragment {
             builder.show();
         });
 
-        binding.btNumberOfColumn.setOnClickListener(v -> {
-            NumberPicker numberPicker = new NumberPicker(requireContext());
-            numberPicker.setMinValue(1);
-            numberPicker.setMaxValue(20);
-            numberPicker.setValue(Integer.parseInt(sharedPrefManager.getNumberOfColumn()));
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-            builder.setView(numberPicker);
-            builder.setPositiveButton("OK", (dialog, which) -> {
-                String selectedNumber = String.valueOf(numberPicker.getValue());
-                if (isNumberLessThan20(selectedNumber)) {
-                    binding.btNumberOfColumn.setText(selectedNumber);
-                    sharedPrefManager.saveNumberOfColumn(selectedNumber);
-                } else {
-                    Toast.makeText(requireContext(), "Number of columns not appropriate", Toast.LENGTH_SHORT).show();
-                }
-            });
-            builder.setNegativeButton("Cancel", null);
-            builder.show();
-        });
-
-        binding.btLogOut.setOnClickListener(v -> {
-            logOut();
-        });
-
-        binding.btDeleteAccount.setOnClickListener(v -> {
-            showConfirmDeleteAccountDialog();
-        });
-
-//        binding.fabBack.setOnClickListener(v -> {
-//            getOnBackPressedDispatcher().onBackPressed();
-//        });
     }
+
     private void showConfirmDeleteAccountDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         builder.setTitle("Delete Account");
