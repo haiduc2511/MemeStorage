@@ -5,6 +5,7 @@ import static android.content.ContentValues.TAG;
 import android.Manifest;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -81,6 +82,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -216,7 +218,7 @@ public class MainActivity extends AppCompatActivity {
     private void showNetworkStatusBar(String message, int colorResource) {
         binding.linearLayout.setBackgroundColor(getResources().getColor(colorResource));
         binding.tvNetworkStatus.setText(message);
-        networkObservable = Observable.interval(3, TimeUnit.SECONDS)
+        networkObservable = Observable.interval(5, TimeUnit.SECONDS)
                 .takeWhile(new Predicate<Long>() {
                     @Override
                     public boolean test(Long aLong) throws Throwable {
@@ -357,7 +359,9 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onSelected(@NotNull List<? extends Uri> uriList) {
                         List<Uri> uriListConverted = new ArrayList<>(uriList);
-                        uploadImagesToCloudinary(uriListConverted);
+                        for (Uri uri: uriListConverted) {
+                            uploadImageToCloudinary(uri);
+                        }
                     }
                 });
     }
@@ -438,6 +442,113 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+
+    private void uploadImageToCloudinary(Uri uri) {
+        imageViewModel.uploadImageCloudinary(uri, new UploadCallback() {
+            @Override
+            public void onStart(String requestId) {
+                int notificationId = (int) System.currentTimeMillis() + (new Random().nextInt(50));
+                initializeNotification(notificationId, "Uploading Image " + notificationId, requestId);
+                Log.d(TAG, "Upload started for request: " + requestId + " " + notificationId);
+
+            }
+            // Notification hay bi "Upload progress for request" trong khi da upload success roi, day chi la cach tam thoi (neu onProgress de trong thi khong van de gi ca)
+            @Override
+            public void onProgress(String requestId, long bytes, long totalBytes) {
+                int progress = (int) ((bytes * 100) / totalBytes);
+                Log.d(TAG, "Upload progress for request: " + requestId + " - " + bytes + "/" + totalBytes);
+//                if (progress % 30 == 0) {
+//                    updateNotification(requestId, progress);
+//                }
+            }
+
+            @Override
+            public void onSuccess(String requestId, Map resultData) {
+                String imageUrl = (String) resultData.get("secure_url");
+                Log.d(TAG, "Upload successful. Image URL: " + imageUrl);
+
+                ImageModel imageModel = new ImageModel();
+                String extractedPublicId = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
+                String extractedPublicIdWithoutExtension = extractedPublicId.substring(0, extractedPublicId.lastIndexOf("."));
+                imageModel.iId = extractedPublicIdWithoutExtension;
+                imageModel.imageName = (String) resultData.get("public_id");
+                imageModel.userId = myUserId;
+                imageModel.imageURL = imageUrl;
+                imageModel = imageViewModel.addImageFirebase(imageModel);
+                //TODO: remember to add callback for gemini suggestions
+                Log.d("Upload cloudinary", "Upload images successful. Download URL: " + imageModel.toString() + " \n" +  imageUrl.toString());
+
+                imageUploadListener.onSuccessUploadingImages(imageModel);
+
+                String url = MediaManager.get().url()
+                        .transformation(new Transformation().quality("auto").chain().fetchFormat("auto"))
+                        .generate(imageModel.imageName);
+                ImageModel finalImageModel = imageModel;
+                Glide.with(MainActivity.this).asBitmap().load(url)
+                        .error(Glide.with(MainActivity.this).asBitmap())
+                        .into(new CustomTarget<Bitmap>() {
+                            @Override
+                            public void onResourceReady(@NonNull Bitmap bitmap, @Nullable Transition<? super Bitmap> transition) {
+                                imageCategoryViewModel.getAICategoriesSuggestions(bitmap, finalImageModel, 0);
+                                //TODO: compress before parsing to GEMINI
+                                //TODO: Suggestion advisory by user fragment before adding
+                                Log.d("Image size before giving to Gemini", String.valueOf(bitmap.getAllocationByteCount()));
+                            }
+
+                            @Override
+                            public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                                Glide.with(MainActivity.this)
+                                        .asBitmap()
+                                        .load(url)  // Retry loading the same URL
+                                        .into(this);  // Use the same CustomTarget for the reload
+                            }
+
+                            @Override
+                            public void onLoadCleared(@Nullable Drawable placeholder) {
+
+                            }
+                        });
+                successNotification(requestId, "Upload Complete " + requestId);
+
+                notificationMap.remove(requestId);
+
+                deleteImageFromUri(uri);
+            }
+
+            @Override
+            public void onError(String requestId, ErrorInfo error) {
+                // Handle failure: update the notification to show error
+                errorNotification(requestId, "Upload Failed: " + error.getDescription() + ", please don't exit app while uploading");
+
+                // Remove the entry from the map
+                notificationMap.remove(requestId);
+
+            }
+
+            @Override
+            public void onReschedule(String requestId, ErrorInfo error) {
+
+            }
+        });
+    }
+
+
+    private void deleteImageFromUri(Uri uri) {
+        File file = new File(Objects.requireNonNull(uri.getPath()));
+        if (file.exists()) {
+            if (file.delete()) {
+                Log.d("Delete image gallery", uri + " Success");
+                Toast.makeText(this, "File deleted", Toast.LENGTH_SHORT).show();
+            } else {
+                Log.d("Delete image gallery", uri + " Failed");
+                Toast.makeText(this, "Failed to delete file", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            Toast.makeText(this, "File not found", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private void initializeNotification(int notificationId, String title, String requestId) {
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, "upload_channel")
                 .setContentTitle(title)

@@ -269,6 +269,34 @@ public class ImageRepo {
             Log.d(TAG, "No files selected");
         }
     }
+    public void uploadImageCloudinary(Uri imageUri, ContentResolver contentResolver, UploadCallback uploadCallback) {
+        String imageId = System.currentTimeMillis() + myUserId;
+
+        Map<String, Object> options = new HashMap<>();
+        options.put("format", "jpg");
+        options.put("folder", "meme_storage/images");
+        options.put("public_id", imageId);
+
+        MediaManager.get().upload(imageUri)
+                .unsigned("your_unsigned_preset")
+                .options(options)
+                .callback(uploadCallback).dispatch();
+
+    }
+    private void deleteImageFromUri(Uri uri, ContentResolver contentResolver) {
+        try {
+            // Delete the image via ContentResolver
+            int rowsDeleted = contentResolver.delete(uri, null, null);
+            if (rowsDeleted > 0) {
+                Log.d("Delete image gallery", uri.toString() + "Success");
+            } else {
+                Log.d("Delete image gallery", uri.toString() + "Failed");
+            }
+        } catch (SecurityException e) {
+            e.printStackTrace();
+            // Handle security exception (e.g., if the user hasn't granted proper permissions)
+        }
+    }
 
     public void uploadReplaceImageCloudinary(Uri imageUri, ContentResolver contentResolver, ImageModel imageModel, UploadCallback uploadCallback) {
         // Set upload options
