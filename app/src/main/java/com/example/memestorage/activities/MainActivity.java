@@ -482,7 +482,11 @@ public class MainActivity extends AppCompatActivity {
                 imageUploadListener.onSuccessUploadingImages(imageModel);
 
                 String url = MediaManager.get().url()
-                        .transformation(new Transformation().quality("auto").chain().fetchFormat("auto"))
+                        .transformation(new Transformation()
+                                .quality("auto")
+                                .width(Integer.parseInt(sharedPrefManager.getFetchQuality()))
+                                .chain()
+                                .fetchFormat("auto"))
                         .generate(imageModel.imageName);
                 ImageModel finalImageModel = imageModel;
                 Glide.with(MainActivity.this).asBitmap().load(url)
@@ -491,7 +495,6 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onResourceReady(@NonNull Bitmap bitmap, @Nullable Transition<? super Bitmap> transition) {
                                 imageCategoryViewModel.getAICategoriesSuggestions(bitmap, finalImageModel, 0);
-                                //TODO: compress before parsing to GEMINI
                                 //TODO: Suggestion advisory by user fragment before adding
                                 Log.d("Image size before giving to Gemini", String.valueOf(bitmap.getAllocationByteCount()));
                             }
