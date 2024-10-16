@@ -363,18 +363,17 @@ public class MainActivity extends AppCompatActivity {
                 // Permission was granted, perform the action you want to take
                 Log.d("PermissionDelete3", "Permission granted. Proceeding with deletion.");
                 String uriString = uriStackToDelete.pop().toString();
+                Log.d("Delete image gallery", "pop uri " + uriString);
+
                 if (uriString != null) {
                     Uri imageUri = Uri.parse(uriString); // Parse the string back into a URI
-                    Log.d("PermissionDelete2", "Permission granted. Proceeding with deletion.");
+                    Log.d("Delete image gallery", "delete again uri " + uriString + "\n" + uriStackToDelete.toString());
                     deleteImageFromUri(imageUri); // Delete the image using the URI
-                } else {
-                    Log.d("PermissionDelete2", "Permission denied.");
-                    Toast.makeText(this, "2 denied to delete this image.", Toast.LENGTH_SHORT).show();
                 }
             } else {
                 // Permission was denied, handle the case appropriately
-                Log.d("PermissionDelete3", "Permission denied.");
-                Toast.makeText(this, "Permission3 denied to delete this image.", Toast.LENGTH_SHORT).show();
+                Log.d("Permission delete", "Permission denied.");
+                Toast.makeText(this, "Permission denied to delete this image.", Toast.LENGTH_SHORT).show();
             }
         }
 
@@ -571,13 +570,13 @@ public class MainActivity extends AppCompatActivity {
     private void deleteImageFromUri(Uri uri) {
         // Check if the Android version is 10+ (Scoped Storage)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            uriStackToDelete.add(uri);
+            Log.d("Delete image gallery", "add uri " + uri.toString());
 
             try {
                 int deletedRows = getContentResolver().delete(uri, null, null);
                 if (deletedRows > 0) {
                     Log.d("Delete image gallery", uri + " Success");
-                    Toast.makeText(this, "File moved to trash", Toast.LENGTH_SHORT).show(); // On Android 11+, this moves the file to trash
+                    Toast.makeText(this, "Image deleted in phone's gallery", Toast.LENGTH_SHORT).show(); // On Android 11+, this moves the file to trash
                 } else {
                     Log.d("Delete image gallery", uri + " Failed");
                     Toast.makeText(this, "Failed to delete file", Toast.LENGTH_SHORT).show();
@@ -585,13 +584,13 @@ public class MainActivity extends AppCompatActivity {
             } catch (RecoverableSecurityException e) {
                 // Handle the exception by requesting user permission
                 try {
+                    uriStackToDelete.add(uri);
                     startIntentSenderForResult(e.getUserAction().getActionIntent().getIntentSender(),
                             DELETE_PERMISSION_REQUEST, null, 0, 0, 0);
                 } catch (IntentSender.SendIntentException ex) {
                     ex.printStackTrace();
                 }
             } catch (SecurityException e) {
-                //TODO: idk how tf this keep getting called in Android 11+
 //                startIntentSenderForResult(e.getUserAction().getActionIntent().getIntentSender(),
 //                        DELETE_PERMISSION_REQUEST, null, 0, 0, 0);
                 Log.e("Delete image gallery", "Error: " + e.getMessage());
