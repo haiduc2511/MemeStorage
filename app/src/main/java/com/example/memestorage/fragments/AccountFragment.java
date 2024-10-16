@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.NumberPicker;
 import android.widget.Toast;
 
@@ -109,6 +110,7 @@ public class AccountFragment extends Fragment {
         initButtonDeleteAccount();
         initButtonLogOut();
         initButtonNumberOfImages();
+        initSwitchDeleteImageAfterUploading();
 //        binding.tvSettingActivityName.setText(mAuth.getUid().toString());
 //        binding.tvSettingActivityName.setTextSize(10);
 
@@ -117,6 +119,24 @@ public class AccountFragment extends Fragment {
 //        binding.fabBack.setOnClickListener(v -> {
 //            getOnBackPressedDispatcher().onBackPressed();
 //        });
+    }
+
+    private void initSwitchDeleteImageAfterUploading() {
+        if (sharedPrefManager.getIfDeleteImageGalleryAfterUpload().equals("true")) {
+            binding.swDeleteImageAfterUpload.setChecked(true);
+        } else {
+            binding.swDeleteImageAfterUpload.setChecked(false);
+        }
+        binding.swDeleteImageAfterUpload.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    sharedPrefManager.saveIfDeleteImageGalleryAfterUpload("true");
+                } else {
+                    sharedPrefManager.saveIfDeleteImageGalleryAfterUpload("false");
+                }
+            }
+        });
     }
 
     private void initButtonNumberOfColumn() {

@@ -98,4 +98,14 @@ public class SharedPrefManager {
     public void saveIfDeleteImageGalleryAfterUpload(String ifDeleteImageGalleryAfterUpload) {
         this.saveData("If Delete Image Gallery After Upload", ifDeleteImageGalleryAfterUpload);
     }
+
+    public String getIfDoubleCheckAISuggestions() {
+        if (!contains("If Double Check AI's Suggestions")) {
+            return "false";
+        }
+        return this.getData("If Double Check AI's Suggestions");
+    }
+    public void saveIfDoubleCheckAISuggestions(String ifDoubleCheckAISuggestions) {
+        this.saveData("If Double Check AI's Suggestions", ifDoubleCheckAISuggestions);
+    }
 }

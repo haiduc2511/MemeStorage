@@ -98,7 +98,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Power mode: "
+                android:text="Data saving mode: "
                 android:textColor="@color/white"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -178,13 +178,38 @@
                 android:id="@+id/bt_log_out"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
                 android:backgroundTint="@color/red"
                 android:text="Log out"
                 android:textColor="@color/white"
                 app:layout_constraintBottom_toTopOf="@+id/bt_delete_account"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/bt_fetch_quality" />
+                app:layout_constraintTop_toBottomOf="@+id/sw_delete_image_after_upload" />
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/sw_delete_image_after_upload"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Delete image after upload"
+                android:minHeight="48dp"
+                android:textColor="@color/white"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.502"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/sw_double_check_ai_suggestions" />
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/sw_double_check_ai_suggestions"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:text="Double check AI's suggestions"
+                android:textColor="@color/white"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/bt_number_of_images" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
