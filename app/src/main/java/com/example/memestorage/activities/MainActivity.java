@@ -391,83 +391,81 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
     }
-    private void uploadImagesToCloudinary(List<Uri> uriList) {
-        imageViewModel.uploadImagesCloudinary(uriList, new UploadCallback() {
-            @Override
-            public void onStart(String requestId) {
-                int notificationId = (int) System.currentTimeMillis() + (new Random().nextInt(50));
-                initializeNotification(notificationId, "Uploading Image " + notificationId, requestId);
-                Log.d(TAG, "Upload started for request: " + requestId + " " + notificationId);
-
-            }
-            // Notification hay bi "Upload progress for request" trong khi da upload success roi, day chi la cach tam thoi (neu onProgress de trong thi khong van de gi ca)
-            @Override
-            public void onProgress(String requestId, long bytes, long totalBytes) {
-                int progress = (int) ((bytes * 100) / totalBytes);
-                Log.d(TAG, "Upload progress for request: " + requestId + " - " + bytes + "/" + totalBytes);
-//                if (progress % 30 == 0) {
-//                    updateNotification(requestId, progress);
-//                }
-            }
-
-            @Override
-            public void onSuccess(String requestId, Map resultData) {
-                String imageUrl = (String) resultData.get("secure_url");
-                Log.d(TAG, "Upload successful. Image URL: " + imageUrl);
-
-                ImageModel imageModel = new ImageModel();
-                String extractedPublicId = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
-                String extractedPublicIdWithoutExtension = extractedPublicId.substring(0, extractedPublicId.lastIndexOf("."));
-                imageModel.iId = extractedPublicIdWithoutExtension;
-                imageModel.imageName = (String) resultData.get("public_id");
-                imageModel.userId = myUserId;
-                imageModel.imageURL = imageUrl;
-                imageModel = imageViewModel.addImageFirebase(imageModel);
-                //TODO: remember to add callback for gemini suggestions
-                Log.d("Upload cloudinary", "Upload images successful. Download URL: " + imageModel.toString() + " \n" +  imageUrl.toString());
-
-                imageUploadListener.onSuccessUploadingImages(imageModel);
-
-                String url = MediaManager.get().url()
-                        .transformation(new Transformation().quality("auto").chain().fetchFormat("auto"))
-                        .generate(imageModel.imageName);
-                ImageModel finalImageModel = imageModel;
-                Glide.with(MainActivity.this).asBitmap().load(url)
-                        .into(new CustomTarget<Bitmap>() {
-                            @Override
-                            public void onResourceReady(@NonNull Bitmap bitmap, @Nullable Transition<? super Bitmap> transition) {
-                                imageCategoryViewModel.getAICategoriesSuggestions(bitmap, finalImageModel, 0);
-                                //TODO: compress before parsing to GEMINI
-                                //TODO: Suggestion advisory by user fragment before adding
-                                Log.d("Image size before giving to Gemini", String.valueOf(bitmap.getAllocationByteCount()));
-                            }
-
-                            @Override
-                            public void onLoadCleared(@Nullable Drawable placeholder) {
-
-                            }
-                        });
-                successNotification(requestId, "Upload Complete " + requestId);
-
-                notificationMap.remove(requestId);
-            }
-
-            @Override
-            public void onError(String requestId, ErrorInfo error) {
-                // Handle failure: update the notification to show error
-                errorNotification(requestId, "Upload Failed: " + error.getDescription() + ", please don't exit app while uploading");
-
-                // Remove the entry from the map
-                notificationMap.remove(requestId);
-
-            }
-
-            @Override
-            public void onReschedule(String requestId, ErrorInfo error) {
-
-            }
-        });
-    }
+//    private void uploadImagesToCloudinary(List<Uri> uriList) {
+//        imageViewModel.uploadImagesCloudinary(uriList, new UploadCallback() {
+//            @Override
+//            public void onStart(String requestId) {
+//                int notificationId = (int) System.currentTimeMillis() + (new Random().nextInt(50));
+//                initializeNotification(notificationId, "Uploading Image " + notificationId, requestId);
+//                Log.d(TAG, "Upload started for request: " + requestId + " " + notificationId);
+//
+//            }
+//            // Notification hay bi "Upload progress for request" trong khi da upload success roi, day chi la cach tam thoi (neu onProgress de trong thi khong van de gi ca)
+//            @Override
+//            public void onProgress(String requestId, long bytes, long totalBytes) {
+//                int progress = (int) ((bytes * 100) / totalBytes);
+//                Log.d(TAG, "Upload progress for request: " + requestId + " - " + bytes + "/" + totalBytes);
+////                if (progress % 30 == 0) {
+////                    updateNotification(requestId, progress);
+////                }
+//            }
+//
+//            @Override
+//            public void onSuccess(String requestId, Map resultData) {
+//                String imageUrl = (String) resultData.get("secure_url");
+//                Log.d(TAG, "Upload successful. Image URL: " + imageUrl);
+//
+//                ImageModel imageModel = new ImageModel();
+//                String extractedPublicId = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
+//                String extractedPublicIdWithoutExtension = extractedPublicId.substring(0, extractedPublicId.lastIndexOf("."));
+//                imageModel.iId = extractedPublicIdWithoutExtension;
+//                imageModel.imageName = (String) resultData.get("public_id");
+//                imageModel.userId = myUserId;
+//                imageModel.imageURL = imageUrl;
+//                imageModel = imageViewModel.addImageFirebase(imageModel);
+//                Log.d("Upload cloudinary", "Upload images successful. Download URL: " + imageModel.toString() + " \n" +  imageUrl.toString());
+//
+//                imageUploadListener.onSuccessUploadingImages(imageModel);
+//
+//                String url = MediaManager.get().url()
+//                        .transformation(new Transformation().quality("auto").chain().fetchFormat("auto"))
+//                        .generate(imageModel.imageName);
+//                ImageModel finalImageModel = imageModel;
+//                Glide.with(MainActivity.this).asBitmap().load(url)
+//                        .into(new CustomTarget<Bitmap>() {
+//                            @Override
+//                            public void onResourceReady(@NonNull Bitmap bitmap, @Nullable Transition<? super Bitmap> transition) {
+//                                imageCategoryViewModel.getAICategoriesSuggestions(bitmap, finalImageModel, 0);
+//                                //TODO: Suggestion advisory by user fragment before adding
+//                                Log.d("Image size before giving to Gemini", String.valueOf(bitmap.getAllocationByteCount()));
+//                            }
+//
+//                            @Override
+//                            public void onLoadCleared(@Nullable Drawable placeholder) {
+//
+//                            }
+//                        });
+//                successNotification(requestId, "Upload Complete " + requestId);
+//
+//                notificationMap.remove(requestId);
+//            }
+//
+//            @Override
+//            public void onError(String requestId, ErrorInfo error) {
+//                // Handle failure: update the notification to show error
+//                errorNotification(requestId, "Upload Failed: " + error.getDescription() + ", please don't exit app while uploading");
+//
+//                // Remove the entry from the map
+//                notificationMap.remove(requestId);
+//
+//            }
+//
+//            @Override
+//            public void onReschedule(String requestId, ErrorInfo error) {
+//
+//            }
+//        });
+//    }
 
 
     private void uploadImageToCloudinary(Uri uri) {
@@ -542,9 +540,11 @@ public class MainActivity extends AppCompatActivity {
                         });
                 successNotification(requestId, "Upload Complete " + requestId);
 
+                if (sharedPrefManager.getIfDeleteImageGalleryAfterUpload().equals("true")) {
+                    deleteImageFromUri(uri);
+                }
                 notificationMap.remove(requestId);
 
-                deleteImageFromUri(uri);
             }
 
             @Override
