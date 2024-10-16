@@ -5,11 +5,15 @@ import static android.content.ContentValues.TAG;
 import android.Manifest;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.RecoverableSecurityException;
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -17,6 +21,7 @@ import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.util.Pair;
 import android.util.TypedValue;
@@ -90,6 +95,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
+import java.util.Stack;
 import java.util.concurrent.TimeUnit;
 
 import gun0912.tedimagepicker.builder.TedImagePicker;
@@ -324,34 +330,55 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-    private void openFileChooser() {
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        intent.setType("image/*");
-        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-        startActivityForResult(Intent.createChooser(intent, "Select Pictures"), PICK_IMAGES_REQUEST);
-    }
+//    private void openFileChooser() {
+//        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+//        intent.setType("image/*");
+//        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+//        startActivityForResult(Intent.createChooser(intent, "Select Pictures"), PICK_IMAGES_REQUEST);
+//    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == PICK_IMAGES_REQUEST && resultCode == RESULT_OK) {
-            if (data != null) {
-                List<Uri> uriList = new ArrayList<>();
-                if (data.getClipData() != null) { // Multiple images selected
-                    int count = data.getClipData().getItemCount();
-                    for (int i = 0; i < count; i++) {
-                        Uri imageUri = data.getClipData().getItemAt(i).getUri();
-                        Log.d("URI", imageUri.toString());
-                        uriList.add(imageUri);
-                    }
-                } else if (data.getData() != null) { // Single image selected
-                    Uri imageUri = data.getData();
-                    uriList.add(imageUri);
+//        if (requestCode == PICK_IMAGES_REQUEST && resultCode == RESULT_OK) {
+//            if (data != null) {
+//                List<Uri> uriList = new ArrayList<>();
+//                if (data.getClipData() != null) { // Multiple images selected
+//                    int count = data.getClipData().getItemCount();
+//                    for (int i = 0; i < count; i++) {
+//                        Uri imageUri = data.getClipData().getItemAt(i).getUri();
+//                        Log.d("URI", imageUri.toString());
+//                        uriList.add(imageUri);
+//                    }
+//                } else if (data.getData() != null) { // Single image selected
+//                    Uri imageUri = data.getData();
+//                    uriList.add(imageUri);
+//                }
+//                uploadImagesToCloudinary(uriList);
+//            }
+//        }
+        if (requestCode == DELETE_PERMISSION_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                // Permission was granted, perform the action you want to take
+                Log.d("PermissionDelete3", "Permission granted. Proceeding with deletion.");
+                String uriString = uriStackToDelete.pop().toString();
+                if (uriString != null) {
+                    Uri imageUri = Uri.parse(uriString); // Parse the string back into a URI
+                    Log.d("PermissionDelete2", "Permission granted. Proceeding with deletion.");
+                    deleteImageFromUri(imageUri); // Delete the image using the URI
+                } else {
+                    Log.d("PermissionDelete2", "Permission denied.");
+                    Toast.makeText(this, "2 denied to delete this image.", Toast.LENGTH_SHORT).show();
                 }
-                uploadImagesToCloudinary(uriList);
+            } else {
+                // Permission was denied, handle the case appropriately
+                Log.d("PermissionDelete3", "Permission denied.");
+                Toast.makeText(this, "Permission3 denied to delete this image.", Toast.LENGTH_SHORT).show();
             }
         }
+
+
     }
     private void chooseImageFromGalleryWithTedImagePicker() {
         TedImagePicker.with(this)
@@ -456,10 +483,12 @@ public class MainActivity extends AppCompatActivity {
             // Notification hay bi "Upload progress for request" trong khi da upload success roi, day chi la cach tam thoi (neu onProgress de trong thi khong van de gi ca)
             @Override
             public void onProgress(String requestId, long bytes, long totalBytes) {
-                int progress = (int) ((bytes * 100) / totalBytes);
-                Log.d(TAG, "Upload progress for request: " + requestId + " - " + bytes + "/" + totalBytes);
-//                if (progress % 30 == 0) {
-//                    updateNotification(requestId, progress);
+//                int progress = (int) ((bytes * 100) / totalBytes);
+//                Log.d(TAG, "Upload progress for request: " + requestId + " - " + bytes + "/" + totalBytes);
+//                if (totalBytes > 1000000) {
+//                    if (progress % 10 == 0) {
+//                        updateNotification(requestId, progress);
+//                    }
 //                }
             }
 
@@ -498,14 +527,14 @@ public class MainActivity extends AppCompatActivity {
                                 //TODO: Suggestion advisory by user fragment before adding
                                 Log.d("Image size before giving to Gemini", String.valueOf(bitmap.getAllocationByteCount()));
                             }
-
-                            @Override
-                            public void onLoadFailed(@Nullable Drawable errorDrawable) {
-                                Glide.with(MainActivity.this)
-                                        .asBitmap()
-                                        .load(url)  // Retry loading the same URL
-                                        .into(this);  // Use the same CustomTarget for the reload
-                            }
+//
+//                            @Override
+//                            public void onLoadFailed(@Nullable Drawable errorDrawable) {
+//                                Glide.with(MainActivity.this)
+//                                        .asBitmap()
+//                                        .load(url)  // Retry loading the same URL
+//                                        .into(this);  // Use the same CustomTarget for the reload
+//                            }
 
                             @Override
                             public void onLoadCleared(@Nullable Drawable placeholder) {
@@ -536,21 +565,70 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private static final int DELETE_PERMISSION_REQUEST = 1001;
+    private Stack<Uri> uriStackToDelete = new Stack<>();
 
     private void deleteImageFromUri(Uri uri) {
-        File file = new File(Objects.requireNonNull(uri.getPath()));
-        if (file.exists()) {
-            if (file.delete()) {
-                Log.d("Delete image gallery", uri + " Success");
-                Toast.makeText(this, "File deleted", Toast.LENGTH_SHORT).show();
-            } else {
-                Log.d("Delete image gallery", uri + " Failed");
-                Toast.makeText(this, "Failed to delete file", Toast.LENGTH_SHORT).show();
+        // Check if the Android version is 10+ (Scoped Storage)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            uriStackToDelete.add(uri);
+
+            try {
+                int deletedRows = getContentResolver().delete(uri, null, null);
+                if (deletedRows > 0) {
+                    Log.d("Delete image gallery", uri + " Success");
+                    Toast.makeText(this, "File moved to trash", Toast.LENGTH_SHORT).show(); // On Android 11+, this moves the file to trash
+                } else {
+                    Log.d("Delete image gallery", uri + " Failed");
+                    Toast.makeText(this, "Failed to delete file", Toast.LENGTH_SHORT).show();
+                }
+            } catch (RecoverableSecurityException e) {
+                // Handle the exception by requesting user permission
+                try {
+                    startIntentSenderForResult(e.getUserAction().getActionIntent().getIntentSender(),
+                            DELETE_PERMISSION_REQUEST, null, 0, 0, 0);
+                } catch (IntentSender.SendIntentException ex) {
+                    ex.printStackTrace();
+                }
+            } catch (SecurityException e) {
+                //TODO: idk how tf this keep getting called in Android 11+
+//                startIntentSenderForResult(e.getUserAction().getActionIntent().getIntentSender(),
+//                        DELETE_PERMISSION_REQUEST, null, 0, 0, 0);
+                Log.e("Delete image gallery", "Error: " + e.getMessage());
+                Toast.makeText(this, "Permission denied security haha", Toast.LENGTH_SHORT).show();
             }
         } else {
-            Toast.makeText(this, "File not found", Toast.LENGTH_SHORT).show();
+            // For older Android versions, you can still use File.delete()
+            File file = new File(Objects.requireNonNull(uri.getPath()));
+            if (file.exists()) {
+                if (file.delete()) {
+                    Log.d("Delete image gallery", uri + " Success");
+                    Toast.makeText(this, "File deleted", Toast.LENGTH_SHORT).show();
+                } else {
+                    Log.d("Delete image gallery", uri + " Failed");
+                    Toast.makeText(this, "Failed to delete file", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(this, "File not found", Toast.LENGTH_SHORT).show();
+            }
         }
     }
+
+
+//    private void deleteImageFromUri(Uri uri) {
+//        File file = new File(Objects.requireNonNull(uri.getPath()));
+//        if (file.exists()) {
+//            if (file.delete()) {
+//                Log.d("Delete image gallery", uri + " Success");
+//                Toast.makeText(this, "File deleted", Toast.LENGTH_SHORT).show();
+//            } else {
+//                Log.d("Delete image gallery", uri + " Failed");
+//                Toast.makeText(this, "Failed to delete file", Toast.LENGTH_SHORT).show();
+//            }
+//        } else {
+//            Toast.makeText(this, "File not found", Toast.LENGTH_SHORT).show();
+//        }
+//    }
 
     private void initializeNotification(int notificationId, String title, String requestId) {
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, "upload_channel")
@@ -638,6 +716,7 @@ public class MainActivity extends AppCompatActivity {
             notificationMap.remove(requestId);
         }
     }
+
     public interface CategorySearchListener {
         public void onCategorySearchChosen(Set<String> categories);
     }

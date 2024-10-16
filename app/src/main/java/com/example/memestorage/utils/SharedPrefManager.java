@@ -88,4 +88,14 @@ public class SharedPrefManager {
     public void saveFetchQuality(String fetchQuality) {
         this.saveData("Fetch Quality", fetchQuality);
     }
+
+    public String getIfDeleteImageGalleryAfterUpload() {
+        if (!contains("If Delete Image Gallery After Upload")) {
+            return "false";
+        }
+        return this.getData("If Delete Image Gallery After Upload");
+    }
+    public void saveIfDeleteImageGalleryAfterUpload(String ifDeleteImageGalleryAfterUpload) {
+        this.saveData("If Delete Image Gallery After Upload", ifDeleteImageGalleryAfterUpload);
+    }
 }
