@@ -32,7 +32,9 @@ import com.example.memestorage.R;
 import com.example.memestorage.activities.MainActivity;
 import com.example.memestorage.adapters.ImageAdapter;
 import com.example.memestorage.databinding.FragmentEditImageBinding;
+import com.example.memestorage.models.ImageCategoryModel;
 import com.example.memestorage.models.ImageModel;
+import com.example.memestorage.utils.AIImageCategoryResponseListener;
 import com.example.memestorage.utils.FirebaseHelper;
 import com.example.memestorage.utils.ImageItemTouchHelper;
 import com.example.memestorage.utils.ImageUploadListener;
@@ -303,7 +305,12 @@ public class EditImageFragment extends Fragment {
                                 .into(new CustomTarget<Bitmap>() {
                                     @Override
                                     public void onResourceReady(@NonNull Bitmap bitmap, @Nullable Transition<? super Bitmap> transition) {
-                                        imageCategoryViewModel.getAICategoriesSuggestions(bitmap, finalImageModel, 0);
+                                        imageCategoryViewModel.getAICategoriesSuggestions(bitmap, finalImageModel, new AIImageCategoryResponseListener() {
+                                            @Override
+                                            public void onReceiveAIImageCategorySuggestions(List<ImageCategoryModel> imageCategoryModelList, String responseText) {
+
+                                            }
+                                        });
                                         Log.d("Image size before giving to Gemini", String.valueOf(bitmap.getAllocationByteCount()));
                                         binding.flOutside.setOnClickListener(v -> {
                                             getActivity().getSupportFragmentManager().popBackStack();

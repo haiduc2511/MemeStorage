@@ -12,6 +12,8 @@ import com.example.memestorage.models.ImageCategoryModel;
 import com.example.memestorage.models.ImageModel;
 import com.example.memestorage.repositories.ImageCategoryRepo;
 import com.example.memestorage.repositories.ImageRepo;
+import com.example.memestorage.utils.AIImageCategoryResponseListener;
+import com.example.memestorage.utils.SharedPrefManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -70,7 +72,12 @@ public class ImageCategoryViewModel extends AndroidViewModel {
         imageCategoryRepo.deleteImageCategoryByImageIdFirebase(imageId);
     }
 
-    public void getAICategoriesSuggestions(Bitmap bitmap, ImageModel imageModel, int retryCount) {
-        imageCategoryRepo.getAICategoriesSuggestions(bitmap, imageModel, retryCount);
+    public void getAICategoriesSuggestions(Bitmap bitmap, ImageModel imageModel, AIImageCategoryResponseListener responseListener) {
+        SharedPrefManager sharedPrefManager = new SharedPrefManager(getApplication());
+        if (sharedPrefManager.getIfDoubleCheckAISuggestions().equals("true")) {
+            imageCategoryRepo.getAICategoriesSuggestions(bitmap, imageModel, 0, responseListener, true);
+        } else {
+            imageCategoryRepo.getAICategoriesSuggestions(bitmap, imageModel, 0, responseListener, false);
+        }
     }
 }

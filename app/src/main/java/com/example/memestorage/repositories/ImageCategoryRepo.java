@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 
 import com.example.memestorage.activities.MainActivity;
 import com.example.memestorage.models.ImageModel;
+import com.example.memestorage.utils.AIImageCategoryResponseListener;
 import com.example.memestorage.utils.FirebaseHelper;
 import com.example.memestorage.models.ImageCategoryModel;
 import com.example.memestorage.utils.ImageCategoryUtil;
@@ -135,7 +136,7 @@ public class ImageCategoryRepo {
                 });
     }
 
-    public void getAICategoriesSuggestions(Bitmap bitmap, ImageModel imageModel, int retryCount){
+    public void getAICategoriesSuggestions(Bitmap bitmap, ImageModel imageModel, int retryCount, AIImageCategoryResponseListener responseListener, boolean doubleCheckAISuggestions){
         if (retryCount > MAX_RETRIES) {
             Log.d("AI Google response", "Max retries reached. Giving up.");
             return;
@@ -152,7 +153,7 @@ public class ImageCategoryRepo {
         GenerativeModelFutures model = GenerativeModelFutures.from(generativeModel);
         String categoryNames = CategoryViewModel.getStringListOfCategoryNames();
         String text = "i want to categorize this picture, 1 picture can have many categories," +
-                " only choose the categories below, if not, leave it blank, and give me no duplicates\n" +
+                " only choose the categories below, if not, return 'there are no categories that fit this image', and give me no duplicates\n" +
                 categoryNames + "\n" +
                 "with each category separated by a comma";
         Log.d("Gemini Text Sent", text);
@@ -168,8 +169,13 @@ public class ImageCategoryRepo {
                 String responseText = response.getText();
                 if (responseText != null) {
                     Log.d("Gemini response", imageModel.imageURL + "\n" + responseText);
+                    if (doubleCheckAISuggestions) {
+                        responseListener.onReceiveAIImageCategorySuggestions(ImageCategoryUtil
+                                .stringToImageCategoryList(responseText, imageModel), responseText);
+                    } else {
                     addImageCategoryAfterGettingAISuggestion(ImageCategoryUtil
                             .stringToImageCategoryList(responseText, imageModel));
+                    }
                 } else {
                     Log.d("AI Google response", "responseText null");
                 }
@@ -186,7 +192,7 @@ public class ImageCategoryRepo {
                     Log.d("AI Google Failed response", t.getMessage());
                     Log.d("AI Google Failed response", "Retrying in " + delay + "ms...");
                     new Handler(Looper.getMainLooper()).postDelayed(() ->
-                            getAICategoriesSuggestions(bitmap, imageModel, retryCount + 1), delay);
+                            getAICategoriesSuggestions(bitmap, imageModel, retryCount + 1, responseListener, doubleCheckAISuggestions), delay);
                 } else {
                     t.printStackTrace();
                 }

@@ -111,14 +111,33 @@ public class AccountFragment extends Fragment {
         initButtonLogOut();
         initButtonNumberOfImages();
         initSwitchDeleteImageAfterUploading();
-//        binding.tvSettingActivityName.setText(mAuth.getUid().toString());
-//        binding.tvSettingActivityName.setTextSize(10);
+        initSwitchDoubleCheckAISuggestions();
+        binding.tvSettingActivityName.setText(mAuth.getUid().toString());
+        binding.tvSettingActivityName.setTextSize(10);
 
 
 
 //        binding.fabBack.setOnClickListener(v -> {
 //            getOnBackPressedDispatcher().onBackPressed();
 //        });
+    }
+
+    private void initSwitchDoubleCheckAISuggestions() {
+        if (sharedPrefManager.getIfDoubleCheckAISuggestions().equals("true")) {
+            binding.swDoubleCheckAiSuggestions.setChecked(true);
+        } else {
+            binding.swDoubleCheckAiSuggestions.setChecked(false);
+        }
+        binding.swDoubleCheckAiSuggestions.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    sharedPrefManager.saveIfDoubleCheckAISuggestions("true");
+                } else {
+                    sharedPrefManager.saveIfDoubleCheckAISuggestions("false");
+                }
+            }
+        });
     }
 
     private void initSwitchDeleteImageAfterUploading() {

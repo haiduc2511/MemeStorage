@@ -59,10 +59,13 @@ import com.example.memestorage.broadcastreceiver.InternetBroadcastReceiver;
 import com.example.memestorage.broadcastreceiver.NetworkStatusManager;
 import com.example.memestorage.customview.SafeFlexboxLayoutManager;
 import com.example.memestorage.fragments.AccountFragment;
+import com.example.memestorage.fragments.DoubleCheckAISuggestionsFragment;
+import com.example.memestorage.fragments.ImageFragment;
 import com.example.memestorage.fragments.MainFragment;
 import com.example.memestorage.fragments.ManageCategoryFragment;
 import com.example.memestorage.models.CategoryModel;
 import com.example.memestorage.models.ImageCategoryModel;
+import com.example.memestorage.utils.AIImageCategoryResponseListener;
 import com.example.memestorage.utils.ImageItemTouchHelper;
 import com.example.memestorage.utils.FirebaseHelper;
 import com.example.memestorage.adapters.ImageAdapter;
@@ -520,7 +523,12 @@ public class MainActivity extends AppCompatActivity {
                         .into(new CustomTarget<Bitmap>() {
                             @Override
                             public void onResourceReady(@NonNull Bitmap bitmap, @Nullable Transition<? super Bitmap> transition) {
-                                imageCategoryViewModel.getAICategoriesSuggestions(bitmap, finalImageModel, 0);
+                                imageCategoryViewModel.getAICategoriesSuggestions(bitmap, finalImageModel, new AIImageCategoryResponseListener() {
+                                    @Override
+                                    public void onReceiveAIImageCategorySuggestions(List<ImageCategoryModel> imageCategoryModelList, String responseText) {
+                                        openDoubleCheckAISuggestionsFragment(bitmap, imageCategoryModelList, finalImageModel, responseText);
+                                    }
+                                });
                                 //TODO: Suggestion advisory by user fragment before adding
                                 Log.d("Image size before giving to Gemini", String.valueOf(bitmap.getAllocationByteCount()));
                             }
@@ -562,6 +570,15 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    private void openDoubleCheckAISuggestionsFragment(Bitmap image, List<ImageCategoryModel> imageCategoryModelList, ImageModel imageModel, String responseText) {
+        DoubleCheckAISuggestionsFragment fragment = DoubleCheckAISuggestionsFragment.newInstance(image, imageCategoryModelList, imageModel, responseText);
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.fragment_container_double_check_ai_suggestions, fragment)
+                .addToBackStack(null)
+                .commit();
+
     }
 
     private static final int DELETE_PERMISSION_REQUEST = 1001;

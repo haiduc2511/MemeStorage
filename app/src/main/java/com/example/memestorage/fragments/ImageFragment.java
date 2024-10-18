@@ -123,6 +123,7 @@ public class ImageFragment extends Fragment {
 
     }
 
+    //TODO: Xoa may cai edit anh nay
     private void initActivityResult() {
         activityResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -149,6 +150,7 @@ public class ImageFragment extends Fragment {
         initButtons();
         initCategories();
 
+        //TODO: WTF can imageViewModel lam gi =)))
         imageViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()).create(ImageViewModel.class);
         setImage();
     }
@@ -455,6 +457,7 @@ public class ImageFragment extends Fragment {
         for (String unTouchedImageCategory : unTouchedImageCategories) {
             selectedCategories.add(unTouchedImageCategory);
         }
+        //TODO: cái đoạn cuối này để làm gì nhỉ??
 
     }
 
