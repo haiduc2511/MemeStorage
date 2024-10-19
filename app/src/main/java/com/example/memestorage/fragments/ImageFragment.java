@@ -79,11 +79,15 @@ public class ImageFragment extends Fragment {
     CategoryAdapter categoryAdapter;
     ImageCategoryViewModel imageCategoryViewModel;
 
+    public ImageFragment(Bitmap imageBitmapPreload) {
+        this.imageBitmapPreload = imageBitmapPreload;
+    }
+
     public static ImageFragment newInstance(ImageModel imageModel, Bitmap imageBitmapPreload) {
-        ImageFragment fragment = new ImageFragment();
+        ImageFragment fragment = new ImageFragment(imageBitmapPreload);
         Bundle args = new Bundle();
         args.putParcelable(ARG_IMAGE, imageModel);
-        args.putParcelable(ARG_PRELOADED_IMAGE, imageBitmapPreload);
+//        args.putParcelable(ARG_PRELOADED_IMAGE, imageBitmapPreload);
         fragment.setArguments(args);
         return fragment;
     }
@@ -93,7 +97,7 @@ public class ImageFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             imageModel = getArguments().getParcelable(ARG_IMAGE);
-            imageBitmapPreload = getArguments().getParcelable(ARG_PRELOADED_IMAGE);
+//            imageBitmapPreload = getArguments().getParcelable(ARG_PRELOADED_IMAGE);
         }
     }
 

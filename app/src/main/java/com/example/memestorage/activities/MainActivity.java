@@ -368,7 +368,7 @@ public class MainActivity extends AppCompatActivity {
                 String uriString = uriStackToDelete.pop().toString();
                 Log.d("Delete image gallery", "pop uri " + uriString);
 
-                if (uriString != null) {
+                if (!uriString.isEmpty()) {
                     Uri imageUri = Uri.parse(uriString); // Parse the string back into a URI
                     Log.d("Delete image gallery", "delete again uri " + uriString + "\n" + uriStackToDelete.toString());
                     deleteImageFromUri(imageUri); // Delete the image using the URI
@@ -576,8 +576,8 @@ public class MainActivity extends AppCompatActivity {
         DoubleCheckAISuggestionsFragment fragment = DoubleCheckAISuggestionsFragment.newInstance(image, imageCategoryModelList, imageModel, responseText);
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.fragment_container_double_check_ai_suggestions, fragment)
-                .addToBackStack(null)
-                .commit();
+                .addToBackStack(imageModel.iId)
+                .commitAllowingStateLoss();
 
     }
 

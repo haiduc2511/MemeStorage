@@ -59,12 +59,16 @@ public class DoubleCheckAISuggestionsFragment extends Fragment {
         // Required empty public constructor
     }
 
+    public DoubleCheckAISuggestionsFragment(Bitmap imageBitmapPreload) {
+        this.imageBitmapPreload = imageBitmapPreload;
+    }
+
     public static DoubleCheckAISuggestionsFragment newInstance(Bitmap imageBitmapPreload, List<ImageCategoryModel> imageCategoryModelList, ImageModel imageModel, String responseText) {
-        DoubleCheckAISuggestionsFragment fragment = new DoubleCheckAISuggestionsFragment();
+        DoubleCheckAISuggestionsFragment fragment = new DoubleCheckAISuggestionsFragment(imageBitmapPreload);
         Bundle args = new Bundle();
         ArrayList<ImageCategoryModel> imageCategoryModelArrayList = new ArrayList<>(imageCategoryModelList);
         args.putParcelableArrayList(ARG_IMAGE_CATEGORY_SUGGESTION_LIST, imageCategoryModelArrayList);
-        args.putParcelable(ARG_IMAGE_PRELOAD, imageBitmapPreload);
+//        args.putParcelable(ARG_IMAGE_PRELOAD, imageBitmapPreload);
         args.putParcelable(ARG_IMAGE_MODEL, imageModel);
         args.putString(ARG_RESPONSE_TEXT, responseText);
         fragment.setArguments(args);
@@ -75,7 +79,7 @@ public class DoubleCheckAISuggestionsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            imageBitmapPreload = getArguments().getParcelable(ARG_IMAGE_PRELOAD);
+//            imageBitmapPreload = getArguments().getParcelable(ARG_IMAGE_PRELOAD);
             imageModel = getArguments().getParcelable(ARG_IMAGE_MODEL);
             responseText = getArguments().getString(ARG_RESPONSE_TEXT);
             imageCategoryModelList = getArguments().getParcelableArrayList(ARG_IMAGE_CATEGORY_SUGGESTION_LIST);
@@ -105,15 +109,38 @@ public class DoubleCheckAISuggestionsFragment extends Fragment {
         initCategories();
         initTextView();
 
-        setImage();
     }
+
+    @Override
+    public void onResume() {
+        setImage();
+        Log.d("On resume called", "DoubleCheckAISuggestionsFragment");
+//        binding.ivImage.setImageBitmap(imageBitmapPreload);
+        super.onResume();
+    }
+
     @Override
     public void onPause() {
 
-        updateImageCategories();
+        Log.d("On pause called", "DoubleCheckAISuggestionsFragment");
 
         super.onPause();
     }
+
+    @Override
+    public void onStop() {
+        Log.d("On Stop called", "DoubleCheckAISuggestionsFragment");
+        binding.ivImage.setImageBitmap(null);
+        super.onStop();
+    }
+
+    @Override
+    public void onDestroyView() {
+        updateImageCategories();
+        Log.d("On destroy view called", "DoubleCheckAISuggestionsFragment");
+        super.onDestroyView();
+    }
+
     private void updateImageCategories() {
 
 
