@@ -11,6 +11,7 @@
         android:id="@+id/fl_outside"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="#4D000000"
         tools:context=".fragments.ImageFragment">
 
         <androidx.cardview.widget.CardView
@@ -36,7 +37,6 @@
                         android:id="@+id/iv_image"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_margin="15dp"
                         android:adjustViewBounds="true"
                         android:scaleType="fitXY"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -48,7 +48,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
-                        android:layout_marginTop="8dp"
+                        android:layout_marginTop="18dp"
                         android:layout_marginEnd="8dp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"

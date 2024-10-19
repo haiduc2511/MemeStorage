@@ -26,6 +26,7 @@ public class CategoryViewModel {
     private final CategoryRepo categoryRepo;
     private static List<CategoryModel> categories = new ArrayList<>();
     private static Map<String, String> map = new HashMap<>();
+    //HashMap to find id by category's name (use in AI Suggestions), reset everytime add, update or delete category!! -> good
     private static CategoryViewModel categoryViewModel;
     private List<CategoryObserver> categoryObservers = new ArrayList<>();
 
@@ -81,6 +82,7 @@ public class CategoryViewModel {
         }
         return String.join(", ", stringListOfCategoryNames);
     }
+    //Can be optimized by StringBuilder
 
     public List<CategoryModel> getCategories() {
         return categories;

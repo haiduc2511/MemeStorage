@@ -104,14 +104,14 @@ public class ImageItemTouchHelper extends ItemTouchHelper.SimpleCallback {
 
     }
     public interface ImageEditListener {
-        public void onImageEdited();
+        public void onImageEdited(int positionModifiedAfterAdding);
     }
     private void showEditFragment(int position, RecyclerView.ViewHolder viewHolder) {
         EditImageFragment fragment = EditImageFragment.newInstance(adapter.getImageAt(position));
         fragment.setImageEditListener(new ImageEditListener() {
             @Override
-            public void onImageEdited() {
-                adapter.notifyItemChanged(position);
+            public void onImageEdited(int positionModifiedAfterAdding) {
+                adapter.notifyItemChanged(position + positionModifiedAfterAdding);
 //                adapter.notifyDataSetChanged();
             }
         });

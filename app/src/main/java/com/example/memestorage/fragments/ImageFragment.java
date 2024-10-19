@@ -78,7 +78,6 @@ public class ImageFragment extends Fragment {
     CategoryViewModel categoryViewModel;
     CategoryAdapter categoryAdapter;
     ImageCategoryViewModel imageCategoryViewModel;
-    private ActivityResultLauncher<Intent> activityResultLauncher;
 
     public static ImageFragment newInstance(ImageModel imageModel, Bitmap imageBitmapPreload) {
         ImageFragment fragment = new ImageFragment();
@@ -96,7 +95,6 @@ public class ImageFragment extends Fragment {
             imageModel = getArguments().getParcelable(ARG_IMAGE);
             imageBitmapPreload = getArguments().getParcelable(ARG_PRELOADED_IMAGE);
         }
-        initActivityResult();
     }
 
     @Override
@@ -123,19 +121,6 @@ public class ImageFragment extends Fragment {
 
     }
 
-    //TODO: Xoa may cai edit anh nay
-    private void initActivityResult() {
-        activityResultLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-                        // Get the returned URI from the Intent
-                        Uri returnedUri = result.getData().getParcelableExtra("returnedUri");
-                        // Use the returned URI here
-                    }
-                }
-        );
-    }
 
     private void initUI() {
 //        binding.ivImage.setImageBitmap(BitmapPlaceholderUtil.getBitmap());
@@ -213,21 +198,6 @@ public class ImageFragment extends Fragment {
         });
     }
 
-    private void bitmapToFileUri(Bitmap bitmap) {
-
-        try {
-            File file = new File(requireActivity().getCacheDir(), "temp_image2.jpg"); // Use your desired file name
-            FileOutputStream out = new FileOutputStream(file);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out); // Compress bitmap to file
-            out.flush();
-            out.close();
-//            openActivityWithUri(Uri.fromFile(file));
-//            return Uri.fromFile(file); // Return the Uri of the saved file
-        } catch (IOException e) {
-            e.printStackTrace();
-//            return null;
-        }
-    }
     @Override
     public void onPause() {
 
@@ -295,21 +265,6 @@ public class ImageFragment extends Fragment {
 
     }
 
-    public Bitmap cropCenterBitmap(Bitmap srcBitmap) {
-        // Get the original width and height of the bitmap
-        int width = srcBitmap.getWidth();  // 200
-        int height = srcBitmap.getHeight();  // 1500
-        int newHeight = height;
-        // Ensure the new height is not larger than the original height
-        if (width * 4 < height * 3) {
-            newHeight = width;
-            int yOffset = (height - newHeight) / 2;
-            return Bitmap.createBitmap(srcBitmap, 0, yOffset, width, newHeight);
-        } else {
-            return srcBitmap;
-        }
-    }
-
 
     private void downloadImageLikeTinCoder(ImageModel imageModel) {
         String imageUrl = imageModel.imageURL;
@@ -330,43 +285,43 @@ public class ImageFragment extends Fragment {
             downloadManager.enqueue(request);
         }
     }
-
-    private void downloadImageLikeBuiQuangHuy(Bitmap finalBitmap, String iId) {
-        String root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString();
-
-        File myDir = new File(Environment.DIRECTORY_PICTURES, "MemeStorage");
-
-        if (!myDir.exists()) {
-            if (!myDir.mkdirs()) {
-                Log.e("Path Download folder", "Failed to create MemeStorage directory.");
-                return;
-            }
-        }
-
-        String fileName = "Meme_" + System.currentTimeMillis() + "_and_" + iId + ".jpg";
-        File file = new File(myDir, fileName);
-
-        if (file.exists()) file.delete();
-
-        Log.i("Path Download image", file.getAbsolutePath());
-
-        try {
-            FileOutputStream out = new FileOutputStream(file);
-            finalBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-            out.flush();
-            out.close();
-
-            Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-            Uri contentUri = Uri.fromFile(file);
-            mediaScanIntent.setData(contentUri);
-            requireContext().sendBroadcast(mediaScanIntent);
-
-            Toast.makeText(requireContext(), "Image saved to Pictures/MemeStorage", Toast.LENGTH_SHORT).show();
-        } catch (Exception e) {
-            e.printStackTrace();
-            Log.e("Path Download image", "Error saving image: " + e.getMessage());
-        }
-    }
+//
+//    private void downloadImageLikeBuiQuangHuy(Bitmap finalBitmap, String iId) {
+//        String root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString();
+//
+//        File myDir = new File(Environment.DIRECTORY_PICTURES, "MemeStorage");
+//
+//        if (!myDir.exists()) {
+//            if (!myDir.mkdirs()) {
+//                Log.e("Path Download folder", "Failed to create MemeStorage directory.");
+//                return;
+//            }
+//        }
+//
+//        String fileName = "Meme_" + System.currentTimeMillis() + "_and_" + iId + ".jpg";
+//        File file = new File(myDir, fileName);
+//
+//        if (file.exists()) file.delete();
+//
+//        Log.i("Path Download image", file.getAbsolutePath());
+//
+//        try {
+//            FileOutputStream out = new FileOutputStream(file);
+//            finalBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+//            out.flush();
+//            out.close();
+//
+//            Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+//            Uri contentUri = Uri.fromFile(file);
+//            mediaScanIntent.setData(contentUri);
+//            requireContext().sendBroadcast(mediaScanIntent);
+//
+//            Toast.makeText(requireContext(), "Image saved to Pictures/MemeStorage", Toast.LENGTH_SHORT).show();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            Log.e("Path Download image", "Error saving image: " + e.getMessage());
+//        }
+//    }
 
     private void shareImageToOtherApps(Bitmap bitmap) {
         Single.<Uri>create(emitter -> {
@@ -411,18 +366,6 @@ public class ImageFragment extends Fragment {
         return FileProvider.getUriForFile(requireContext(), requireContext().getPackageName() + ".fileprovider", file);
     }
 
-    private void applyDarkenEffect() {
-        ColorMatrix colorMatrix = new ColorMatrix();
-        colorMatrix.setSaturation(0); // Make it grayscale
-        colorMatrix.setScale(0.5f, 0.5f, 0.5f, 1.0f); // Reduce brightness
-
-        binding.ivImage.setColorFilter(new ColorMatrixColorFilter(colorMatrix));
-    }
-
-    // Remove the darkening effect from the ImageView
-    private void removeDarkenEffect() {
-        binding.ivImage.clearColorFilter();
-    }
 
     private void updateImageCategories(Set<String> selectedCategories, List<ImageCategoryModel> imageCategoryModels) {
         List<String> unTouchedImageCategories = new ArrayList<>();
