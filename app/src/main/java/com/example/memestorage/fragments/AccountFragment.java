@@ -112,6 +112,9 @@ public class AccountFragment extends Fragment {
         initButtonNumberOfImages();
         initSwitchDeleteImageAfterUploading();
         initSwitchDoubleCheckAISuggestions();
+        initSwitchDeleteImageEasyMode();
+        initSwitchDownloadImageEasyMode();
+        initSwitchShareImageEasyMode();
         binding.tvSettingActivityName.setText(mAuth.getUid().toString());
         binding.tvSettingActivityName.setTextSize(10);
 
@@ -157,6 +160,62 @@ public class AccountFragment extends Fragment {
             }
         });
     }
+
+    private void initSwitchDeleteImageEasyMode() {
+        if (sharedPrefManager.getIfDeleteImageEasyModeOn().equals("true")) {
+            binding.swDeleteEasy.setChecked(true);
+        } else {
+            binding.swDeleteEasy.setChecked(false);
+        }
+        binding.swDeleteEasy.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    sharedPrefManager.saveIfDeleteImageEasyModeOn("true");
+                } else {
+                    sharedPrefManager.saveIfDeleteImageEasyModeOn("false");
+                }
+            }
+        });
+    }
+
+    private void initSwitchDownloadImageEasyMode() {
+        if (sharedPrefManager.getIfDownloadImageEasyModeOn().equals("true")) {
+            binding.swDownloadEasy.setChecked(true);
+        } else {
+            binding.swDownloadEasy.setChecked(false);
+        }
+        binding.swDownloadEasy.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    sharedPrefManager.saveIfDownloadImageEasyModeOn("true");
+                } else {
+                    sharedPrefManager.saveIfDownloadImageEasyModeOn("false");
+                }
+            }
+        });
+    }
+
+    private void initSwitchShareImageEasyMode() {
+        if (sharedPrefManager.getIfShareImageEasyModeOn().equals("true")) {
+            binding.swShareEasy.setChecked(true);
+        } else {
+            binding.swShareEasy.setChecked(false);
+        }
+        binding.swShareEasy.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    sharedPrefManager.saveIfShareImageEasyModeOn("true");
+                } else {
+                    sharedPrefManager.saveIfShareImageEasyModeOn("false");
+                }
+            }
+        });
+    }
+
+
 
     private void initButtonNumberOfColumn() {
         binding.btNumberOfColumn.setText(sharedPrefManager.getNumberOfColumn());

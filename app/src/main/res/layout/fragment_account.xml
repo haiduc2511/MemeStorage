@@ -167,12 +167,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Delete image after upload"
                 android:minHeight="48dp"
+                android:text="Delete image in gallery after upload"
                 android:textColor="@color/white"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toEndOf="@+id/sw_double_check_ai_suggestions"
                 app:layout_constraintHorizontal_bias="0.502"
-                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/sw_double_check_ai_suggestions" />
 
             <androidx.appcompat.widget.SwitchCompat
@@ -192,10 +191,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:minHeight="48dp"
-                android:textColor="@color/white"
                 android:text="Delete image easy mode"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
+                android:textColor="@color/white"
+                app:layout_constraintEnd_toEndOf="@+id/sw_double_check_ai_suggestions"
                 app:layout_constraintTop_toBottomOf="@+id/sw_delete_image_after_upload" />
 
             <androidx.appcompat.widget.SwitchCompat
@@ -204,10 +202,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:minHeight="48dp"
-                android:textColor="@color/white"
                 android:text="Download image easy mode"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
+                android:textColor="@color/white"
+                app:layout_constraintEnd_toEndOf="@+id/sw_double_check_ai_suggestions"
                 app:layout_constraintTop_toBottomOf="@+id/sw_delete_easy" />
 
             <androidx.appcompat.widget.SwitchCompat
@@ -216,10 +213,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:minHeight="48dp"
-                android:textColor="@color/white"
                 android:text="Share image easy mode"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
+                android:textColor="@color/white"
+                app:layout_constraintEnd_toEndOf="@+id/sw_double_check_ai_suggestions"
                 app:layout_constraintTop_toBottomOf="@+id/sw_download_easy" />
 
             <Button
@@ -227,6 +223,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
+                android:layout_marginBottom="16dp"
                 android:backgroundTint="@color/red"
                 android:text="Delete account"
                 android:textColor="@color/white"

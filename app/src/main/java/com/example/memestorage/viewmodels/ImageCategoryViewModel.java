@@ -80,4 +80,13 @@ public class ImageCategoryViewModel extends AndroidViewModel {
             imageCategoryRepo.getAICategoriesSuggestions(bitmap, imageModel, 0, responseListener, false);
         }
     }
+    public void getAICategoriesSuggestions(Bitmap bitmap, ImageModel imageModel) {
+        imageCategoryRepo.getAICategoriesSuggestions(bitmap, imageModel, 0, new AIImageCategoryResponseListener() {
+            @Override
+            public void onReceiveAIImageCategorySuggestions(List<ImageCategoryModel> imageCategoryModelList, String responseText) {
+
+            }
+        }, false);
+
+    }
 }

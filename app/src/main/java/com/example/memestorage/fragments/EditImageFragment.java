@@ -322,12 +322,7 @@ public class EditImageFragment extends Fragment {
                         .into(new CustomTarget<Bitmap>() {
                             @Override
                             public void onResourceReady(@NonNull Bitmap bitmap, @Nullable Transition<? super Bitmap> transition) {
-                                imageCategoryViewModel.getAICategoriesSuggestions(bitmap, finalImageModel, new AIImageCategoryResponseListener() {
-                                    @Override
-                                    public void onReceiveAIImageCategorySuggestions(List<ImageCategoryModel> imageCategoryModelList, String responseText) {
-
-                                    }
-                                });
+                                imageCategoryViewModel.getAICategoriesSuggestions(bitmap, finalImageModel);
                                 Log.d("Image size before giving to Gemini", String.valueOf(bitmap.getAllocationByteCount()));
                                 binding.flOutside.setOnClickListener(v -> {
                                     getActivity().getSupportFragmentManager().popBackStack();

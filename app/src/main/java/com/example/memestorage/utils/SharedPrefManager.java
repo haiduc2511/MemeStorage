@@ -108,4 +108,34 @@ public class SharedPrefManager {
     public void saveIfDoubleCheckAISuggestions(String ifDoubleCheckAISuggestions) {
         this.saveData("If Double Check AI's Suggestions", ifDoubleCheckAISuggestions);
     }
+
+    public String getIfDeleteImageEasyModeOn() {
+        if (!contains("IfDeleteImageEasyModeOn")) {
+            return "false";
+        }
+        return this.getData("IfDeleteImageEasyModeOn");
+    }
+    public void saveIfDeleteImageEasyModeOn(String ifDeleteImageEasyModeOn) {
+        this.saveData("IfDeleteImageEasyModeOn", ifDeleteImageEasyModeOn);
+    }
+
+    public String getIfDownloadImageEasyModeOn() {
+        if (!contains("IfDownloadImageEasyModeOn")) {
+            return "false";
+        }
+        return this.getData("IfDownloadImageEasyModeOn");
+    }
+    public void saveIfDownloadImageEasyModeOn(String ifDownloadImageEasyModeOn) {
+        this.saveData("IfDownloadImageEasyModeOn", ifDownloadImageEasyModeOn);
+    }
+
+    public String getIfShareImageEasyModeOn() {
+        if (!contains("ifShareImageEasyModeOn")) {
+            return "false";
+        }
+        return this.getData("ifShareImageEasyModeOn");
+    }
+    public void saveIfShareImageEasyModeOn (String ifShareImageEasyModeOn) {
+        this.saveData("ifShareImageEasyModeOn", ifShareImageEasyModeOn);
+    }
 }

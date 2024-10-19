@@ -35,13 +35,16 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHolder> {
     private List<ImageModel> imageModels = new ArrayList<>();
     private Context context;
     private FragmentManager fragmentManager;
-//    private Set<ImageModel> imageModelsDownloaded = new HashSet<>(); //Forgot to add ImageModelsShared
+    private Set<ImageModel> imageModelsDownloaded = new HashSet<>(); //Forgot to add ImageModelsShared
+    private Set<ImageModel> imageModelsShared = new HashSet<>(); //Forgot to add ImageModelsShared
     private int numberOfColumn;
     private SharedPrefManager sharedPrefManager;
 
@@ -135,33 +138,35 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
             super(binding.getRoot());
             this.binding = binding;
 
-//            binding.ivDownload.setOnClickListener(v -> {
-//                int position = getAdapterPosition();
-//                if (position != RecyclerView.NO_POSITION) {
-//                    ImageModel image = imageModels.get(position);
-//                    downloadImageLikeTinCoder(image.imageURL, image.iId);
-//                    binding.ivDownload.setImageResource(R.drawable.ic_download_done);
-//                    imageModelsDownloaded.add(image);
-//                }
-//            });
-//
-//            binding.ivShare.setOnClickListener(v -> {
-//                int position = getAdapterPosition();
-//                binding.ivShare.setImageResource(R.drawable.ic_loading3);
-//                Glide.with(context).asBitmap().load(imageModels.get(position).imageURL)
-//                        .into(new CustomTarget<Bitmap>() {
-//                            @Override
-//                            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-//                                binding.ivShare.setImageResource(R.drawable.ic_download_done);
-//                                shareImageToOtherApps(resource);
-//                            }
-//
-//                            @Override
-//                            public void onLoadCleared(@Nullable Drawable placeholder) {
-//
-//                            }
-//                        });
-//            });
+            binding.ivDownload.setOnClickListener(v -> {
+                int position = getAdapterPosition();
+                if (position != RecyclerView.NO_POSITION) {
+                    ImageModel image = imageModels.get(position);
+                    downloadImageLikeTinCoder(image.imageURL, image.iId);
+                    binding.ivDownload.setImageResource(R.drawable.ic_download_done);
+                    imageModelsDownloaded.add(image);
+                }
+            });
+
+            binding.ivShare.setOnClickListener(v -> {
+                int position = getAdapterPosition();
+                ImageModel image = imageModels.get(position);
+                binding.ivShare.setImageResource(R.drawable.ic_loading3);
+                Glide.with(context).asBitmap().load(imageModels.get(position).imageURL)
+                        .into(new CustomTarget<Bitmap>() {
+                            @Override
+                            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                                binding.ivShare.setImageResource(R.drawable.ic_download_done);
+                                shareImageToOtherApps(resource);
+                            }
+
+                            @Override
+                            public void onLoadCleared(@Nullable Drawable placeholder) {
+
+                            }
+                        });
+                imageModelsShared.add(image);
+            });
         }
 
         public void incrementTimeBound() {
@@ -186,11 +191,29 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
             loadImageWithGlide(url);
 
             binding.setImageModel(imageModel);
-//            if (imageModelsDownloaded.contains(imageModel)) {
-//                binding.ivDownload.setImageResource(R.drawable.ic_download_done);
-//            } else {
-//                binding.ivDownload.setImageResource(R.drawable.ic_download);
-//            }
+            if (sharedPrefManager.getIfDownloadImageEasyModeOn().equals("true")) {
+                binding.ivDownload.setVisibility(View.VISIBLE);
+            } else {
+                binding.ivDownload.setVisibility(View.GONE);
+            }
+
+            if (sharedPrefManager.getIfShareImageEasyModeOn().equals("true")) {
+                binding.ivShare.setVisibility(View.VISIBLE);
+            } else {
+                binding.ivShare.setVisibility(View.GONE);
+            }
+
+            if (imageModelsDownloaded.contains(imageModel)) {
+                binding.ivDownload.setImageResource(R.drawable.ic_download_done);
+            } else {
+                binding.ivDownload.setImageResource(R.drawable.ic_download);
+            }
+
+            if (imageModelsShared.contains(imageModel)) {
+                binding.ivShare.setImageResource(R.drawable.ic_download_done);
+            } else {
+                binding.ivShare.setImageResource(R.drawable.ic_share);
+            }
         }
 
         public void loadImageWithGlide(String url) {

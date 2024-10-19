@@ -232,23 +232,23 @@ public class ImageFragment extends Fragment {
                     @Override
                     public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
                         binding.ivImage.setImageBitmap(resource);
-                        binding.ivEditImage.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-//                                Uri sourceUri = bitmapToFileUri(resource);
-
-//                                Uri destinationUri = Uri.fromFile(new File(requireActivity().getCacheDir(), "cropped_image.jpg" + System.currentTimeMillis()));
-//                                UCrop.of(sourceUri, destinationUri)
-//                                        .start(getContext(), ImageFragment.this);  // 'this' refers to Activity or Fragment
-
-                            }
-                        });
-                        binding.ivEditImage.setOnLongClickListener(new View.OnLongClickListener() {
-                            @Override
-                            public boolean onLongClick(View v) {
-                                return false;
-                            }
-                        });
+//                        binding.ivEditImage.setOnClickListener(new View.OnClickListener() {
+//                            @Override
+//                            public void onClick(View v) {
+////                                Uri sourceUri = bitmapToFileUri(resource);
+//
+////                                Uri destinationUri = Uri.fromFile(new File(requireActivity().getCacheDir(), "cropped_image.jpg" + System.currentTimeMillis()));
+////                                UCrop.of(sourceUri, destinationUri)
+////                                        .start(getContext(), ImageFragment.this);  // 'this' refers to Activity or Fragment
+//
+//                            }
+//                        });
+//                        binding.ivEditImage.setOnLongClickListener(new View.OnLongClickListener() {
+//                            @Override
+//                            public boolean onLongClick(View v) {
+//                                return false;
+//                            }
+//                        });
                     }
 
                     @Override

@@ -32,16 +32,24 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@color/gray">
-
-                    <ImageView
-                        android:id="@+id/iv_image"
+                    <androidx.cardview.widget.CardView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:adjustViewBounds="true"
-                        android:scaleType="fitXY"
+                        android:id="@+id/cv_image"
+                        app:cardCornerRadius="20dp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        app:layout_constraintTop_toTopOf="parent">
+
+                        <ImageView
+                            android:id="@+id/iv_image"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:adjustViewBounds="true"
+                            android:scaleType="fitXY" />
+
+                    </androidx.cardview.widget.CardView>
+
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rv_categories"
@@ -52,19 +60,19 @@
                         android:layout_marginEnd="8dp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/iv_image" />
+                        app:layout_constraintTop_toBottomOf="@+id/cv_image" />
 
                     <ImageButton
                         android:id="@+id/iv_share_image"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
+                        android:layout_marginBottom="24dp"
                         android:background="@drawable/round_button"
                         android:backgroundTint="@color/black"
                         android:padding="10dp"
-                        android:layout_marginBottom="24dp"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@id/iv_edit_image"
+                        app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toEndOf="@+id/iv_download_image"
                         app:layout_constraintTop_toBottomOf="@id/rv_categories"
                         app:srcCompat="@drawable/ic_share" />
@@ -84,34 +92,34 @@
                         app:layout_constraintTop_toBottomOf="@id/rv_categories"
                         app:srcCompat="@drawable/ic_download" />
 
-                    <ImageButton
-                        android:id="@+id/iv_edit_image"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:background="@drawable/round_button"
-                        android:backgroundTint="@color/black"
-                        android:padding="10dp"
-                        android:layout_marginBottom="24dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@+id/iv_share_image"
-                        app:layout_constraintTop_toBottomOf="@id/rv_categories"
-                        app:srcCompat="@drawable/baseline_edit_24" />
+<!--                    <ImageButton-->
+<!--                        android:id="@+id/iv_edit_image"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_marginTop="16dp"-->
+<!--                        android:background="@drawable/round_button"-->
+<!--                        android:backgroundTint="@color/black"-->
+<!--                        android:padding="10dp"-->
+<!--                        android:layout_marginBottom="24dp"-->
+<!--                        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--                        app:layout_constraintEnd_toEndOf="parent"-->
+<!--                        app:layout_constraintStart_toEndOf="@+id/iv_share_image"-->
+<!--                        app:layout_constraintTop_toBottomOf="@id/rv_categories"-->
+<!--                        app:srcCompat="@drawable/baseline_edit_24" />-->
 
-                    <Button
-                        android:id="@+id/bt_save_image_after_editing"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:backgroundTint="@color/black"
-                        android:text="Save image"
-                        android:textSize="10sp"
-                        android:visibility="gone"
-                        android:textColor="@color/white"
-                        app:layout_constraintBottom_toBottomOf="@+id/iv_image"
-                        app:layout_constraintEnd_toEndOf="@+id/iv_image"
-                        app:layout_constraintStart_toStartOf="@+id/iv_image"
-                        app:layout_constraintTop_toTopOf="@+id/iv_image" />
+<!--                    <Button-->
+<!--                        android:id="@+id/bt_save_image_after_editing"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:backgroundTint="@color/black"-->
+<!--                        android:text="Save image"-->
+<!--                        android:textSize="10sp"-->
+<!--                        android:visibility="gone"-->
+<!--                        android:textColor="@color/white"-->
+<!--                        app:layout_constraintBottom_toBottomOf="@+id/iv_image"-->
+<!--                        app:layout_constraintEnd_toEndOf="@+id/iv_image"-->
+<!--                        app:layout_constraintStart_toStartOf="@+id/iv_image"-->
+<!--                        app:layout_constraintTop_toTopOf="@+id/iv_image" />-->
 
 
 
