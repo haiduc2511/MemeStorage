@@ -162,31 +162,6 @@
                 app:layout_constraintStart_toStartOf="@+id/textView2"
                 app:layout_constraintTop_toBottomOf="@+id/textView2" />
 
-            <Button
-                android:id="@+id/bt_delete_account"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:backgroundTint="@color/red"
-                android:text="Delete account"
-                android:textColor="@color/white"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/bt_log_out" />
-
-            <Button
-                android:id="@+id/bt_log_out"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:backgroundTint="@color/red"
-                android:text="Log out"
-                android:textColor="@color/white"
-                app:layout_constraintBottom_toTopOf="@+id/bt_delete_account"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/sw_delete_image_after_upload" />
-
             <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/sw_delete_image_after_upload"
                 android:layout_width="wrap_content"
@@ -210,6 +185,69 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/bt_number_of_images" />
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/sw_delete_easy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:minHeight="48dp"
+                android:textColor="@color/white"
+                android:text="Delete image easy mode"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/sw_delete_image_after_upload" />
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/sw_download_easy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:minHeight="48dp"
+                android:textColor="@color/white"
+                android:text="Download image easy mode"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/sw_delete_easy" />
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/sw_share_easy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:minHeight="48dp"
+                android:textColor="@color/white"
+                android:text="Share image easy mode"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/sw_download_easy" />
+
+            <Button
+                android:id="@+id/bt_delete_account"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:backgroundTint="@color/red"
+                android:text="Delete account"
+                android:textColor="@color/white"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.498"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/bt_log_out" />
+
+            <Button
+                android:id="@+id/bt_log_out"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:backgroundTint="@color/red"
+                android:text="Log out"
+                android:textColor="@color/white"
+                app:layout_constraintBottom_toTopOf="@+id/bt_delete_account"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/sw_share_easy" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
