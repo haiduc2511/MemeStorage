@@ -55,7 +55,12 @@ public class ImageItemTouchHelper extends ItemTouchHelper.SimpleCallback {
     public void onSwiped(@NonNull final RecyclerView.ViewHolder viewHolder, int direction) {
         final int position = viewHolder.getBindingAdapterPosition();
         if (direction == ItemTouchHelper.LEFT) {
-            showDeleteDialog(position);
+            SharedPrefManager sharedPrefManager = new SharedPrefManager(adapter.getContext());
+            if (sharedPrefManager.getIfDeleteImageEasyModeOn().equals("true")) {
+                deleteImageByPosition(position);
+            } else {
+                showDeleteDialog(position);
+            }
         } else {
             showEditFragment(position, viewHolder);
         }
@@ -72,25 +77,7 @@ public class ImageItemTouchHelper extends ItemTouchHelper.SimpleCallback {
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        String imageId = adapter.getImageAt(position).iId;
-                        imageCategoryViewModel.deleteImageCategoryByImageIdFirebase(imageId);
-                        imageViewModel.deleteImageFirebase(imageId, new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if (task.isSuccessful()) {
-                                    imageViewModel.deleteImageCloudinary(imageViewModel.getImages().get(position));
-//                                    imageViewModel.deleteImageFirebaseStorage(imageViewModel.getImages().get(position).imageURL);
-                                    Log.d("Delete Image Firestore", "Image " + imageViewModel.getImages().get(position).imageName + " in Firestore deleted successfully");
-                                    Toast.makeText(adapter.getContext(),
-                                            "Deleted image "
-                                            , Toast.LENGTH_SHORT).show();
-                                    imageViewModel.getImages().remove(position);
-                                    adapter.deleteImage(position);
-                                } else {
-                                    Log.d("Delete Image Firestore", "Image " + imageViewModel.getImages().get(position).imageName + " failed");
-                                }
-                            }
-                        });
+                        deleteImageByPosition(position);
                     }
                 });
         builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
@@ -101,6 +88,29 @@ public class ImageItemTouchHelper extends ItemTouchHelper.SimpleCallback {
         });
         AlertDialog dialog = builder.create();
         dialog.show();
+
+    }
+
+    private void deleteImageByPosition(int position) {
+        String imageId = adapter.getImageAt(position).iId;
+        imageCategoryViewModel.deleteImageCategoryByImageIdFirebase(imageId);
+        imageViewModel.deleteImageFirebase(imageId, new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    imageViewModel.getImages().remove(position);
+                    adapter.deleteImage(position);
+                    imageViewModel.deleteImageCloudinary(imageViewModel.getImages().get(position));
+//                                    imageViewModel.deleteImageFirebaseStorage(imageViewModel.getImages().get(position).imageURL);
+                    Log.d("Delete Image Firestore", "Image " + imageViewModel.getImages().get(position).imageName + " in Firestore deleted successfully");
+                    Toast.makeText(adapter.getContext(),
+                            "Deleted image " + imageId
+                            , Toast.LENGTH_SHORT).show();
+                } else {
+                    Log.d("Delete Image Firestore", "Image " + imageViewModel.getImages().get(position).imageName + " failed");
+                }
+            }
+        });
 
     }
     public interface ImageEditListener {

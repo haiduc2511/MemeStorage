@@ -115,6 +115,9 @@ public class AccountFragment extends Fragment {
         initSwitchDeleteImageEasyMode();
         initSwitchDownloadImageEasyMode();
         initSwitchShareImageEasyMode();
+        initCustomBatteryMode();
+
+
         binding.tvSettingActivityName.setText(mAuth.getUid().toString());
         binding.tvSettingActivityName.setTextSize(10);
 
@@ -123,6 +126,28 @@ public class AccountFragment extends Fragment {
 //        binding.fabBack.setOnClickListener(v -> {
 //            getOnBackPressedDispatcher().onBackPressed();
 //        });
+    }
+    private void initCustomBatteryMode() {
+        binding.textView2.setVisibility(View.GONE);
+        binding.textView4.setVisibility(View.GONE);
+        binding.btFetchQuality.setVisibility(View.GONE);
+        binding.btNumberOfImages.setVisibility(View.GONE);
+
+        binding.tvCustomBatteryMode.setOnClickListener(v -> {
+            if (binding.tvCustomBatteryMode.getText().equals("Custom ▲")) {
+                binding.tvCustomBatteryMode.setText("Custom ▼");
+                binding.textView2.setVisibility(View.VISIBLE);
+                binding.textView4.setVisibility(View.VISIBLE);
+                binding.btFetchQuality.setVisibility(View.VISIBLE);
+                binding.btNumberOfImages.setVisibility(View.VISIBLE);
+            } else {
+                binding.tvCustomBatteryMode.setText("Custom ▲");
+                binding.textView2.setVisibility(View.GONE);
+                binding.textView4.setVisibility(View.GONE);
+                binding.btFetchQuality.setVisibility(View.GONE);
+                binding.btNumberOfImages.setVisibility(View.GONE);
+            }
+        });
     }
 
     private void initSwitchDoubleCheckAISuggestions() {

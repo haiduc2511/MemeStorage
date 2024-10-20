@@ -619,10 +619,10 @@ public class MainActivity extends AppCompatActivity {
             if (file.exists()) {
                 if (file.delete()) {
                     Log.d("Delete image gallery", uri + " Success");
-                    Toast.makeText(this, "File deleted", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Image in gallery deleted", Toast.LENGTH_SHORT).show();
                 } else {
                     Log.d("Delete image gallery", uri + " Failed");
-                    Toast.makeText(this, "Failed to delete file", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Failed to delete image in gallery", Toast.LENGTH_SHORT).show();
                 }
             } else {
                 Toast.makeText(this, "File not found", Toast.LENGTH_SHORT).show();

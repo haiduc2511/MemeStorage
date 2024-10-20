@@ -50,7 +50,7 @@
                 android:text="Number of images"
                 android:textColor="@color/white"
                 app:layout_constraintStart_toStartOf="@+id/tg_power_mode"
-                app:layout_constraintTop_toBottomOf="@+id/tg_power_mode" />
+                app:layout_constraintTop_toBottomOf="@+id/tv_custom_battery_mode" />
 
             <Button
                 android:id="@+id/bt_number_of_images"
@@ -98,7 +98,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Data saving mode: "
+                android:text="Battery mode: "
                 android:textColor="@color/white"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -143,12 +143,11 @@
                 android:id="@+id/textView2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Fetch quality"
                 android:layout_margin="16dp"
+                android:text="Fetch quality"
                 android:textColor="@color/white"
                 app:layout_constraintEnd_toEndOf="@+id/tg_power_mode"
-                app:layout_constraintHorizontal_bias="0.498"
-                app:layout_constraintTop_toBottomOf="@+id/tg_power_mode" />
+                app:layout_constraintTop_toBottomOf="@+id/tv_custom_battery_mode" />
 
             <Button
                 android:id="@+id/bt_fetch_quality"
@@ -245,6 +244,15 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/sw_share_easy" />
+
+            <TextView
+                android:id="@+id/tv_custom_battery_mode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Custom ▲"
+                android:textColor="@color/white"
+                app:layout_constraintEnd_toEndOf="@+id/tg_power_mode"
+                app:layout_constraintTop_toBottomOf="@+id/tg_power_mode" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
