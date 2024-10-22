@@ -134,14 +134,14 @@ public class AccountFragment extends Fragment {
         binding.btNumberOfImages.setVisibility(View.GONE);
 
         binding.tvCustomBatteryMode.setOnClickListener(v -> {
-            if (binding.tvCustomBatteryMode.getText().equals("Custom ▲")) {
-                binding.tvCustomBatteryMode.setText("Custom ▼");
+            if (binding.tvCustomBatteryMode.getText().equals("Custom battery mode ▲")) {
+                binding.tvCustomBatteryMode.setText("Custom battery mode ▼");
                 binding.textView2.setVisibility(View.VISIBLE);
                 binding.textView4.setVisibility(View.VISIBLE);
                 binding.btFetchQuality.setVisibility(View.VISIBLE);
                 binding.btNumberOfImages.setVisibility(View.VISIBLE);
             } else {
-                binding.tvCustomBatteryMode.setText("Custom ▲");
+                binding.tvCustomBatteryMode.setText("Custom battery mode ▲");
                 binding.textView2.setVisibility(View.GONE);
                 binding.textView4.setVisibility(View.GONE);
                 binding.btFetchQuality.setVisibility(View.GONE);

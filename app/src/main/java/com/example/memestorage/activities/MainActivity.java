@@ -26,6 +26,7 @@ import android.util.Log;
 import android.util.Pair;
 import android.util.TypedValue;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
@@ -239,6 +240,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
                         compositeDisposable.add(d);
+                        binding.linearLayout.setVisibility(View.VISIBLE);
                     }
 
                     @Override
@@ -258,6 +260,7 @@ public class MainActivity extends AppCompatActivity {
                         binding.tvNetworkStatus.setText("");
                         Toast.makeText(MainActivity.this, "Đã có kết nối mạng", Toast.LENGTH_SHORT).show();
                         binding.linearLayout.setBackgroundColor(Color.TRANSPARENT);
+                        binding.linearLayout.setVisibility(View.GONE);
 //                        binding.linearLayout.setVisibility(View.INVISIBLE);
                     }
                 });
