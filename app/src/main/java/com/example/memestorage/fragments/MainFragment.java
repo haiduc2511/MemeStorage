@@ -2,6 +2,7 @@ package com.example.memestorage.fragments;
 
 import static android.content.ContentValues.TAG;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -253,6 +254,15 @@ public class MainFragment extends Fragment implements ImageUploadListener {
         imageViewModel.addImageFirst(imageModel);
         imageAdapter.addImageFirst(imageModel);
         binding.rvImages.scrollToPosition(0);
+    }
+
+    @Override
+    public void onSuccessGettingAISuggestions(Bitmap image, List<ImageCategoryModel> imageCategoryModelList, ImageModel imageModel, String responseText) {
+        DoubleCheckAISuggestionsFragment fragment = DoubleCheckAISuggestionsFragment.newInstance(image, imageCategoryModelList, imageModel, responseText);
+        requireActivity().getSupportFragmentManager().beginTransaction()
+                .add(R.id.fragment_container_double_check_ai_suggestions, fragment)
+                .addToBackStack(imageModel.iId)
+                .commitAllowingStateLoss();
     }
 
     private void filterImageWithOtherCategories(ImageModel imageModel, List<String> categories, int thisSeachNumber) {

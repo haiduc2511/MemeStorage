@@ -131,6 +131,7 @@ public class MainActivity extends AppCompatActivity {
     private Map<String, Pair<Integer, NotificationCompat.Builder>> notificationMap = new HashMap<>();
     NotificationManager notificationManager;
     private ImageUploadListener imageUploadListener;
+    private MainFragment mainFragment;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -162,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
         imageCategoryViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()).create(ImageCategoryViewModel.class);
     }
     private void initBottomNavigation() {
-        MainFragment mainFragment = MainFragment.newInstance();
+        mainFragment = MainFragment.newInstance();
         imageUploadListener = mainFragment;
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container_main, mainFragment).commit();
         binding.bnMain.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
@@ -529,7 +530,8 @@ public class MainActivity extends AppCompatActivity {
                                 imageCategoryViewModel.getAICategoriesSuggestions(bitmap, finalImageModel, new AIImageCategoryResponseListener() {
                                     @Override
                                     public void onReceiveAIImageCategorySuggestions(List<ImageCategoryModel> imageCategoryModelList, String responseText) {
-                                        openDoubleCheckAISuggestionsFragment(bitmap, imageCategoryModelList, finalImageModel, responseText);
+                                        mainFragment.onSuccessGettingAISuggestions(bitmap, imageCategoryModelList, finalImageModel, responseText);
+//                                        openDoubleCheckAISuggestionsFragment(bitmap, imageCategoryModelList, finalImageModel, responseText);
                                     }
                                 });
                                 //TODO: Suggestion advisory by user fragment before adding
