@@ -10,14 +10,17 @@ import android.net.NetworkInfo;
 public class InternetBroadcastReceiver extends BroadcastReceiver {
     private NetworkChangeListener listener;
 
-    public InternetBroadcastReceiver(NetworkChangeListener listener) {
+    public InternetBroadcastReceiver(NetworkChangeListener listener)
+    {
         this.listener = listener;
     }
     @Override
     public void onReceive(Context context, Intent intent) {
-        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager cm = (ConnectivityManager) context
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+        boolean isConnected = activeNetwork != null
+                && activeNetwork.isConnectedOrConnecting();
 
         listener.onNetworkChange(isConnected);
     }

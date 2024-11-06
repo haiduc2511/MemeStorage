@@ -298,7 +298,8 @@ public class MainFragment extends Fragment implements ImageUploadListener {
 
 
         Single<List<ImageModel>> observable = Single.<List<ImageModel>>create(emitter -> {
-                    imageViewModel.getMyImagesFirebase(Integer.parseInt(numberOfImages), new OnCompleteListener<QuerySnapshot>() {
+                    imageViewModel.getMyImagesFirebase(Integer.parseInt(numberOfImages),
+                            new OnCompleteListener<QuerySnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
                             if (task.isSuccessful()) {
