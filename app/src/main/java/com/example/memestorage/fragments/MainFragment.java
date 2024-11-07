@@ -83,7 +83,7 @@ public class MainFragment extends Fragment implements ImageUploadListener {
     };
     boolean searchingByCategory = false; //for lazy loading (retrieveMoreImages..)
     SharedPrefManager sharedPrefManager;
-
+    StaggeredGridLayoutManager staggeredGridLayoutManager;
 
     public MainFragment() {
     }
@@ -182,8 +182,10 @@ public class MainFragment extends Fragment implements ImageUploadListener {
         });
     }
 
+    private boolean isGettingMoreImagesByRxJava = false;
     private void initImages() {
-        binding.rvImages.setLayoutManager(new StaggeredGridLayoutManager(Integer.parseInt(sharedPrefManager.getNumberOfColumn()), StaggeredGridLayoutManager.VERTICAL));
+        staggeredGridLayoutManager = new StaggeredGridLayoutManager(Integer.parseInt(sharedPrefManager.getNumberOfColumn()), StaggeredGridLayoutManager.VERTICAL);
+        binding.rvImages.setLayoutManager(staggeredGridLayoutManager);
 
         imageAdapter = new ImageAdapter(requireContext(), requireActivity().getSupportFragmentManager(), Integer.parseInt(sharedPrefManager.getNumberOfColumn()));
         binding.rvImages.setAdapter(imageAdapter);
@@ -196,13 +198,37 @@ public class MainFragment extends Fragment implements ImageUploadListener {
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
 
-                if (!recyclerView.canScrollVertically(1)) {
-                    retrieveMoreImagesByRxJava();
+                if (staggeredGridLayoutManager != null) {
+                    int[] lastVisibleItemPositions = staggeredGridLayoutManager.findLastVisibleItemPositions(null);
+                    int totalItemCount = staggeredGridLayoutManager.getItemCount();
+
+                    // Find the maximum position in last visible items
+                    int lastVisibleItemPosition = getLastVisibleItem(lastVisibleItemPositions);
+
+                    // Trigger loading when the user is within a threshold (e.g., 5 items from the bottom)
+                    int threshold = 5;
+                    if (!isGettingMoreImagesByRxJava && totalItemCount <= (lastVisibleItemPosition + threshold)) {
+                        isGettingMoreImagesByRxJava = true;
+                        retrieveMoreImagesByRxJava();
+                    }
                 }
+
             }
         });
         retrieveImagesByRxJava();
     }
+    private int getLastVisibleItem(int[] lastVisibleItemPositions) {
+        int maxSize = 0;
+        for (int i = 0; i < lastVisibleItemPositions.length; i++) {
+            if (i == 0) {
+                maxSize = lastVisibleItemPositions[i];
+            } else if (lastVisibleItemPositions[i] > maxSize) {
+                maxSize = lastVisibleItemPositions[i];
+            }
+        }
+        return maxSize;
+    }
+
 
     private void initCategories() {
         LinearLayoutManager firstLayoutManager = new LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false);
@@ -375,6 +401,7 @@ public class MainFragment extends Fragment implements ImageUploadListener {
                                     if (!images.isEmpty()) {
                                         lastVisible = task.getResult().getDocuments().get(task.getResult().size() - 1);
                                     }
+                                    Log.d("Check lỗi duplicate", lastVisible.getId());
                                 } else {
                                     emitter.onError(task.getException());
                                 }
@@ -399,6 +426,7 @@ public class MainFragment extends Fragment implements ImageUploadListener {
                     Log.d("receiving Images", imageModel.imageURL);
                     imageAdapter.addImage(imageModel);
                 }
+                isGettingMoreImagesByRxJava = false;
             }
 
             @Override

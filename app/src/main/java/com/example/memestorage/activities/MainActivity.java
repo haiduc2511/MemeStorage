@@ -296,6 +296,7 @@ public class MainActivity extends AppCompatActivity {
         compositeDisposable.clear();
         binding.tvNetworkStatus.setText("");
         binding.linearLayout.setBackgroundColor(Color.TRANSPARENT);
+        binding.linearLayout.setVisibility(View.GONE);
     }
 
     @Override
