@@ -146,7 +146,9 @@ public class ImageCategoryRepo {
         SafetySetting harassmentSafety = new SafetySetting(HarmCategory.HARASSMENT, BlockThreshold.NONE);
         SafetySetting hateSpeechSafety  = new SafetySetting(HarmCategory.HATE_SPEECH, BlockThreshold.NONE);
         GenerativeModel generativeModel = new GenerativeModel("gemini-1.5-flash",
-                "AIzaSyBTLd3CSEZFQ41oTviQVIPGlAoc6JojAFQ",
+//                "AIzaSyC7hv2O0EH2A-L8Hvo0jNYmYGiIfkcbjYY",
+//                "AIzaSyBTLd3CSEZFQ41oTviQVIPGlAoc6JojAFQ",
+                "AIzaSyA3ZIHa-S1bMu6HWXTp63yI1NvMz-m3cbU",
                 null,
                 Arrays.asList(harassmentSafety, hateSpeechSafety));
 
