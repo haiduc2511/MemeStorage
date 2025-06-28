@@ -12,12 +12,6 @@ class MediaCommentViewModel(application: Application) : AndroidViewModel(applica
     private val mediaCommentRepo = MediaCommentRepo()
     var mediaComments: List<MediaCommentModel> = emptyList()
 
-    fun setMediaComments(list: List<MediaCommentModel>) {
-        mediaComments = list
-    }
-
-    fun getMediaComments(): List<MediaCommentModel> = mediaComments
-
     fun addMediaCommentFirebase(model: MediaCommentModel, onCompleteListener: OnCompleteListener<Void>) {
         mediaCommentRepo.addMediaCommentFirebase(model, onCompleteListener)
     }

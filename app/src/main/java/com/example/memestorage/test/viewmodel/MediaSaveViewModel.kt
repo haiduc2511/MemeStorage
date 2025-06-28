@@ -12,12 +12,6 @@ class MediaSaveViewModel(application: Application) : AndroidViewModel(applicatio
     private val mediaSaveRepo = MediaSaveRepo()
     var mediaSaves: List<MediaSaveModel> = emptyList()
 
-    fun setMediaSaves(list: List<MediaSaveModel>) {
-        mediaSaves = list
-    }
-
-    fun getMediaSaves(): List<MediaSaveModel> = mediaSaves
-
     fun addMediaSaveFirebase(model: MediaSaveModel, onCompleteListener: OnCompleteListener<Void>) {
         mediaSaveRepo.addMediaSaveFirebase(model, onCompleteListener)
     }
