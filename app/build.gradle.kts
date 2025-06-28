@@ -6,12 +6,12 @@ plugins {
 
 android {
     namespace = "com.example.memestorage"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.memestorage"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
         buildConfigField("String", "CLOUD_NAME", "\"${properties.get("CLOUD_NAME")}\"")
@@ -49,7 +49,7 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.storage)
-    implementation("androidx.core:core-ktx:+")
+    implementation("androidx.core:core-ktx:1.12.0")
     val room_version = "2.6.1"
 
     implementation("androidx.room:room-runtime:$room_version")
