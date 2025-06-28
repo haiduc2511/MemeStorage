@@ -318,6 +318,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void initButtons() {
         binding.btChooseImage.setOnClickListener(v -> chooseImageFromGalleryWithTedImagePicker());
+        binding.btGoToLocketActivity.setOnClickListener(v -> goToLocketActivity());
     }
 
 
@@ -398,6 +399,11 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 });
+    }
+
+    private void goToLocketActivity() {
+        Intent intent = new Intent(this, LocketActivity.class);
+        startActivity(intent);
     }
 //    private void uploadImagesToCloudinary(List<Uri> uriList) {
 //        imageViewModel.uploadImagesCloudinary(uriList, new UploadCallback() {

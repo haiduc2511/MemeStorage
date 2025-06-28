@@ -45,6 +45,12 @@
             android:name=".activities.MainActivity"
             android:exported="false" />
         <activity
+            android:name=".activities.TestActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.LocketActivity"
+            android:exported="false" />
+        <activity
             android:name=".authentication.StartActivity"
             android:exported="false">
         </activity>
