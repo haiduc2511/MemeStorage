@@ -9,6 +9,7 @@ import com.example.memestorage.R
 import com.example.memestorage.adapters.ButtonAdapter
 import com.example.memestorage.databinding.ActivityTestBinding
 import com.example.memestorage.fragments.ImageFragment
+import com.example.memestorage.test.fragment.MediaLikeFragment
 
 class TestActivity : AppCompatActivity() {
 
@@ -30,7 +31,7 @@ class TestActivity : AppCompatActivity() {
         val adapter = ButtonAdapter(buttons) { buttonText ->
             when (buttonText) {
                 "go_to_categories_fragment" -> {
-//                    showImageCategoryFragment()
+                    showImageCategoryFragment()
                 }
                 else -> {
                     Toast.makeText(this, "Bạn bấm: $buttonText", Toast.LENGTH_SHORT).show()
@@ -44,7 +45,7 @@ class TestActivity : AppCompatActivity() {
 
     private fun showImageCategoryFragment() {
         supportFragmentManager.beginTransaction()
-            .replace(R.id.fragmentContainer, ImageFragment(Bitmap.createBitmap(1,1,Bitmap.Config.ARGB_8888)))
+            .replace(R.id.fragmentContainer, MediaLikeFragment())
             .addToBackStack(null)
             .commit()
     }
