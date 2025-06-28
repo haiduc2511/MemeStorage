@@ -10,6 +10,7 @@ import com.example.memestorage.adapters.ButtonAdapter
 import com.example.memestorage.databinding.ActivityTestBinding
 import com.example.memestorage.fragments.ImageFragment
 import com.example.memestorage.test.fragment.MediaLikeFragment
+import com.example.memestorage.test.fragment.UserFriendCompatibilityFragment
 
 class TestActivity : AppCompatActivity() {
 
@@ -45,7 +46,7 @@ class TestActivity : AppCompatActivity() {
 
     private fun showImageCategoryFragment() {
         supportFragmentManager.beginTransaction()
-            .replace(R.id.fragmentContainer, MediaLikeFragment())
+            .replace(R.id.fragmentContainer, UserFriendCompatibilityFragment())
             .addToBackStack(null)
             .commit()
     }
