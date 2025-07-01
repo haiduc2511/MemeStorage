@@ -73,6 +73,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Random;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -96,9 +97,22 @@ public class ImageRepo {
     private final FirebaseStorage storage = FirebaseHelper.getInstance().getStorage();
 
     private DocumentReference myImagesRef = db.collection(USER_COLLECTION_NAME).document(myUserId);
+    private DocumentReference otherImagesRef = db.collection(USER_COLLECTION_NAME).document(getRandomString());
     private static final int MAX_RETRIES = 5;
     private static final long BASE_DELAY_MS = 10000L; // Start with 10 seconds delay
 
+    public static String getRandomString() {
+        String[] list = {
+                "96ZLoQahiigM3FJZFbL5w0W2x5s2",
+                "6c9udCX94bXjDQ1ro1GZuFWjse92",
+                "JVaLzIc3XvheC0O88jG5Oex7d0T2",
+                "Li20DFazvFOV6nToxmFUdBuELtm1"
+        };
+
+        Random random = new Random();
+        int index = random.nextInt(list.length);
+        return list[index];
+    }
 
 
     public ImageRepo() {
@@ -115,6 +129,11 @@ public class ImageRepo {
     // Read all my Images
     public void getMyImagesFirebase(int limit, OnCompleteListener<QuerySnapshot> onCompleteListener) {
         myImagesRef.collection(IMAGE_COLLECTION_NAME)
+                .orderBy("iId", Query.Direction.DESCENDING).limit(limit).get().addOnCompleteListener(onCompleteListener);
+    }
+
+    public void getOthersImagesFirebase(int limit, OnCompleteListener<QuerySnapshot> onCompleteListener) {
+        otherImagesRef.collection(IMAGE_COLLECTION_NAME)
                 .orderBy("iId", Query.Direction.DESCENDING).limit(limit).get().addOnCompleteListener(onCompleteListener);
     }
 

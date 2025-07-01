@@ -74,6 +74,11 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
         notifyItemRemoved(position);
     }
 
+    public void clear() {
+        imageModels.clear();
+        notifyDataSetChanged();
+    }
+
     public void addImage(ImageModel imageModel) {
         imageModels.add(imageModel);
         notifyItemInserted(imageModels.size() - 1);

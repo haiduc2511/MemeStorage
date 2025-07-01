@@ -64,6 +64,7 @@ import com.example.memestorage.fragments.DoubleCheckAISuggestionsFragment;
 import com.example.memestorage.fragments.ImageFragment;
 import com.example.memestorage.fragments.MainFragment;
 import com.example.memestorage.fragments.ManageCategoryFragment;
+import com.example.memestorage.fragments.SearchFragment;
 import com.example.memestorage.models.CategoryModel;
 import com.example.memestorage.models.ImageCategoryModel;
 import com.example.memestorage.utils.AIImageCategoryResponseListener;
@@ -194,8 +195,10 @@ public class MainActivity extends AppCompatActivity {
                             .commit();
                 }
                 if (R.id.nav_search == id) {
-                    Toast.makeText(MainActivity.this, "Chưa phát triển tính năng này hêh", Toast.LENGTH_SHORT).show();
-                    return false;
+                    fragmentTransaction
+                            .hide(mainFragment)
+                            .replace(R.id.fragment_container, SearchFragment.newInstance())
+                            .commit();
                 }
                 return true;
             }
