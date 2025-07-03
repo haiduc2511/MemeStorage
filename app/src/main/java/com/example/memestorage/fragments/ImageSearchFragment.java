@@ -18,6 +18,7 @@ import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.ablanco.zoomy.Zoomy;
 import com.bumptech.glide.Glide;
@@ -27,12 +28,18 @@ import com.cloudinary.Transformation;
 import com.cloudinary.android.MediaManager;
 import com.example.memestorage.R;
 import com.example.memestorage.adapters.CategoryAdapter;
+import com.example.memestorage.adapterver2.CommentAdapter;
 import com.example.memestorage.databinding.FragmentImageBinding;
+import com.example.memestorage.databinding.FragmentImageSearchBinding;
 import com.example.memestorage.models.ImageCategoryModel;
 import com.example.memestorage.models.ImageModel;
+import com.example.memestorage.test.model.MediaCommentModel;
+import com.example.memestorage.test.model.MediaLikeModel;
+import com.example.memestorage.test.model.MediaSaveModel;
 import com.example.memestorage.test.viewmodel.MediaCommentViewModel;
 import com.example.memestorage.test.viewmodel.MediaLikeViewModel;
 import com.example.memestorage.test.viewmodel.MediaSaveViewModel;
+import com.example.memestorage.utils.FirebaseHelper;
 import com.example.memestorage.viewmodels.CategoryViewModel;
 import com.example.memestorage.viewmodels.ImageCategoryViewModel;
 import com.example.memestorage.viewmodels.ImageViewModel;
@@ -68,7 +75,7 @@ public class ImageSearchFragment extends Fragment {
     private static final String ARG_IMAGE = "image";
     private static final String ARG_PRELOADED_IMAGE = "preload image";
     private Bitmap imageBitmapPreload;
-    FragmentImageBinding binding;
+    FragmentImageSearchBinding binding;
     private ImageModel imageModel;
     ImageViewModel imageViewModel;
     MediaCommentViewModel commentViewModel;
@@ -76,7 +83,9 @@ public class ImageSearchFragment extends Fragment {
     MediaSaveViewModel saveViewModel;
     CategoryViewModel categoryViewModel;
     CategoryAdapter categoryAdapter;
+    CommentAdapter commentAdapter;
     ImageCategoryViewModel imageCategoryViewModel;
+    private String myUserId = FirebaseHelper.getInstance().getAuth().getCurrentUser().getUid();
 
     public ImageSearchFragment(Bitmap imageBitmapPreload) {
         this.imageBitmapPreload = imageBitmapPreload;
@@ -103,7 +112,7 @@ public class ImageSearchFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        binding = FragmentImageBinding.inflate(inflater, container, false);
+        binding = FragmentImageSearchBinding.inflate(inflater, container, false);
         initUI();
 
         retrieveData();
@@ -135,13 +144,15 @@ public class ImageSearchFragment extends Fragment {
         binding.cvInside.setOnClickListener(v -> {
 
         });
-        initButtons();
-        initCategories();
 
         imageViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()).create(ImageViewModel.class);
         commentViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()).create(MediaCommentViewModel.class);
         likeViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()).create(MediaLikeViewModel.class);
         saveViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()).create(MediaSaveViewModel.class);
+
+        initButtons();
+        initCategories();
+        initComments();
 
         setImage();
     }
@@ -156,7 +167,20 @@ public class ImageSearchFragment extends Fragment {
 
     }
 
+    private void initComments() {
+        binding.rvComments.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false));
+        Log.d("TAG", "initComments: " + imageModel.toString());
+        commentViewModel.getMediaCommentsByMediaId(imageModel.iId, new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                commentViewModel.setMediaComments(task.getResult().toObjects(MediaCommentModel.class));
+                commentAdapter = new CommentAdapter(commentViewModel.getMediaComments());
+                binding.rvComments.setAdapter(commentAdapter);
+            }
+        });
 
+
+    }
     private void initButtons() {
 //        binding.ivDownloadImage.setOnClickListener(v -> {
 //            downloadImageLikeTinCoder(imageModel.imageURL, imageModel.iId);
@@ -167,15 +191,71 @@ public class ImageSearchFragment extends Fragment {
 //            Toast.makeText(requireContext(), "hello tai anh ", Toast.LENGTH_SHORT).show();
 //            downloadImageLikeBuiQuangHuy(resource, imageModel.iId);
 //            binding.ivDownloadImage.setImageResource(R.drawable.ic_download_done);
-//        });
-
+//        })
 
         binding.ivDownloadImage.setOnClickListener(v -> {
+            Log.d("ImageSearchFragment", "ivDownloadImage clicked");
 //            downloadImageLikeBuiQuangHuy(imageBitmapPreload, imageModel.iId);
             downloadImageLikeTinCoder(imageModel);
             binding.ivDownloadImage.setImageResource(R.drawable.ic_download_done);
+            Log.d("ImageSearchFragment", "Download initiated and icon changed");
         });
 
+        binding.btnSendComment.setOnClickListener(v -> {
+            Log.d("ImageSearchFragment", "btnSendComment clicked");
+            String commentText = binding.etComment.getText().toString();
+            Log.d("ImageSearchFragment", "Comment text: " + commentText);
+            MediaCommentModel mediaComment = new MediaCommentModel(
+                    "",
+                    commentText,
+                    myUserId,
+                    imageModel.iId
+                    );
+            commentViewModel.addMediaCommentFirebase(mediaComment, task -> {
+                if (task.isSuccessful()) {
+                    Log.d("ImageSearchFragment", "Add MediaComment successful: " + mediaComment.getMcId());
+                } else {
+                    Log.e("ImageSearchFragment", "Add MediaComment failed: " + mediaComment.getMcId(), task.getException());
+                }
+            });
+            binding.etComment.setText("");
+
+        }
+        );
+
+        binding.ivLikeImage.setOnClickListener(v -> {
+            Log.d("ImageSearchFragment", "ivLikeImage clicked");
+            MediaLikeModel mediaLike = new MediaLikeModel(
+                    "",
+                    myUserId,
+                    imageModel.iId
+            );
+            Log.d("ImageSearchFragment", "MediaLikeModel created: " + mediaLike.toString());
+            Log.d("ImageSearchFragment", "Add MediaLike1: " + mediaLike.getMlId());
+//            likeViewModel.addMediaLikeFirebase(mediaLike, task -> {
+//                if (task.isSuccessful()) {
+//                    Log.d("ImageSearchFragment", "Add MediaLike successful: " + mediaLike.getMlId());
+//                } else {
+//                    Log.e("ImageSearchFragment", "Add MediaLike failed: " + mediaLike.getMlId(), task.getException());
+//                }
+//            });
+            Log.d("ImageSearchFragment", "Like action performed (commented out in original code)");
+
+        });
+
+        binding.ivSaveImage.setOnClickListener(v -> {
+            Log.d("ImageSearchFragment", "ivSaveImage clicked");
+            MediaSaveModel mediaLike = new MediaSaveModel(
+                    "",
+                    myUserId,
+                    imageModel.iId
+            );
+            Log.d("ImageSearchFragment", "MediaSaveModel created: " + mediaLike.toString());
+//            saveViewModel.addMediaSaveFirebase(mediaLike, task -> {
+//                Log.d("Add MediaSave", mediaLike.getMsId());
+//            });
+            Log.d("ImageSearchFragment", "Save action performed (commented out in original code)");
+        });
 
         binding.ivShareImage.setOnClickListener(v -> {
             binding.ivShareImage.setImageResource(R.drawable.ic_loading3);
@@ -184,24 +264,28 @@ public class ImageSearchFragment extends Fragment {
                 url = MediaManager.get().url()
                         .transformation(new Transformation().quality("auto").chain().fetchFormat("auto"))
                         .generate(imageModel.imageName);
-                Log.d("ivShareImage URL CLOUDINARY", url);
+                Log.d("ImageSearchFragment", "ivShareImage URL CLOUDINARY: " + url);
             } else {
                 url = imageModel.imageURL;
-                Log.d("ivShareImage URL FireStore", url);
+                Log.d("ImageSearchFragment", "ivShareImage URL FireStore: " + url);
             }
+            Log.d("ImageSearchFragment", "Sharing image with URL: " + url);
             Glide.with(requireContext()).asBitmap().load(url)
                 .into(new CustomTarget<Bitmap>() {
                     @Override
                     public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                        Log.d("ImageSearchFragment", "Share image resource ready");
                         binding.ivShareImage.setImageResource(R.drawable.ic_download_done);
                         shareImageToOtherApps(resource);
+                        Log.d("ImageSearchFragment", "Image shared and icon changed");
 
                     }
                     @Override
                     public void onLoadCleared(@Nullable Drawable placeholder) {
-
+                        Log.d("ImageSearchFragment", "Share image load cleared");
                     }
                 });
+            Log.d("ImageSearchFragment", "Glide request for sharing image sent");
         });
     }
 

@@ -21,6 +21,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.example.memestorage.R;
 import com.example.memestorage.activities.MainActivity;
 import com.example.memestorage.adapters.ImageAdapter;
+import com.example.memestorage.adapters.ImageSearchAdapter;
 import com.example.memestorage.adapters.MainCategoryAdapter;
 import com.example.memestorage.customview.SafeFlexboxLayoutManager;
 import com.example.memestorage.databinding.FragmentMainBinding;
@@ -57,7 +58,7 @@ public class SearchFragment extends Fragment implements ImageUploadListener {
     static boolean showingAllCategories = false;
     ImageCategoryViewModel imageCategoryViewModel;
     MainCategoryAdapter categoryAdapter;
-    ImageAdapter imageAdapter;
+    ImageSearchAdapter imageAdapter;
     int numberOfTimesSearched = 0;
     DocumentSnapshot lastVisible;
     MainActivity.CategorySearchListener onCategorySearchChosen = new MainActivity.CategorySearchListener() {
@@ -185,7 +186,7 @@ public class SearchFragment extends Fragment implements ImageUploadListener {
         staggeredGridLayoutManager = new StaggeredGridLayoutManager(Integer.parseInt(sharedPrefManager.getNumberOfColumn()), StaggeredGridLayoutManager.VERTICAL);
         binding.rvImages.setLayoutManager(staggeredGridLayoutManager);
 
-        imageAdapter = new ImageAdapter(requireContext(), requireActivity().getSupportFragmentManager(), Integer.parseInt(sharedPrefManager.getNumberOfColumn()));
+        imageAdapter = new ImageSearchAdapter(requireContext(), requireActivity().getSupportFragmentManager(), Integer.parseInt(sharedPrefManager.getNumberOfColumn()));
         binding.rvImages.setAdapter(imageAdapter);
 
         binding.rvImages.addOnScrollListener(new RecyclerView.OnScrollListener() {

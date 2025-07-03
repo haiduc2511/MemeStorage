@@ -15,7 +15,7 @@ class UserFriendshipMessageRepo {
 
     private val myUserId = FirebaseHelper.getInstance().auth.currentUser!!.uid
     private val db: FirebaseFirestore = FirebaseHelper.getInstance().db
-    private val myUfmRef = db.collection(USER_COLLECTION).document(myUserId)
+    private val myUfmRef = db
 
     fun addUfmFirebase(model: UserFriendshipMessageModel, onCompleteListener: OnCompleteListener<Void>) {
         val id = myUfmRef.collection(USER_FRIENDSHIP_MESSAGE_COLLECTION).document().id

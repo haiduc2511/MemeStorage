@@ -264,7 +264,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
                                         ImageFragment fragment = ImageFragment.newInstance(image, resource);
                                         Log.d("ImageAdapter", "onClick: Starting ImageFragment transaction");
                                         fragmentManager.beginTransaction()
-                                                .replace(R.id.fragment_image_2, fragment)
+                                                .replace(R.id.fragment_image, fragment)
                                                 .addToBackStack(null)
                                                 .commit();
                                     }

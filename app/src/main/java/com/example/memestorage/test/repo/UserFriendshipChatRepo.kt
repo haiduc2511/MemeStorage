@@ -15,7 +15,7 @@ class UserFriendshipChatRepo {
 
     private val myUserId = FirebaseHelper.getInstance().auth.currentUser!!.uid
     private val db: FirebaseFirestore = FirebaseHelper.getInstance().db
-    private val myUfcRef = db.collection(USER_COLLECTION).document(myUserId)
+    private val myUfcRef = db
 
     fun addUfcFirebase(model: UserFriendshipChatModel, onCompleteListener: OnCompleteListener<Void>) {
         val id = myUfcRef.collection(USER_FRIENDSHIP_CHAT_COLLECTION).document().id
