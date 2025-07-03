@@ -29,16 +29,23 @@ import com.cloudinary.android.MediaManager;
 import com.example.memestorage.R;
 import com.example.memestorage.adapters.CategoryAdapter;
 import com.example.memestorage.adapterver2.CommentAdapter;
-import com.example.memestorage.databinding.FragmentImageBinding;
 import com.example.memestorage.databinding.FragmentImageSearchBinding;
 import com.example.memestorage.models.ImageCategoryModel;
 import com.example.memestorage.models.ImageModel;
 import com.example.memestorage.test.model.MediaCommentModel;
 import com.example.memestorage.test.model.MediaLikeModel;
 import com.example.memestorage.test.model.MediaSaveModel;
+import com.example.memestorage.test.model.MyLikedMediaModel;
+import com.example.memestorage.test.model.MySavedMediaModel;
+import com.example.memestorage.test.model.UserFriendCompatibilityActionModel;
+import com.example.memestorage.test.model.UserFriendCompatibilityModel;
 import com.example.memestorage.test.viewmodel.MediaCommentViewModel;
 import com.example.memestorage.test.viewmodel.MediaLikeViewModel;
 import com.example.memestorage.test.viewmodel.MediaSaveViewModel;
+import com.example.memestorage.test.viewmodel.MyLikedMediaViewModel;
+import com.example.memestorage.test.viewmodel.MySavedMediaViewModel;
+import com.example.memestorage.test.viewmodel.UserFriendCompatibilityActionViewModel;
+import com.example.memestorage.test.viewmodel.UserFriendCompatibilityViewModel;
 import com.example.memestorage.utils.FirebaseHelper;
 import com.example.memestorage.viewmodels.CategoryViewModel;
 import com.example.memestorage.viewmodels.ImageCategoryViewModel;
@@ -81,11 +88,15 @@ public class ImageSearchFragment extends Fragment {
     MediaCommentViewModel commentViewModel;
     MediaLikeViewModel likeViewModel;
     MediaSaveViewModel saveViewModel;
+    MyLikedMediaViewModel myLikeViewModel;
+    MySavedMediaViewModel mySaveViewModel;
     CategoryViewModel categoryViewModel;
     CategoryAdapter categoryAdapter;
     CommentAdapter commentAdapter;
     ImageCategoryViewModel imageCategoryViewModel;
     private String myUserId = FirebaseHelper.getInstance().getAuth().getCurrentUser().getUid();
+    UserFriendCompatibilityActionViewModel userFriendCompatibilityActionViewModel;
+    UserFriendCompatibilityViewModel userFriendCompatibilityViewModel;
 
     public ImageSearchFragment(Bitmap imageBitmapPreload) {
         this.imageBitmapPreload = imageBitmapPreload;
@@ -149,6 +160,10 @@ public class ImageSearchFragment extends Fragment {
         commentViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()).create(MediaCommentViewModel.class);
         likeViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()).create(MediaLikeViewModel.class);
         saveViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()).create(MediaSaveViewModel.class);
+        myLikeViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()).create(MyLikedMediaViewModel.class);
+        mySaveViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()).create(MySavedMediaViewModel.class);
+        userFriendCompatibilityActionViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()).create(UserFriendCompatibilityActionViewModel.class);
+        userFriendCompatibilityViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()).create(UserFriendCompatibilityViewModel.class);
 
         initButtons();
         initCategories();
@@ -230,31 +245,95 @@ public class ImageSearchFragment extends Fragment {
                     myUserId,
                     imageModel.iId
             );
-            Log.d("ImageSearchFragment", "MediaLikeModel created: " + mediaLike.toString());
-            Log.d("ImageSearchFragment", "Add MediaLike1: " + mediaLike.getMlId());
-//            likeViewModel.addMediaLikeFirebase(mediaLike, task -> {
-//                if (task.isSuccessful()) {
-//                    Log.d("ImageSearchFragment", "Add MediaLike successful: " + mediaLike.getMlId());
-//                } else {
-//                    Log.e("ImageSearchFragment", "Add MediaLike failed: " + mediaLike.getMlId(), task.getException());
-//                }
-//            });
+            likeViewModel.addMediaLikeFirebase(mediaLike, task -> {
+                if (task.isSuccessful()) {
+                    Log.d("ImageSearchFragment", "Add MediaLike successful: " + mediaLike.getMlId());
+                } else {
+                    Log.e("ImageSearchFragment", "Add MediaLike failed: " + mediaLike.getMlId(), task.getException());
+                }
+            });
             Log.d("ImageSearchFragment", "Like action performed (commented out in original code)");
+            MyLikedMediaModel myMediaLike = new MyLikedMediaModel(
+                    "",
+                    imageModel.iId,
+                    ((int) System.currentTimeMillis())
+            );
+            myLikeViewModel.addMyLikedMediaFirebase(myMediaLike, new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    Log.d("Add MySavedMedia", mediaLike.getMlId());
+                }
+            });
+
+            UserFriendCompatibilityActionModel userFriendCompatibilityActionModel = new UserFriendCompatibilityActionModel(
+                    "",
+                    imageModel.iId,
+                    "like",
+                    myUserId
+            );
+            userFriendCompatibilityActionViewModel.addUfcaFirebase(userFriendCompatibilityActionModel, task -> {
+                if (task.isSuccessful()) {
+                    Log.d(ImageSearchFragment.class.getSimpleName(), "Add UFCA for save action successful for media ID: " + userFriendCompatibilityActionModel.getUfcaId());
+                } else {
+                    Log.e(ImageSearchFragment.class.getSimpleName(), "Add UFCA for save action failed for media ID: " + userFriendCompatibilityActionModel.getUfcaId(), task.getException());
+                }
+            });
+            userFriendCompatibilityViewModel.checkAndCreateOrUpdateUserFriendCompatibility(imageModel.userId, myUserId, 3, new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    Log.d(ImageSearchFragment.class.getSimpleName(), "Check and create or update UserFriendCompatibility successful");
+                }
+            });
 
         });
 
         binding.ivSaveImage.setOnClickListener(v -> {
-            Log.d("ImageSearchFragment", "ivSaveImage clicked");
-            MediaSaveModel mediaLike = new MediaSaveModel(
+            Log.d(ImageSearchFragment.class.getSimpleName(), "ivSaveImage clicked");
+            MediaSaveModel mediaSave = new MediaSaveModel(
                     "",
                     myUserId,
                     imageModel.iId
             );
-            Log.d("ImageSearchFragment", "MediaSaveModel created: " + mediaLike.toString());
-//            saveViewModel.addMediaSaveFirebase(mediaLike, task -> {
-//                Log.d("Add MediaSave", mediaLike.getMsId());
-//            });
-            Log.d("ImageSearchFragment", "Save action performed (commented out in original code)");
+            Log.d(ImageSearchFragment.class.getSimpleName(), "MediaSaveModel created: " + mediaSave.toString());
+            saveViewModel.addMediaSaveFirebase(mediaSave, task -> {
+                if (task.isSuccessful()) {
+                    Log.d(ImageSearchFragment.class.getSimpleName(), "Add MediaSave successful: " + mediaSave.getMsId());
+                } else {
+                    Log.e(ImageSearchFragment.class.getSimpleName(), "Add MediaSave failed: " + mediaSave.getMsId(), task.getException());
+                }
+            });
+            MySavedMediaModel myMediaSave = new MySavedMediaModel(
+                    "",
+                    imageModel.iId,
+                    ((int) System.currentTimeMillis())
+            );
+            mySaveViewModel.addMySavedMediaFirebase(myMediaSave, task -> {
+                if (task.isSuccessful()) {
+                    Log.d(ImageSearchFragment.class.getSimpleName(), "Add MySavedMedia successful for media ID: " + myMediaSave.getMediaId());
+                } else {
+                    Log.e(ImageSearchFragment.class.getSimpleName(), "Add MySavedMedia failed for media ID: " + myMediaSave.getMediaId(), task.getException());
+                }
+            });
+
+            UserFriendCompatibilityActionModel userFriendCompatibilityActionModel = new UserFriendCompatibilityActionModel(
+                    "",
+                    imageModel.iId,
+                    "save",
+                    myUserId
+            );
+            userFriendCompatibilityActionViewModel.addUfcaFirebase(userFriendCompatibilityActionModel, task -> {
+                if (task.isSuccessful()) {
+                    Log.d(ImageSearchFragment.class.getSimpleName(), "Add UFCA for save action successful for media ID: " + userFriendCompatibilityActionModel.getUfcaId());
+                } else {
+                    Log.e(ImageSearchFragment.class.getSimpleName(), "Add UFCA for save action failed for media ID: " + userFriendCompatibilityActionModel.getUfcaId(), task.getException());
+                }
+            });
+            userFriendCompatibilityViewModel.checkAndCreateOrUpdateUserFriendCompatibility(imageModel.userId, myUserId, 3, new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    Log.d(ImageSearchFragment.class.getSimpleName(), "Check and create or update UserFriendCompatibility successful");
+                }
+            });
         });
 
         binding.ivShareImage.setOnClickListener(v -> {

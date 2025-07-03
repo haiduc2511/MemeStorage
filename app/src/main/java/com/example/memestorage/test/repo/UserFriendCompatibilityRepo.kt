@@ -15,7 +15,7 @@ class UserFriendCompatibilityRepo {
 
     private val myUserId = FirebaseHelper.getInstance().auth.currentUser!!.uid
     private val db: FirebaseFirestore = FirebaseHelper.getInstance().db
-    private val myUfcRef = db.collection(USER_COLLECTION).document(myUserId)
+    private val myUfcRef = db
 
     fun addUfcFirebase(model: UserFriendCompatibilityModel, onCompleteListener: OnCompleteListener<Void>) {
         val id = myUfcRef.collection(USER_FRIEND_COMPATIBILITY_COLLECTION).document().id

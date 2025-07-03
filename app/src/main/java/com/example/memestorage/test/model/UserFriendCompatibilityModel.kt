@@ -6,7 +6,7 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class UserFriendCompatibilityModel(
     var ufcId: String = "",
-    var user1Id: String? = null,
-    var user2Id: String? = null,
-    var points: Int? = null
+    var user1Id: String = "",
+    var user2Id: String = "",
+    var points: Int = 0
 ) : Parcelable
