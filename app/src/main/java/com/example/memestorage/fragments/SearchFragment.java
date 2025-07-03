@@ -43,6 +43,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Collections;
 import java.util.Set;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -176,6 +177,7 @@ public class SearchFragment extends Fragment implements ImageUploadListener {
                 }
 
                 imageAdapter.clear();
+                imageAdapter.notifyDataSetChanged();
                 retrieveImagesByRxJava();
             }
         });
@@ -327,9 +329,10 @@ public class SearchFragment extends Fragment implements ImageUploadListener {
                             if (task.isSuccessful()) {
                                 Log.d(TAG, "retrieveImagesByRxJava: task is successful");
                                 List<ImageModel> images = task.getResult().toObjects(ImageModel.class);
+                                Collections.shuffle(images);
                                 imageViewModel.setImages(images);
                                 emitter.onSuccess(images);
-                                if (!images.isEmpty()) {
+                                if (images.isEmpty() == false) {
                                     Log.d(TAG, "retrieveImagesByRxJava: images list is not empty, size: " + images.size());
                                     binding.ivClickToUpload.setVisibility(View.INVISIBLE);
                                     binding.tvClickToUpload.setVisibility(View.INVISIBLE);

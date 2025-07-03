@@ -54,6 +54,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -97,7 +98,7 @@ public class ImageRepo {
     private final FirebaseStorage storage = FirebaseHelper.getInstance().getStorage();
 
     private DocumentReference myImagesRef = db.collection(USER_COLLECTION_NAME).document(myUserId);
-    private DocumentReference otherImagesRef = db.collection(USER_COLLECTION_NAME).document(getRandomString());
+    private CollectionReference otherImagesRef = db.collection(USER_COLLECTION_NAME);
     private static final int MAX_RETRIES = 5;
     private static final long BASE_DELAY_MS = 10000L; // Start with 10 seconds delay
 
@@ -133,7 +134,7 @@ public class ImageRepo {
     }
 
     public void getOthersImagesFirebase(int limit, OnCompleteListener<QuerySnapshot> onCompleteListener) {
-        otherImagesRef.collection(IMAGE_COLLECTION_NAME)
+        otherImagesRef.document(getRandomString()).collection(IMAGE_COLLECTION_NAME)
                 .orderBy("iId", Query.Direction.DESCENDING).limit(limit).get().addOnCompleteListener(onCompleteListener);
     }
 
