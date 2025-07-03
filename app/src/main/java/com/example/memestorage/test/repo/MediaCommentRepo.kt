@@ -11,11 +11,12 @@ class MediaCommentRepo {
     companion object {
         private const val MEDIA_COMMENTS_COLLECTION = "mediaComments"
         private const val USER_COLLECTION = "users"
+        private const val MEDIA_COMMENT_COLLECTION = "mediaComment"
     }
 
     private val myUserId = FirebaseHelper.getInstance().auth.currentUser!!.uid
     private val db: FirebaseFirestore = FirebaseHelper.getInstance().db
-    private val myMediaCommentsRef = db.collection(USER_COLLECTION).document(myUserId)
+    private val myMediaCommentsRef = db
 
     fun addMediaCommentFirebase(model: MediaCommentModel, onCompleteListener: OnCompleteListener<Void>) {
         val id = myMediaCommentsRef.collection(MEDIA_COMMENTS_COLLECTION).document().id

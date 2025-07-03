@@ -15,7 +15,7 @@ class MediaSaveRepo {
 
     private val myUserId = FirebaseHelper.getInstance().auth.currentUser!!.uid
     private val db: FirebaseFirestore = FirebaseHelper.getInstance().db
-    private val myMediaSavesRef = db.collection(USER_COLLECTION).document(myUserId)
+    private val myMediaSavesRef = db
 
     fun addMediaSaveFirebase(model: MediaSaveModel, onCompleteListener: OnCompleteListener<Void>) {
         val id = myMediaSavesRef.collection(MEDIA_SAVES_COLLECTION).document().id

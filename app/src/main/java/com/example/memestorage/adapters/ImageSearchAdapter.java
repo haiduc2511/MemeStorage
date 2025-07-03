@@ -25,9 +25,10 @@ import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.cloudinary.Transformation;
 import com.cloudinary.android.MediaManager;
-import com.example.memestorage.fragments.ImageFragment;
 import com.example.memestorage.R;
 import com.example.memestorage.databinding.ItemImageBinding;
+import com.example.memestorage.fragments.ImageFragment;
+import com.example.memestorage.fragments.ImageSearchFragment;
 import com.example.memestorage.models.ImageModel;
 import com.example.memestorage.utils.SharedPrefManager;
 
@@ -39,7 +40,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHolder> {
+public class ImageSearchAdapter extends RecyclerView.Adapter<ImageSearchAdapter.ImageViewHolder> {
     private List<ImageModel> imageModels = new ArrayList<>();
     private Context context;
     private FragmentManager fragmentManager;
@@ -48,7 +49,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
     private int numberOfColumn;
     private SharedPrefManager sharedPrefManager;
 
-    public ImageAdapter(Context context, FragmentManager fragmentManager, int numberOfColumn) {
+    public ImageSearchAdapter(Context context, FragmentManager fragmentManager, int numberOfColumn) {
         this.numberOfColumn = numberOfColumn;
         this.context = context;
         this.fragmentManager = fragmentManager;
@@ -261,7 +262,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
                                     if (position != RecyclerView.NO_POSITION) {
                                         ImageModel image = imageModels.get(position);
                                         Log.d("ImageAdapter", "onClick: imageModel = " + image.toString());
-                                        ImageFragment fragment = ImageFragment.newInstance(image, resource);
+                                        ImageSearchFragment fragment = ImageSearchFragment.newInstance(image, resource);
                                         Log.d("ImageAdapter", "onClick: Starting ImageFragment transaction");
                                         fragmentManager.beginTransaction()
                                                 .replace(R.id.fragment_image_2, fragment)

@@ -15,7 +15,7 @@ class MediaLikeRepo {
 
     private val myUserId = FirebaseHelper.getInstance().auth.currentUser!!.uid
     private val db: FirebaseFirestore = FirebaseHelper.getInstance().db
-    private val myMediaLikesRef = db.collection(USER_COLLECTION).document(myUserId)
+    private val myMediaLikesRef = db
 
     fun addMediaLikeFirebase(model: MediaLikeModel, onCompleteListener: OnCompleteListener<Void>) {
         val id = myMediaLikesRef.collection(MEDIA_LIKES_COLLECTION).document().id
