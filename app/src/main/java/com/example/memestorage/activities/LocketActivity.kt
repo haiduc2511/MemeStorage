@@ -103,6 +103,7 @@ class LocketActivity : AppCompatActivity() {
                         .show()
                 } else {
                     path = event.outputResults.outputUri.toString()
+                    afterRecordStop()
                 }
             }
         }
@@ -167,10 +168,6 @@ class LocketActivity : AppCompatActivity() {
             sketchViewModel.toggleFlash()
         }
 
-        binding.buttonFlash.setOnClickListener {
-            sketchViewModel.toggleFlash()
-        }
-
         binding.buttonRecord.setOnClickListener {
             this.let {
                 try {
@@ -190,31 +187,6 @@ class LocketActivity : AppCompatActivity() {
             }
         }
 
-
-        binding.buttonExtend.setOnLongClickListener {
-            binding.video.setVideoURI(path.toUri())
-            binding.video.setOnCompletionListener { it.start() }
-            binding.video.setOnClickListener {
-                if (binding.video.isPlaying) {
-                    binding.video.pause()
-                } else {
-                    binding.video.start()
-                }
-            }
-            true
-        }
-
-        binding.buttonExtend.setOnClickListener {
-            if (binding.video.isVisible) {
-                binding.video.isVisible = false
-                binding.cameraView.isVisible = true
-            } else {
-                binding.video.isVisible = true
-                binding.cameraView.isVisible = false
-            }
-
-        }
-
         binding.buttonStopRecord.setOnClickListener {
             try {
                 recording?.stop()
@@ -222,6 +194,26 @@ class LocketActivity : AppCompatActivity() {
                 e.printStackTrace()
             }
         }
+    }
+
+    private fun afterRecordStop() {
+        binding.video.setVideoURI(path.toUri())
+        binding.video.setOnCompletionListener { it.start() }
+        binding.video.setOnClickListener {
+            if (binding.video.isPlaying) {
+                binding.video.pause()
+            } else {
+                binding.video.start()
+            }
+        }
+        if (binding.video.isVisible) {
+            binding.video.isVisible = false
+            binding.cameraView.isVisible = true
+        } else {
+            binding.video.isVisible = true
+            binding.cameraView.isVisible = false
+        }
+        binding.video.start()
     }
 
     private fun startCamera(isBackCam: Boolean = true) {
