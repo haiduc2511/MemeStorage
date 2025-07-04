@@ -126,6 +126,9 @@ class LocketActivity : AppCompatActivity() {
         binding.btnSeeDiary.setOnClickListener {
 
         }
+        binding.btnProfile.setOnClickListener {
+            startActivity(Intent(this, ProfileActivity::class.java))
+        }
 
         setContentView(binding.root)
         sketchViewModel = ViewModelProvider.AndroidViewModelFactory

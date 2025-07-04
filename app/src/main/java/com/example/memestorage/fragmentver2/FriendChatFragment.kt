@@ -2,15 +2,12 @@ package com.example.memestorage.fragmentver2
 
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.memestorage.adapterver2.FriendshipAdapter
+import com.example.memestorage.adapterver2.FriendshipAdapter3
 import com.example.memestorage.databinding.FragmentFriendChatBinding
 import com.example.memestorage.test.viewmodel.UserFriendshipViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -48,7 +45,7 @@ class FriendChatFragment : Fragment() {
                     list.add(item)
                 }
                 binding.rvFriendList.layoutManager = LinearLayoutManager(requireContext())
-                binding.rvFriendList.adapter = FriendshipAdapter(list) { friendship ->
+                binding.rvFriendList.adapter = FriendshipAdapter3(list) { friendship ->
                     openChatFragment(friendship.ufId)
                 }
             }

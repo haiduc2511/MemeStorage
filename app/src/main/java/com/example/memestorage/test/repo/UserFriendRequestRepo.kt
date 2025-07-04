@@ -15,7 +15,7 @@ class UserFriendRequestRepo {
 
     private val myUserId = FirebaseHelper.getInstance().auth.currentUser!!.uid
     private val db: FirebaseFirestore = FirebaseHelper.getInstance().db
-    private val myUfrRef = db.collection(USER_COLLECTION).document(myUserId)
+    private val myUfrRef = db
 
     fun addUfrFirebase(model: UserFriendRequestModel, onCompleteListener: OnCompleteListener<Void>) {
         val id = myUfrRef.collection(USER_FRIEND_REQUEST_COLLECTION).document().id

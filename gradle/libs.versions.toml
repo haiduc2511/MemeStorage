@@ -16,6 +16,7 @@ generativeai = "0.9.0"
 reactiveStreams = "1.0.4"
 firebase-bom = "32.3.1"
 play-services-auth = "20.7.0"
+kotlin = "1.9.0"
 
 [libraries]
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
@@ -37,4 +38,5 @@ play-services-auth = { module = "com.google.android.gms:play-services-auth", ver
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
+kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 

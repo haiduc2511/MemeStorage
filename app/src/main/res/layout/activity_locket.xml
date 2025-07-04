@@ -30,25 +30,35 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
+            android:weightSum="4"
             android:orientation="horizontal">
 
             <Button
                 android:id="@+id/btnOpenChat"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:text="Open Chat" />
 
             <Button
                 android:id="@+id/btnGoToTest"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:text="Qua TestActivity" />
 
             <Button
                 android:id="@+id/btnSeeDiary"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:text="See Diary" />
+            <Button
+                android:id="@+id/btnProfile"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="profile" />
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
