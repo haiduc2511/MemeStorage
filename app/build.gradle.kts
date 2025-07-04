@@ -95,4 +95,13 @@ dependencies {
     implementation(platform(libs.firebase.bom)) // Firebase BoM
     implementation(libs.play.services.auth) // Google Sign-In
 
+    // CameraX
+    val camerax_version = "1.3.1"
+    implementation("androidx.camera:camera-core:$camerax_version")
+    implementation("androidx.camera:camera-camera2:$camerax_version")
+    implementation("androidx.camera:camera-lifecycle:$camerax_version")
+    implementation("androidx.camera:camera-video:$camerax_version")
+    implementation("androidx.camera:camera-view:$camerax_version")
+    implementation("androidx.camera:camera-mlkit-vision:1.4.0-alpha03")
+    implementation("androidx.camera:camera-extensions:$camerax_version")
 }

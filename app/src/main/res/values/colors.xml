@@ -46,4 +46,61 @@
     <color name="black_gray">#1C1C1C</color>
     <color name="onyx_gray">#353839</color>
     <color name="eerie_black">#1B1B1B</color>
+
+    <color name="white_transparent_30">#4DFFFFFF</color>
+    <color name="white_transparent_40">#66FFFFFF</color>
+
+    <color name="color_background">#FFFBFB</color>
+
+    <color name="pink_100">#FDDCE4</color>
+    <color name="pink_200">#FBB9CA</color>
+    <color name="pink_300">#F895AF</color>
+    <color name="pink_400">#F67295</color>
+    <color name="pink_500">#F44F7A</color>
+
+    <color name="gray_100">#D6D6D6</color>
+    <color name="gray_200">#ADADAD</color>
+    <color name="gray_300">#858585</color>
+    <color name="gray_400">#5C5C5C</color>
+    <color name="gray_500">#333333</color>
+
+    <color name="orange_ff7a00">#FF7A00</color>
+    <color name="orange_ff9877">#FF9877</color>
+    <color name="violet_d65fff">#D65FFF</color>
+    <color name="blue_6286ff">#6286FF</color>
+    <color name="yellow_f9b800">#f9b800</color>
+    <color name="gray_d9d9d9">#D9D9D9</color>
+    <color name="black_alpha70">#B3000000</color>
+    <color name="black_alpha80">#CC000000</color>
+    <color name="black_alpha50">#80000000</color>
+    <color name="yellow_ffa800">#FFA800</color>
+    <color name="blue_00a3ff">#00A3FF</color>
+    <color name="blue_01b6ff">#01B6FF</color>
+
+    <color name="blue_829dff">#829DFF</color>
+    <color name="yellow_ffb700">#FFB700</color>
+    <color name="blue_7ae0ff">#7AE0FF</color>
+    <color name="purple_e1a1ff">#E1A1FF</color>
+    <color name="yellow_fed172">#FED172</color>
+    <color name="violet_ff43ca">#FF43CA</color>
+    <color name="red_ff2149">#FF2149</color>
+    <color name="blue_58c1fc">#58C1FC</color>
+
+    <color name="orange_ffb800">#FFB800</color>
+    <color name="neutral_858585">#858585</color>
+    <color name="neutral_333333">#333333</color>
+    <color name="gray_f4f3f8">#f4f3f8</color>
+    <color name="_66e87fe6">#66E87FE6</color>
+    <color name="purple_c64dff">#c64dff</color>
+    <color name="pink_f44f7a">#F44F7A</color>
+    <color name="black_333333">#333333</color>
+    <color name="gray_f1f1f1">#F1F1F1</color>
+    <color name="gray_9a9a9a">#9A9A9A</color>
+    <color name="purple_cd61ff">#CD61FF</color>
+    <color name="red_ff6b00">#FF6B00</color>
+    <color name="gray_d4d4d4">#d4d4d4</color>
+    <color name="gray_d6d6d6">#D6D6D6</color>
+    <color name="gray_eeeeee">#EEEEEE</color>
+
+
 </resources>
