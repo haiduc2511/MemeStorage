@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.memestorage.databinding.FragmentUserFriendRequestBinding
 import com.example.memestorage.test.model.UserFriendRequestModel
 import com.example.memestorage.test.viewmodel.UserFriendRequestViewModel
+import com.example.memestorage.utils.FirebaseHelper
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.firestore.QuerySnapshot
 
@@ -17,6 +18,7 @@ class UserFriendRequestFragment : Fragment() {
 
     private var _binding: FragmentUserFriendRequestBinding? = null
     private val binding get() = _binding!!
+    private val myUserId = FirebaseHelper.getInstance().auth.currentUser!!.uid
 
     private lateinit var ufrViewModel: UserFriendRequestViewModel
 
@@ -55,7 +57,7 @@ class UserFriendRequestFragment : Fragment() {
 
         val model = UserFriendRequestModel(
             ufrId = "",
-            userRequested = userRequested,
+            userRequested = myUserId,
             userRequesting = userRequesting,
             status = status
         )

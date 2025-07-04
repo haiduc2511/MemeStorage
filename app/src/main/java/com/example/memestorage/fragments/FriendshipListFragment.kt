@@ -11,6 +11,7 @@ import com.example.memestorage.databinding.FragmentFriendshipListBinding
 import com.example.memestorage.adapterver2.FriendshipAdapter
 import com.example.memestorage.test.model.UserFriendshipModel
 import com.example.memestorage.test.viewmodel.UserFriendshipViewModel
+import com.example.memestorage.utils.FirebaseHelper
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.firestore.QuerySnapshot
 
@@ -18,6 +19,7 @@ class FriendshipListFragment : Fragment() {
 
     private var _binding: FragmentFriendshipListBinding? = null
     private val binding get() = _binding!!
+    private val myUserId = FirebaseHelper.getInstance().auth.currentUser!!.uid
     private lateinit var ufViewModel: UserFriendshipViewModel
 
     override fun onCreateView(
@@ -59,6 +61,29 @@ class FriendshipListFragment : Fragment() {
                 }
             }
         })
+//        ufViewModel.getUfByUser1Id(myUserId, OnCompleteListener<QuerySnapshot> { task ->
+//            if (task.isSuccessful) {
+//                val list = mutableListOf<UserFriendshipModel>()
+//                for (doc in task.result!!) {
+//                    val item = doc.toObject(UserFriendshipModel::class.java)
+//                    list.add(item)
+//                }
+//                ufViewModel.getUfByUser2Id(myUserId, OnCompleteListener<QuerySnapshot> { task ->
+//                    if (task.isSuccessful) {
+//                        for (doc in task.result!!) {
+//                            val item = doc.toObject(UserFriendshipModel::class.java)
+//                            list.add(item)
+//                        }
+//
+//                        binding.rvFriendList.layoutManager = LinearLayoutManager(requireContext())
+//                        binding.rvFriendList.adapter = FriendshipAdapter(list) { friendship ->
+//                            // Handle item click to open chat or perform action
+//                        }
+//                    }
+//                })
+//
+//            }
+//        })
     }
 
     override fun onDestroyView() {
