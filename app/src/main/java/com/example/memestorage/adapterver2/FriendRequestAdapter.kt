@@ -8,7 +8,9 @@ import com.example.memestorage.test.model.UserFriendRequestModel
 
 class FriendRequestAdapter(
     private val items: List<UserFriendRequestModel>,
-    private val onItemClick: (UserFriendRequestModel) -> Unit
+    private val onItemClick: (UserFriendRequestModel) -> Unit,
+    private val onAcceptClick: (UserFriendRequestModel) -> Unit,
+    private val onRejectClick: (UserFriendRequestModel) -> Unit
 ) : RecyclerView.Adapter<FriendRequestAdapter.FriendRequestViewHolder>() {
 
     inner class FriendRequestViewHolder(val binding: ItemFriendRequestBinding) : RecyclerView.ViewHolder(binding.root)
@@ -25,6 +27,14 @@ class FriendRequestAdapter(
         holder.binding.root.setOnClickListener {
             onItemClick(item)
         }
+        holder.binding.btnAccept.setOnClickListener {
+            onAcceptClick(item)
+        }
+
+        holder.binding.btnReject.setOnClickListener {
+            onRejectClick(item)
+        }
+
     }
 
     override fun getItemCount(): Int = items.size
