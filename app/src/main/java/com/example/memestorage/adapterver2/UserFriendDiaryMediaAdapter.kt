@@ -20,7 +20,7 @@ class UserFriendDiaryMediaAdapter(
     override fun onBindViewHolder(holder: UserFriendDiaryMediaViewHolder, position: Int) {
         val item = items[position]
         holder.binding.tvUserId.text = "User ID: ${item.userId}"
-        holder.binding.tvUserFriendshipId.text = "Friendship ID: ${item.userFriendshipId}"
+        holder.binding.tvUserFriendshipId.text = "time: ${item.time}"
         holder.binding.tvUserDiaryMediaId.text = "Diary Media ID: ${item.userDiaryMediaId}"
     }
 

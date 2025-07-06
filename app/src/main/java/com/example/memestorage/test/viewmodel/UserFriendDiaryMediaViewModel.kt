@@ -17,6 +17,10 @@ class UserFriendDiaryMediaViewModel(application: Application) : AndroidViewModel
         ufdmRepo.addUfdmFirebase(model, onCompleteListener)
     }
 
+    fun addUfdmByFriendshipId(model: UserFriendDiaryMediaModel, friendId: String, onCompleteListener: OnCompleteListener<Void>) {
+        ufdmRepo.addUfdmByFriendId(model, friendId, onCompleteListener)
+    }
+
     fun getUfdmFirebase(onCompleteListener: OnCompleteListener<QuerySnapshot>) {
         ufdmRepo.getUfdmFirebase(onCompleteListener)
     }

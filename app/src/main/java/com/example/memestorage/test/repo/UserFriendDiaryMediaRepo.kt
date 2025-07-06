@@ -15,10 +15,18 @@ class UserFriendDiaryMediaRepo {
 
     private val myUserId = FirebaseHelper.getInstance().auth.currentUser!!.uid
     private val db: FirebaseFirestore = FirebaseHelper.getInstance().db
-    private val myUfdmRef = db.collection(USER_COLLECTION).document(myUserId)
+    private val myUfdmRef = db
 
     fun addUfdmFirebase(model: UserFriendDiaryMediaModel, onCompleteListener: OnCompleteListener<Void>) {
         val id = myUfdmRef.collection(USER_FRIEND_DIARY_MEDIA_COLLECTION).document().id
+        model.ufdmId = id
+        myUfdmRef.collection(USER_FRIEND_DIARY_MEDIA_COLLECTION).document(id)
+            .set(model)
+            .addOnCompleteListener(onCompleteListener)
+    }
+
+    fun addUfdmByFriendId(model: UserFriendDiaryMediaModel, friendId: String, onCompleteListener: OnCompleteListener<Void>) {
+        val id = myUfdmRef.collection(USER_COLLECTION).document(friendId).collection(USER_FRIEND_DIARY_MEDIA_COLLECTION).document().id
         model.ufdmId = id
         myUfdmRef.collection(USER_FRIEND_DIARY_MEDIA_COLLECTION).document(id)
             .set(model)

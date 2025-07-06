@@ -8,6 +8,10 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.example.memestorage.adapterver2.ProfileAdapter
 import com.example.memestorage.databinding.ActivityProfileBinding
+import com.example.memestorage.test.viewmodel.UserDiaryMediaAccessViewModel
+import com.example.memestorage.test.viewmodel.UserDiaryMediaViewModel
+import com.example.memestorage.test.viewmodel.UserFriendDiaryMediaViewModel
+import com.example.memestorage.test.viewmodel.UserFriendshipViewModel
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 

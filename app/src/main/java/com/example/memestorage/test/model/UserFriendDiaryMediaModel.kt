@@ -7,6 +7,6 @@ import kotlinx.parcelize.Parcelize
 data class UserFriendDiaryMediaModel(
     var ufdmId: String = "",
     var userId: String? = null,
-    var userFriendshipId: String? = null,
+    var time: String? = null,
     var userDiaryMediaId: String? = null
 ) : Parcelable

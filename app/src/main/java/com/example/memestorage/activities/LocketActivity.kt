@@ -1,6 +1,7 @@
 package com.example.memestorage.activities
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.Surface
@@ -38,14 +39,32 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.core.util.Consumer
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.cloudinary.android.callback.ErrorInfo
+import com.cloudinary.android.callback.UploadCallback
+import com.example.memestorage.adapterver2.ChooseFriendSeeDiaryAdapter
+import com.example.memestorage.test.model.UserDiaryMediaAccessModel
+import com.example.memestorage.test.model.UserDiaryMediaModel
+import com.example.memestorage.test.model.UserFriendDiaryMediaModel
+import com.example.memestorage.test.model.UserFriendshipModel
+import com.example.memestorage.test.viewmodel.UserDiaryMediaAccessViewModel
+import com.example.memestorage.test.viewmodel.UserDiaryMediaViewModel
+import com.example.memestorage.test.viewmodel.UserFriendDiaryMediaViewModel
+import com.example.memestorage.test.viewmodel.UserFriendshipViewModel
 import com.example.memestorage.utils.FileHelper
 import com.example.memestorage.utils.FileHelper.savePhotoIntoGallery
+import com.google.android.gms.tasks.OnCompleteListener
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.withContext
 import java.io.File
 class LocketActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLocketBinding
+    private lateinit var userFriendshipViewModel: UserFriendshipViewModel
+    private lateinit var userDiaryMediaViewModel: UserDiaryMediaViewModel
+    private lateinit var userFriendDiaryMediaViewModel: UserFriendDiaryMediaViewModel
+    private lateinit var userDiaryMediaAccessViewModel: UserDiaryMediaAccessViewModel
+    private lateinit var chooseFriendSeeDiaryAdapter: ChooseFriendSeeDiaryAdapter
 
     private lateinit var sketchViewModel: SketchViewModel
     private var videoCapture: VideoCapture<Recorder>? = null
@@ -57,6 +76,7 @@ class LocketActivity : AppCompatActivity() {
         ProcessCameraProvider.getInstance(this)
     }
     private var path = ""
+    private lateinit var selectedFriends: MutableList<String>  // List of selected friends' IDs
 
     private val recordingListener = Consumer<VideoRecordEvent> { event ->
         when (event) {
@@ -117,6 +137,7 @@ class LocketActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityLocketBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        selectedFriends = mutableListOf()
 
         binding.btnGoToTest.setOnClickListener {
             startActivity(Intent(this, TestActivity::class.java))
@@ -132,16 +153,135 @@ class LocketActivity : AppCompatActivity() {
         }
 
         setContentView(binding.root)
-        sketchViewModel = ViewModelProvider.AndroidViewModelFactory
-            .getInstance(application)
-            .create(SketchViewModel::class.java)
+        initViewModel()
         initView()
         initListener()
+        getFriendships()
+
     }
 
     private fun initView() {
         initVideoView()
         startCamera()
+    }
+
+    private fun initViewModel() {
+        sketchViewModel = ViewModelProvider.AndroidViewModelFactory
+            .getInstance(application)
+            .create(SketchViewModel::class.java)
+        userFriendshipViewModel = ViewModelProvider(this).get(UserFriendshipViewModel::class.java)
+        userDiaryMediaViewModel = ViewModelProvider(this).get(UserDiaryMediaViewModel::class.java)
+        userFriendDiaryMediaViewModel = ViewModelProvider(this).get(UserFriendDiaryMediaViewModel::class.java)
+        userDiaryMediaAccessViewModel = ViewModelProvider(this).get(UserDiaryMediaAccessViewModel::class.java)
+    }
+
+    private fun getFriendships() {
+        // Get all friendships and display in adapter (For demo purposes, assuming the userId is already set)
+        val userId = "YOUR_USER_ID_HERE" // Replace with your actual userId
+        userFriendshipViewModel.getUfByUser1Id(userId, OnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val friendships = mutableListOf<UserFriendshipModel>()
+                task.result?.forEach { document ->
+                    val friendship = document.toObject(UserFriendshipModel::class.java)
+                    friendships.add(friendship)
+                }
+
+                // Setup adapter
+                chooseFriendSeeDiaryAdapter = ChooseFriendSeeDiaryAdapter(friendships) { friend, isSelected ->
+                    // Handle selection
+                    handleFriendSelection(friend, isSelected)
+                }
+
+                binding.rvFriend.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+                binding.rvFriend.adapter = chooseFriendSeeDiaryAdapter
+            }
+        })
+    }
+
+
+    private fun uploadDiaryCloudinary() {
+        Log.d("TAG", "uploadDiaryCloudinary: ${Uri.parse(path)} va $path")
+        userDiaryMediaViewModel.uploadImageCloudinary(Uri.parse(path), applicationContext, object : UploadCallback {
+            override fun onStart(requestId: String) {
+                Log.d("TAG", "Upload started for request: $requestId")
+            }
+
+            override fun onProgress(requestId: String, bytes: Long, totalBytes: Long) {
+                Log.d("TAG", "Upload progress for request: $requestId - % ($bytes/$totalBytes bytes)")
+            }
+
+            override fun onSuccess(requestId: String, resultData: Map<*, *>) {
+                val mediaURL = resultData["secure_url"] as? String
+                uploadDiary(mediaURL!!) // Assuming uploadDiary takes the media URL as a parameter
+                Log.d("TAG", "Upload successful. video URL: $mediaURL")
+            }
+
+            override fun onError(requestId: String, error: ErrorInfo) {
+                Log.e("TAG", "Upload failed for request: $requestId with error: ${error.description}")
+            }
+
+            override fun onReschedule(requestId: String, error: ErrorInfo) {
+                Log.w("TAG", "Upload rescheduled for request: $requestId due to error: ${error.description}")
+            }
+        })
+    }
+    private fun uploadDiary(mediaURL: String) {
+
+    // Assuming diary content is provided
+        val diaryContent = "This is my new diary entry!" // Cập nhật với nội dung thực tế từ người dùng
+        val mediaURL = mediaURL  // Cập nhật URL media thực tế nếu có
+        val userId = "currentUserId" // Cập nhật với ID người dùng thực tế
+        val caption = "My first diary entry!" // Cập nhật với chú thích từ người dùng
+        val time = System.currentTimeMillis().toInt() // Lấy thời gian hiện tại (thời gian Unix)
+
+        // Tạo đối tượng UserDiaryMediaModel
+        val userDiaryMedia = UserDiaryMediaModel(
+            udmId = "uniqueId", // ID có thể tạo ra tự động hoặc lấy từ Firestore
+            mediaURL = mediaURL,
+            userId = userId,
+            caption = caption,
+            time = time
+        )
+
+    // Upload to UserDiaryMediaViewModel
+        userDiaryMediaViewModel.addUdmFirebase(userDiaryMedia, OnCompleteListener { task ->
+            if (task.isSuccessful) {
+                // Upload to UserFriendDiaryMediaViewModel for selected friends
+                selectedFriends.forEach { friendId ->
+                    val userFriendDiaryMedia = UserFriendDiaryMediaModel(
+                        ufdmId = "",  // Generate a unique ID
+                        userId = userId,
+                        time = System.currentTimeMillis().toString(),  // Assume you get this from somewhere
+                        userDiaryMediaId = userDiaryMedia.udmId
+                    )
+
+                    userFriendDiaryMediaViewModel.addUfdmByFriendshipId(userFriendDiaryMedia, friendId, OnCompleteListener { uploadTask ->
+                        if (uploadTask.isSuccessful) {
+                            // Upload access information
+                            val userDiaryMediaAccess = UserDiaryMediaAccessModel(
+                                udmaId = "uniqueAccessId",  // Generate a unique ID
+                                userDiaryMediaId = userDiaryMedia.udmId,
+                                userFriendId = friendId
+                            )
+
+                            userDiaryMediaAccessViewModel.addUdmaFirebase(userDiaryMediaAccess, OnCompleteListener {
+                                Toast.makeText(this, "Diary uploaded successfully!", Toast.LENGTH_SHORT).show()
+                            })
+                        }
+                    })
+                }
+            }
+        })
+    }
+
+
+    private fun handleFriendSelection(friend: UserFriendshipModel, isSelected: Boolean) {
+        // Add/remove selected friends to/from the list for uploading Diary
+        if (isSelected) {
+            // Add to selected list (this will be used for upload)
+        } else {
+            // Remove from selected list
+        }
     }
 
     private fun initVideoView() {
@@ -193,6 +333,10 @@ class LocketActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 e.printStackTrace()
             }
+        }
+
+        binding.btUploadDiary.setOnClickListener {
+            uploadDiaryCloudinary()
         }
     }
 
